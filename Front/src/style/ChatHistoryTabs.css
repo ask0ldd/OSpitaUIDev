@@ -1,0 +1,33 @@
+.tabBar {
+  display: flex;
+  column-gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.tabBar button {
+  height: 44px;
+  background: #fff;
+  border-radius: 4px 4px 0 0;
+  padding: 0 1.9rem;
+  color: #000000aa;
+  box-shadow: none;
+  font-weight: 500;
+  border: none;
+  transition: none;
+}
+
+.tabBar button.active {
+  border-radius: 4px 4px 0 0;
+  background: var(--green-button-bottom-color);
+  color: #fff;
+  box-shadow: 0 4px 8px #97e3f0, 0 12px 24px #97f0ec66;
+  text-shadow: none;
+}
+
+.tabBar button:hover,
+.tabBar button.active:hover {
+  background: linear-gradient(to bottom, #86e5ce, #75d8d8);
+  color: #fff;
+  text-shadow: 0 2px 2px #25665b44;
+  border-radius: 4px 4px 0 0;
+}

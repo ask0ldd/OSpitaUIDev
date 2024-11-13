@@ -1,0 +1,106 @@
+.chatHistorySection {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: var(--base-container-border-color);
+  margin-bottom: 0rem;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--base-container-border-color);
+  background: #f8fafb;
+}
+
+.modelDateContainer {
+  height: 2rem;
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  font-size: 13px;
+  padding: 0 1rem;
+  background: linear-gradient(to right, #ffffff, #ffffff);
+}
+
+.actorIcon {
+  border-radius: 100%;
+}
+
+.historyItem {
+  display: flex;
+  justify-content: space-between;
+  text-align: left;
+  padding: 1rem;
+  column-gap: 1rem;
+  width: 100%;
+  border-bottom: 1px dashed #a6b2d9cc;
+}
+
+.iconButton {
+  background: linear-gradient(to bottom, #ffffff, #f6f6f6);
+  box-shadow: 0 1px 2px #b3b8bb88, 0 4px 8px #b0c7daaa;
+  border-radius: 3px;
+  box-sizing: border-box;
+  height: 32px;
+  cursor: pointer;
+  opacity: 0.8;
+  border: 1px solid #fff;
+  width: 32px;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: none;
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.chatHistorySection::-webkit-scrollbar {
+  width: 16px;
+  background-color: #4d749434;
+}
+
+.chatHistorySection::-webkit-scrollbar-track {
+  border: 1px solid #1e292c66;
+  border-bottom: none;
+  border-top: none;
+  background-color: #e3eaf145;
+}
+
+.chatHistorySection::-webkit-scrollbar-thumb {
+  border: 1px solid #1e292c66;
+  background-color: #fff;
+  border-radius: 20px;
+  border-bottom: none;
+}
+
+.chatHistorySection::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #ffffffff, #f5faff);
+  cursor: pointer;
+}
+
+.WaitForRequestProcessingMessage {
+  height: 6rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 3px solid #6d48c1;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.loop-fade {
+  animation: fade 2s infinite; /* Adjust duration as needed */
+}

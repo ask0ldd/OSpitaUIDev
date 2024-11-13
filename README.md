@@ -1,0 +1,1 @@
+This repository is not a functional project. It is only here to host functionalities that are soon to be pushed to OSspita.

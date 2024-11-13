@@ -1,0 +1,84 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0px;
+  padding: 0px;
+  text-decoration: none;
+  list-style: none;
+  font-family: "Jost", sans-serif;
+}
+
+:root {
+  font-family: "Jost", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-size: 1rem;
+  box-sizing: border-box;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --purple-button-color: #6d48c1;
+  --purple-button-hover-background-color: #5d4794;
+  --purple-button-hover-border-color: #4d3e98;
+  --pink-gradient-button-color: #e552f1;
+  /*
+  linear-gradient(to right, #E552F100 0%, #E552F1FF 75%);
+  */
+
+  --purple-button-4-8-shadow: rgba(109, 72, 193, 0.28);
+  --purple-button-1-2-shadow: rgba(158, 141, 231, 0.6);
+  --purple-button-1-2-shadow-dark: rgba(0, 0, 0, 0.22);
+
+  --secondary-button-hover-color: #c9cfe8;
+  --secondary-button-border-hover-color: #b4bde0;
+  --secondary-button-hover-text-color: #707baf;
+  --secondary-button-hover-innershadow-color: #5967a6b3;
+
+  --light-purple-background-color: #d8d2f0;
+  --light-purple-border-color: #6d48c1;
+
+  --main-background-color: #e2e6f3;
+  --main-black-text-color: #252525;
+
+  --dotted-border-color: #a3a8db;
+
+  --input-background-color: #dee3ef;
+  --input-border-color: #bbc4e2;
+
+  --base-container-background-color: #e9ecf6;
+  --base-container-border-color: #cdd2ea;
+
+  --question-background-color: #e5e7f5;
+  --answer-background-color: #f7f9fd;
+
+  --label-grey-text-color: #8490b3ee;
+
+  color: var(--main-black-text-color);
+  background-color: var(--main-background-color);
+}
+
+html {
+  /*overflow-y: scroll;
+  overflow: -moz-scrollbars-vertical;*/
+  scrollbar-color: hsla(238, 30%, 72%, 1) hsla(238, 27%, 55%, 0.8);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+h3 {
+  margin-top: 0;
+}
