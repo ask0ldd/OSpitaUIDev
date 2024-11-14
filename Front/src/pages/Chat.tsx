@@ -30,6 +30,7 @@ import { ImageRepository } from "../repositories/ImageRepository";
 import AIAgentChain from "../models/AIAgentChain";
 import AnswerFormatingService from "../services/AnswerFormatingService";
 import InferenceStatsFormatingService from "../services/InferenceStatsFormatingService";
+import { send } from "vite";
 // import { TTSService } from "../services/TTSService";
 // import SpeechRecognitionService from "../services/SpeechRecognitionService";
 
@@ -209,10 +210,11 @@ function Chat() {
     // query the active chain
     async function sendRequestThroughActiveChain(query : string): Promise<void>{
         try{
+            if(AIAgentChain.isEmpty()) return
+
             // used to refresh chatHistory
             setIsStreaming(true)
             
-            if(AIAgentChain.isEmpty()) return
             dispatch({ 
                 type: ActionType.NEW_BLANK_HISTORY_ELEMENT, 
                 payload: { message : query, 
@@ -262,6 +264,7 @@ function Chat() {
         const retrievedQuestion = activeConversationStateRef.current.history[activeConversationStateRef.current.history.length-1].question
         ConversationsRepository.updateConversationHistoryById(activeConversationId.value, activeConversationStateRef.current.history.slice(0, -1))
         dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
+        if(activeMenuItem == "chain") return sendRequestThroughActiveChain(retrievedQuestion)
         askMainAgent_Streaming(retrievedQuestion)
     }
 
