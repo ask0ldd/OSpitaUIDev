@@ -7,18 +7,21 @@ const mockConversationsList : IConversation[] =
             history : [],
             lastAgentUsed : "mockAgent",
             lastModelUsed : "mockModel",
+            images : []
         },
         {
             name : "3rd Conversation",
             history : [],
             lastAgentUsed : "mockAgent",
             lastModelUsed : "mockModel",
+            images : []
         },
         {
             name : "4th Conversation",
             history : [],
             lastAgentUsed : "mockAgent",
             lastModelUsed : "mockModel",
+            images : []
         },
     ]
 

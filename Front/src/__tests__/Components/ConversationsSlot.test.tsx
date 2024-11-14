@@ -36,6 +36,7 @@ const mockFirstConversation =
     history : [],
     lastAgentUsed : "mockAgent",
     lastModelUsed : "mockModel",
+    images : []
 }
 
 describe('Given I am on the Chat page', () => {
