@@ -1,1 +1,1 @@
-This repository is not a functional project. It is only here to host functionalities that are soon to be pushed to OSspita.
+This repository is not a functional project. It only serves as a way to host functionalities that are soon to be pushed to OSspita.
