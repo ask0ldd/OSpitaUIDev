@@ -1,5 +1,6 @@
 import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/react/dont-cleanup-after-each'
+import { userEvent } from '@testing-library/user-event'
 import Chat from '../../pages/Chat';
 import { OllamaService } from '../../services/OllamaService';
 import AgentService from '../../services/API/AgentService';
@@ -13,6 +14,8 @@ import mockRAGDocumentsList from '../../__mocks__/mockRAGDocumentsList';
 import PromptService from '../../services/API/PromptService';
 import mockPromptsList from '../../__mocks__/mockPromptsList';
 import mockRunningModelsInfos from '../../__mocks__/mockRunningModelsInfos';
+import AIAgentChain from '../../models/AIAgentChain';
+import mockLLMResponse from '../../__mocks__/mockLLMResponse';
 
 const MockedRouter = () => (
     <MemoryRouter>
@@ -27,6 +30,7 @@ const mockVoices = [
 
 describe('Given I am on the Chat page', () => {
     beforeEach(() => {
+        vi.resetAllMocks()
         HTMLDialogElement.prototype.show = vi.fn()
         HTMLDialogElement.prototype.showModal = vi.fn()
         HTMLDialogElement.prototype.close = vi.fn()
@@ -34,6 +38,7 @@ describe('Given I am on the Chat page', () => {
         vi.spyOn(OllamaService, 'getRunningModelInfos').mockResolvedValue(mockRunningModelsInfos)
         vi.spyOn(AgentService, 'getAll').mockResolvedValue(mockAgentsList)
         vi.spyOn(AgentService, 'getAgentByName').mockResolvedValue(mockAgentsList[0])
+        vi.spyOn(AIAgentChain, 'process').mockResolvedValue(mockLLMResponse)
         vi.spyOn(DocService, 'getAll').mockResolvedValue(mockRAGDocumentsList)
         vi.spyOn(PromptService, 'getAll').mockResolvedValue(mockPromptsList)
         vi.stubGlobal('speechSynthesis', {
@@ -43,7 +48,7 @@ describe('Given I am on the Chat page', () => {
     });
 
     afterEach(() => {
-        vi.resetAllMocks()
+        vi.restoreAllMocks()
         cleanup()
     })
 
@@ -55,6 +60,11 @@ describe('Given I am on the Chat page', () => {
         expect(screen.getByText(mockRAGDocumentsList[0].filename)).toBeInTheDocument()
         expect(screen.getByText(mockRAGDocumentsList[1].filename)).toBeInTheDocument()
         expect(screen.getByText(mockRAGDocumentsList[2].filename)).toBeInTheDocument()
+        expect(screen.getByText(/DOCUMENTS/i)).toBeInTheDocument()
+        expect(screen.getByText(/CONVERSATIONS/i)).toBeInTheDocument()
+        expect(screen.getByText(/PROMPTS/i)).toBeInTheDocument()
+        expect(screen.getByTitle(/Query processed by one single Agent/i)).toBeInTheDocument()
+        expect(screen.getByTitle(/Query processed by a chain of Agents/i)).toBeInTheDocument()
     })
 
     test('Web search can be activated', async () => {
@@ -66,6 +76,61 @@ describe('Given I am on the Chat page', () => {
         await waitFor(() => expect(webSearchButton.className.includes("activated")).toBeTruthy())
         // testing switch
         await waitFor(() => expect(webSearchButton.children[1].children[0].className.includes("active")).toBeTruthy())
+    })
+
+    test('Then I should be able to add some agents to the chain', async () => {
+        await waitFor(() => expect(screen.getByText(/OSSPITA FOR/i)).toBeInTheDocument())
+        const chainButton = screen.getByTitle(/Query processed by a chain of Agents/i)
+        expect(chainButton).toBeInTheDocument()
+        act(() => chainButton.click())
+        await waitFor(() => expect(screen.getByText(/CURRENT CHAIN/i)).toBeInTheDocument())
+        const addAgentButton = screen.getByText('+ Add Agent')
+        expect(addAgentButton).toBeInTheDocument()
+        act(() => addAgentButton.click())
+        await waitFor(() => expect(screen.getByText(/baseAssistant/i)).toBeInTheDocument())
+    })
+
+    test('When sending a query through the active AIChain, the expected response should be displayed', async () => {
+        await waitFor(() => expect(screen.getByText(/OSSPITA FOR/i)).toBeInTheDocument())
+        const chainButton = screen.getByTitle(/Query processed by a chain of Agents/i)
+        expect(chainButton).toBeInTheDocument()
+        act(() => chainButton.click())
+        await waitFor(() => expect(screen.getByText(/CURRENT CHAIN/i)).toBeInTheDocument())
+        const mainSendButton = ((screen.getByText(/(to Chain)/i) as HTMLSpanElement).parentElement as HTMLButtonElement)
+        expect(mainSendButton).toBeInTheDocument()
+        const addAgentButton = screen.getByText('+ Add Agent')
+        expect(addAgentButton).toBeInTheDocument()
+        act(() => addAgentButton.click())
+        await waitFor(() => expect(screen.getByText(/baseAssistant/i)).toBeInTheDocument())
+        const textArea = (screen.getAllByRole("textbox").filter((el) => el.getAttribute('id') === 'mainTextArea')[0] as HTMLTextAreaElement)
+        expect(textArea).toBeInTheDocument()
+        await userEvent.type(textArea, 'here is my query');
+        await waitFor(() => expect(screen.getByText(/here is my query/i)).toBeInTheDocument())
+        act(() => mainSendButton.click())
+        await waitFor(() => expect(AIAgentChain.process).toHaveBeenCalledWith('here is my query'))
+        await waitFor(() => expect(screen.getByText(/here is my mock response/i)).toBeInTheDocument())
+    })
+
+    test('When sending a query through the active AIChain and a failure happens amidst the process', async () => {
+        vi.spyOn(AIAgentChain, 'process').mockRejectedValueOnce(new Error('Error processing query'))
+        await waitFor(() => expect(screen.getByText(/OSSPITA FOR/i)).toBeInTheDocument())
+        const chainButton = screen.getByTitle(/Query processed by a chain of Agents/i)
+        expect(chainButton).toBeInTheDocument()
+        act(() => chainButton.click())
+        await waitFor(() => expect(screen.getByText(/CURRENT CHAIN/i)).toBeInTheDocument())
+        const mainSendButton = ((screen.getByText(/(to Chain)/i) as HTMLSpanElement).parentElement as HTMLButtonElement)
+        expect(mainSendButton).toBeInTheDocument()
+        const addAgentButton = screen.getByText('+ Add Agent')
+        expect(addAgentButton).toBeInTheDocument()
+        act(() => addAgentButton.click())
+        await waitFor(() => expect(screen.getByText(/baseAssistant/i)).toBeInTheDocument())
+        const textArea = (screen.getAllByRole("textbox").filter((el) => el.getAttribute('id') === 'mainTextArea')[0] as HTMLTextAreaElement)
+        expect(textArea).toBeInTheDocument()
+        await userEvent.type(textArea, 'here is my query');
+        await waitFor(() => expect(screen.getAllByText(/here is my query/i)[0]).toBeInTheDocument())
+        act(() => mainSendButton.click())
+        await waitFor(() => expect(AIAgentChain.process).toHaveBeenCalledWith('here is my query'))
+        await waitFor(() => expect(screen.getByText(/Stream failed/i)).toBeInTheDocument())
     })
 
 })

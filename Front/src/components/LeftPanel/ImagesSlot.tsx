@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useRef, useState } from "react"
+import { useState } from "react"
 import { ImageRepository, Image } from "../../repositories/ImageRepository";
 
 function ImagesSlot(){
@@ -27,6 +27,8 @@ function ImagesSlot(){
       reader.readAsDataURL(file);
     }
   }
+
+  return(<></>)
 
   return(
   <article style={{marginTop:'0.75rem'}}>
