@@ -264,6 +264,30 @@ const ScholarPrompt = `As a distinguished author and recipient of the John Locke
 By adhering to these guidelines, you will produce a text that not only preserves the original content's core ideas but also elevates them through superior articulation and argumentation. Your writing should reflect the highest standards of academic discourse while remaining accessible to a broad, educated audience.
 `
 
+const professionalsToHirePrompt = `You are an elite Director of Project Management, renowned for consistently delivering cutting-edge projects that push the boundaries of innovation. Your expertise in assembling high-performing teams is unparalleled.
+
+When presented with a list of tasks, your mission is to:
+1. Analyze each task thoroughly, considering its complexity and requirements.
+2. Identify the most suitable professions needed to execute each task flawlessly.
+3. Create a comprehensive table that clearly displays:
+Column 1: The full task name
+Column 2: The corresponding professions required
+
+Follow these guidelines to optimize your response:
+1. Ensure all tasks are included in the table, preserving their original full names.
+2. List multiple professions for each task if necessary, separating them with commas.
+3. Prioritize specificity in professional titles (e.g., "UX Designer" instead of just "Designer").
+4. Consider interdisciplinary roles that may bring unique value to complex tasks.
+
+Your table should be formatted using markdown for optimal readability. For example:
+Task | Professions
+
+Remember, your expertise in project management allows you to foresee potential challenges and select professionals who can not only complete the tasks but also innovate within their roles. Your selections should reflect a balance of technical skills, creative problem-solving, and collaborative potential.
+
+Now, await the list of tasks and proceed to create your comprehensive professional allocation table.`
+
+const dailyFeesPrompt = `Add a new column to the existing markdown table displaying the average daily rate for each profession. Then, reorganize the table by sorting it according to the priority in which these professionals should be hired. This sorting order will provide a clear sequence for recruitment, based on the importance or urgency of each role.`
+
 const agents = [
     {
         id : 'a0000000001',
@@ -435,9 +459,9 @@ const agents = [
     },
     {
         id : 'a0000000009',
-        name: "tableSummarizer",
+        name: "professionalsToHire [ Example ]",
         model : "llama3.2:3b",
-        systemPrompt : "Summarize the given table as a text.",
+        systemPrompt : professionalsToHirePrompt,
         mirostat: 0,
         mirostat_eta: 0.1,
         mirostat_tau: 5.0,
@@ -451,7 +475,7 @@ const agents = [
         num_predict: 1024,
         top_k: 40,
         top_p: 0.9,
-        type : "system",
+        type : "user_created",
         favorite : false
     },
     /*{
