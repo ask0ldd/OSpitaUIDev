@@ -5,7 +5,7 @@ import useFetchDocsList from "../../hooks/useFetchDocsList";
 import { ChatService } from "../../services/ChatService";
 import DocService from "../../services/API/DocService";
 
-export default function DocumentsSlot({isWebSearchActivated, setWebSearchActivated, memoizedSetModalStatus} : IProps){
+export default function DocumentsSlot({isWebSearchActivated, setWebSearchActivated, memoizedSetModalStatus, active} : IProps){
 
     // const RAGDocuments = DocumentsRepository.getDocuments().slice(0,6)
 
@@ -169,6 +169,12 @@ export default function DocumentsSlot({isWebSearchActivated, setWebSearchActivat
             </article>
     )
 
+    if(active == false) return(
+        <article style={{marginTop:'0.75rem'}}>
+          <h3>IMAGES<span className='nPages' style={{color:"#232323", fontWeight:'500'}}>open</span></h3>
+        </article>
+    )
+
     function getFilteredDocs() : IRAGDocument[]{
         return docsListRef.current.filter(document => document.filename.toLowerCase().includes(documentsSearchTerm.toLowerCase()))
     }
@@ -187,4 +193,5 @@ interface IProps{
     isWebSearchActivated : boolean
     setWebSearchActivated: (value: boolean) => void
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId : string}) => void
+    active : boolean
 }

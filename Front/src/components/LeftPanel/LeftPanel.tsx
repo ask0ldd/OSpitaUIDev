@@ -4,7 +4,7 @@ import ollama from '../../assets/Ollama3.png'
 import DocumentsSlot from './DocumentsSlot'
 import { ConversationsSlot } from './ConversationsSlot'
 import { PromptsSlot } from './PromptsSlot'
-import React from 'react'
+import React, { useState } from 'react'
 import { IConversation } from '../../interfaces/IConversation'
 import { TAction } from '../../hooks/useActiveConversationReducer'
 import ImagesSlot from './ImagesSlot'
@@ -24,12 +24,14 @@ const LeftPanel = React.memo(({isWebSearchActivated, setWebSearchActivated, acti
         refreshConversationsSlot()
     }, [activeConversationStateRef])*/
 
+    const [activeSlot, setActiveSlot] = useState<"documents" | "images">("documents")
+
     return(
         <aside className="leftDrawer">
             <figure style={{cursor:'pointer'}} onClick={() => location.reload()}><span>OSSPITA FOR</span> <img src={ollama}/></figure>
             <ConversationsSlot activeConversationId={activeConversationId} setActiveConversationId={setActiveConversationId} dispatch={dispatch}/>
-            <DocumentsSlot isWebSearchActivated={isWebSearchActivated} setWebSearchActivated={setWebSearchActivated} memoizedSetModalStatus={memoizedSetModalStatus}/>
-            <ImagesSlot/>
+            <DocumentsSlot active={activeSlot == "documents"} isWebSearchActivated={isWebSearchActivated} setWebSearchActivated={setWebSearchActivated} memoizedSetModalStatus={memoizedSetModalStatus}/>
+            {/*<ImagesSlot active={false}/>*/}
             <PromptsSlot selectedPromptNameRef={selectedPromptNameRef} memoizedSetModalStatus={memoizedSetModalStatus}/>
         </aside>
     )

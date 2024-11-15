@@ -2,7 +2,7 @@
 import { useState } from "react"
 import { ImageRepository, Image } from "../../repositories/ImageRepository";
 
-function ImagesSlot(){
+function ImagesSlot({active} : IProps){
 
   const [images, setImages] = useState<Image[]>([])
 
@@ -28,7 +28,11 @@ function ImagesSlot(){
     }
   }
 
-  return(<></>)
+  if(active == false) return(
+    <article style={{marginTop:'0.75rem'}}>
+      <h3>IMAGES<span className='nPages' style={{color:"#232323", fontWeight:'500'}}>open</span></h3>
+    </article>
+  )
 
   return(
   <article style={{marginTop:'0.75rem'}}>
@@ -41,3 +45,7 @@ function ImagesSlot(){
 }
 
 export default ImagesSlot
+
+interface IProps{
+  active : boolean
+}
