@@ -44,9 +44,13 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
         }
     }, [AIAgentsList])
 
+    // refresh the agents within the chain in case some of them have been modified
+    // when the chain tab was inactive
     useEffect(() => {
-        AIAgentChain.empty()
-        setCurrentChain([])
+        async function refreshAgents () {
+            await AIAgentChain.refreshAgents()
+        }
+        refreshAgents()
     }, [activeMenuItem])
     
     const [showSavingSuccessfulBtn, setShowSavingSuccessfulBtn] = useState<boolean>(false)
