@@ -172,8 +172,8 @@ function Chat() {
                         question : ragContext + query, 
                         chunkProcessorCallback : onStreamedChunkReceived_Callback, 
                         context : ragContext == "" ? currentContext : [], 
-                        images : ImageRepository.getImagesAsBase64()}
-                    )
+                        images : ImageRepository.getImagesAsBase64()
+                    })
                 newContext = finalDatas.newContext
                 inferenceStats = finalDatas.inferenceStats
             }
@@ -234,8 +234,10 @@ function Chat() {
             return
         }catch (error : unknown) {
             dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
+            AIAgentChain.abortProcess()
             console.error(error)
             showErrorModal("Stream failed : " + error)
+            setIsStreaming(false)
         }
     }
 
@@ -290,6 +292,7 @@ function Chat() {
     function handleAbortStreamingClick() {
         ChatService.abortAgentLastRequest()
         if(isWebSearchActivatedRef.current) WebSearchService.abortLastRequest()
+        AIAgentChain.abortProcess()
     }
 
     function handleCustomTextareaFocus() {
