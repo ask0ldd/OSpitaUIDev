@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ICompletionResponse } from "../interfaces/responses/ICompletionResponse";
+import AgentService from "../services/API/AgentService";
 import { AIAgent } from "./AIAgent";
 
 // chain of responsability design pattern
@@ -13,6 +14,17 @@ export default class AIAgentChain{
 
     static updateAgentsList(agents : AIAgent[]){
         this.agents = agents;
+    }
+
+    static async refreshAgents(){
+        const retrievedAgentsList = await AgentService.getAll()
+        if(retrievedAgentsList == null) return this.agents = []
+        const newAgents = this.agents.map(agent => {
+            let updatedAgentJSON = retrievedAgentsList.find(retrievedAgent => retrievedAgent.name == agent.getName())
+            if(updatedAgentJSON == null) updatedAgentJSON = retrievedAgentsList[0]
+            return new AIAgent({...updatedAgentJSON, modelName : updatedAgentJSON.model})
+        })
+        this.agents = [...newAgents.filter(agent => agent != null)]
     }
 
     static getAgentsList() : AIAgent[]{
@@ -32,11 +44,16 @@ export default class AIAgentChain{
     }
 
     static async process(query : string) : Promise<ICompletionResponse>{
-        console.log("starting chain process")
-        this.buildLinks()
-        const result = await this.agents[0].update(query)
-        // console.log(result)
-        return result
+        try{
+            console.log("starting chain process")
+            this.buildLinks()
+            const result = await this.agents[0].update(query)
+            // console.log(result)
+            return result
+        }catch(error){
+            console.error(error)
+            throw error
+        }
     }
 
     static buildLinks(){
@@ -46,5 +63,9 @@ export default class AIAgentChain{
                 agent.addObserver(this.agents[index + 1])
             }  
         })
+    }
+
+    static abortProcess() : void {
+        this.agents.forEach(agent => agent.abortLastRequest())
     }
 }
