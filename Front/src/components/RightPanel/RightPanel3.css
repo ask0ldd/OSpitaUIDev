@@ -486,33 +486,22 @@
       column-gap: 0.5rem;
       width: 100%;
 
-      button {
+      button,
+      .lockedButton {
         width: 40px;
         flex: 0 0 40px;
         height: 40px;
-        /*border: 2px solid #6d48c1;
-        background: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
 
-        &.white {
-          background: #f8f8fc99;
-          box-shadow: 0 1px 2px -1px hsla(252, 29%, 53%, 0.3),
-            0 4px 8px -1px hsla(246, 29%, 52%, 0.21);
-
-          &:hover {
-            background: var(--secondary-button-hover-color);
-            box-shadow: inset 0 1px 2px
-                var(--secondary-button-hover-innershadow-color),
-              0 2px 0px #fff;
-            outline: 1px solid var(--secondary-button-border-hover-color);
-            border: none;
-            color: var(--main-black-text-color);
-            text-shadow: #ffffffff;
-
-            svg path {
-              fill: #707baf;
-            }
-          }
-        }*/
+      .lockedButton {
+        background: #f8f8fc99;
+        box-shadow: 0 1px 2px -1px hsla(252, 29%, 53%, 0.3),
+          0 4px 8px -1px hsla(246, 29%, 52%, 0.21);
+        border-radius: 4px;
+        animation: fadeInOut 2s ease-in-out infinite;
       }
     }
 
@@ -566,4 +555,8 @@
   50% {
     opacity: 1;
   }
+}
+
+.fadeAnim {
+  animation: fadeInOut 2s ease-in-out infinite;
 }
