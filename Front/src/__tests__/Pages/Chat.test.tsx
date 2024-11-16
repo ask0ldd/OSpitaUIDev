@@ -87,7 +87,7 @@ describe('Given I am on the Chat page', () => {
         const addAgentButton = screen.getByText('+ Add Agent')
         expect(addAgentButton).toBeInTheDocument()
         act(() => addAgentButton.click())
-        await waitFor(() => expect(screen.getByText(/baseAssistant/i)).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByText(/COTTableGenerator/i)).toBeInTheDocument())
     })
 
     test('When sending a query through the active AIChain, the expected response should be displayed', async () => {
@@ -101,7 +101,7 @@ describe('Given I am on the Chat page', () => {
         const addAgentButton = screen.getByText('+ Add Agent')
         expect(addAgentButton).toBeInTheDocument()
         act(() => addAgentButton.click())
-        await waitFor(() => expect(screen.getByText(/baseAssistant/i)).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByText(/COTTableGenerator/i)).toBeInTheDocument())
         const textArea = (screen.getAllByRole("textbox").filter((el) => el.getAttribute('id') === 'mainTextArea')[0] as HTMLTextAreaElement)
         expect(textArea).toBeInTheDocument()
         await userEvent.type(textArea, 'here is my query');
@@ -123,7 +123,7 @@ describe('Given I am on the Chat page', () => {
         const addAgentButton = screen.getByText('+ Add Agent')
         expect(addAgentButton).toBeInTheDocument()
         act(() => addAgentButton.click())
-        await waitFor(() => expect(screen.getByText(/baseAssistant/i)).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByText(/COTTableGenerator/i)).toBeInTheDocument())
         const textArea = (screen.getAllByRole("textbox").filter((el) => el.getAttribute('id') === 'mainTextArea')[0] as HTMLTextAreaElement)
         expect(textArea).toBeInTheDocument()
         await userEvent.type(textArea, 'here is my query');

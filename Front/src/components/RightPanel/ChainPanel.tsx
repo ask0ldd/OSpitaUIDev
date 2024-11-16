@@ -26,7 +26,8 @@ function ChainPanel({handleMenuItemClick, AIAgentsList,  currentChain, setCurren
                 <div className="chainSelectDeleteContainer">
                     <Select 
                         width="100%"
-                        options={AIAgentsList.map((agent) => ({ label: agent.getName() + (agent.getType() == 'system' ? ` [ Core ]`: ""), value: agent.getName() }))} 
+                        options={AIAgentsList.filter(agent => agent.getType() != "system" || agent.getName().includes("COTTableGenerator"))
+                            .map((agent) => ({ label: agent.getName() + (agent.getType() == 'system' ? ` [ Core ]`: ""), value: agent.getName() }))} 
                         defaultOption={link.agentName}
                         id={"chainAgent" + index}
                         onValueChange={handleSwitchChainAgent}

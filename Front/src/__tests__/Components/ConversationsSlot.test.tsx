@@ -93,24 +93,24 @@ describe('Given I am on the Chat page', () => {
         await waitFor(() => expect(screen.getByText(/First Conversation/i)).toBeInTheDocument())
         const newConversationButton = screen.getAllByTitle("new conversation")[0]
         act(() => newConversationButton.click())
-        await waitFor(() => expect(screen.getByText(/no_name/i)).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByText(/New Conversation/i)).toBeInTheDocument())
     })
 
     test('Delete conversation button is working', async () => {
         await waitFor(() => expect(screen.getByText(/First Conversation/i)).toBeInTheDocument())
         const newConversationButton = screen.getAllByTitle("new conversation")[0]
         act(() => newConversationButton.click())
-        await waitFor(() => expect(screen.getByText(/no_name/i)).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByText(/New Conversation/i)).toBeInTheDocument())
         const deleteConversationButton = screen.getAllByTitle("delete conversation")[0]
         act(() => deleteConversationButton.click())
-        await waitFor(() => expect(screen.queryByText(/no_name/i)).not.toBeInTheDocument())
+        await waitFor(() => expect(screen.queryByText(/New Conversation/i)).not.toBeInTheDocument())
     })
 
     test('When all the existing conversations are deleted, a blank conversation is created', async () => {
         await waitFor(() => expect(screen.getByText(/First Conversation/i)).toBeInTheDocument())
         const newConversationButton = screen.getAllByTitle("new conversation")[0]
         act(() => newConversationButton.click())
-        await waitFor(() => expect(screen.getByText(/no_name/i)).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByText(/New Conversation/i)).toBeInTheDocument())
         let deleteConversationButton = screen.getAllByTitle("delete conversation")[0]
         act(() => deleteConversationButton.click())
         deleteConversationButton = screen.getAllByTitle("delete conversation")[0]
@@ -121,7 +121,7 @@ describe('Given I am on the Chat page', () => {
         act(() => deleteConversationButton.click())
         deleteConversationButton = screen.getAllByTitle("delete conversation")[0]
         act(() => deleteConversationButton.click())
-        await waitFor(() => expect(screen.queryByText(/no_name/i)).not.toBeInTheDocument())
+        await waitFor(() => expect(screen.queryByText(/New Conversation/i)).not.toBeInTheDocument())
     })
 
     test('Switching conversation', async () => {
