@@ -30,7 +30,7 @@ import { ImageRepository } from "../repositories/ImageRepository";
 import AIAgentChain from "../models/AIAgentChain";
 import AnswerFormatingService from "../services/AnswerFormatingService";
 import InferenceStatsFormatingService from "../services/InferenceStatsFormatingService";
-import { send } from "vite";
+import { FormSelectChainAgent } from "../components/Modal/FormSelectChainAgent";
 // import { TTSService } from "../services/TTSService";
 // import SpeechRecognitionService from "../services/SpeechRecognitionService";
 
@@ -145,8 +145,8 @@ function Chat() {
                 console.log("***Web Search***")
                 const scrapedPages = await WebSearchService.scrapeRelatedDatas({query, maxPages : 3})
                 if(scrapedPages == null) {
-                    showErrorModal("No results found for your query")
-                    return // !!! cancel the QA pair
+                    // showErrorModal("No results found for your query")
+                    throw new Error("No results found for your query")
                 }
                 console.log("***LLM Loading***")
                 // format YYYY/MM/DD
@@ -210,6 +210,7 @@ function Chat() {
     // query the active chain
     async function sendRequestThroughActiveChain(query : string): Promise<void>{
         try{
+            if (query == "") return
             if(AIAgentChain.isEmpty()) return
 
             // used to refresh chatHistory
@@ -222,6 +223,7 @@ function Chat() {
                 modelUsed : AIAgentChain.getLastAgent().getModelName(),}
             })
             const response = await AIAgentChain.process(query)
+            if(response == null) throw new Error("The chain failed to produce a response")
             dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, payload : {html : await AnswerFormatingService.format(response.response), markdown : response.response}})
             if(textareaValueRef.current == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
             const stats = InferenceStatsFormatingService.extractStats(response)
@@ -394,6 +396,7 @@ function Chat() {
                     'formEditPrompt' : <FormPromptSettings role={"edit"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef}/>,
                     'formNewPrompt' : <FormPromptSettings role={"create"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus}/>,
                     'formUploadFile' : <FormUploadFile setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus}/>,
+                    'formSelectChainAgent' : <FormSelectChainAgent memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList}/>,
                     'error' : <ErrorAlert errorMessage={errorMessageRef.current}/>,
                 } [modalContentId]}
             </Modal>
