@@ -2,16 +2,18 @@
 /* eslint-disable no-unused-private-class-members */
 import { IAIModelParams } from "../interfaces/params/IAIModelParams.js"
 import { ICompletionResponse } from "../interfaces/responses/ICompletionResponse.js"
+import { ProgressTracker } from "./AIAgentChain.js"
 import { AIModel } from "./AIModel.js"
+import { Observer } from "./Observer.js"
 
-export class AIAgent extends AIModel {
+export class AIAgent extends AIModel implements Observer {
 
     #id : string
     #name : string
     #type : 'system' | 'user_created'
     #favorite : boolean
     #webSearchEconomy: boolean = false
-    #observers : AIAgent[] = []
+    #observers : (AIAgent | ProgressTracker)[] = []
 
     constructor({
         id,
@@ -153,26 +155,36 @@ export class AIAgent extends AIModel {
         })
     }
 
-    // Observer methods
-    async update(data : string) : Promise<ICompletionResponse> {
-        const response = await this.ask(data)
-        console.log(response.response)
-        // if there is no observer listening to this agent
-        if(this.#observers.length == 0) return response
-        // if there is an observer
-        return this.#observers[0].update(response.response)
+    // Observer methods / observer[0] -> AIAgent, observer[1] -> ProgressTracker
+    async update(data : string) : Promise<ICompletionResponse | undefined> {
+        try{
+            const response = await this.ask(data)
+            // if there is no observer listening to this agent (last agent of the chain)
+            if(this.#observers.length < 1) return response
+            // if there is at least an observer
+            return this.notifyObservers(response)
+        }catch(error){
+            console.error(error)
+            throw error
+        }
     }
 
-    addObserver(observer : AIAgent ) {
+    addObserver(observer : AIAgent | ProgressTracker ) {
         this.#observers.push(observer);
     }
 
-    notifyObservers(data : string) {
-        this.#observers.forEach(observer => observer.update(data));
+    // notify the next agent in the chain
+    // & the chainProgressTracker
+    notifyObservers(response : ICompletionResponse) {
+        this.#observers.forEach(observer => {
+            if(observer instanceof ProgressTracker) observer.update(response)
+        })
+        for(const observer of this.#observers){
+            if(observer instanceof AIAgent) return observer.update(response.response)
+        }
+        return undefined
     }
 }
-
-// should be able to link a control agent
 
 export interface IAIAgentParams{
     name : string
