@@ -9,7 +9,7 @@ import { SelectContext } from './contexts/SelectContext'
  * @return ( <SelectComboBox/> )
  */
 // MEMO : forwardRef
-const ComboBox = (() => {
+const ComboBox = (({overrideOnClickEvent} : {overrideOnClickEvent ?: () => void}) => {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [comboboxFocus, setComboboxFocus] = useState(false) // just to force the refresh of the component when getting in or out focus
@@ -38,7 +38,8 @@ const ComboBox = (() => {
     return(
         <span style={comboboxFocus ? comboboxFocusStyle : comboboxStyle} 
             onFocus={()=> {setComboboxFocus(true);}} onBlur={() => {listbox.setAsExpanded(false); setComboboxFocus(false);}} 
-            onMouseDown={() => {listbox.setAsExpanded(!listbox.isExpanded)}} 
+            onMouseUp={overrideOnClickEvent && overrideOnClickEvent}
+            onMouseDown={overrideOnClickEvent ? () => {} : () => {listbox.setAsExpanded(!listbox.isExpanded)}} 
             tabIndex={0} aria-controls="customListbox" id={id} role="combobox" 
             aria-haspopup="listbox" aria-activedescendant={activeOption.get().value} aria-labelledby={labelledBy}
             aria-expanded={listbox.isExpanded} className={listbox.isExpanded ? "selectLabel selectLabel-active" : "selectLabel"}

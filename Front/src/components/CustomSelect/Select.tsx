@@ -21,7 +21,7 @@ import { basePreset } from './presets/basePreset'
  * @param {function} props.onValueChange - Function triggered when selecting a new option.
  * @return ( <Select formGroupState={formGroupState} options={options} selectId={selectId} labelledBy={labelledBy} onValueChange={onValueChange}/> )
  */
-function Select({ options, id, labelledBy, defaultOption, onValueChange, preset, width } : IProps){ // should be able to pass the id of the element labelling the select
+function Select({ options, id, labelledBy, defaultOption, onValueChange, preset, width, overrideOnClickEvent } : IProps){ // should be able to pass the id of the element labelling the select
 
     // !!! should verify no duplicates in options
 
@@ -72,7 +72,7 @@ function Select({ options, id, labelledBy, defaultOption, onValueChange, preset,
                 listbox : { isExpanded : isListboxExpanded, setAsExpanded : setListboxAsExpanded},
                 preset : currentPreset
             }}>
-                <ComboBox/>
+                {overrideOnClickEvent ? <ComboBox overrideOnClickEvent={overrideOnClickEvent}/> : <ComboBox/>}
                 <OptionsList/>
             </SelectContext.Provider>
         </div>
@@ -95,4 +95,5 @@ interface IProps{
     onValueChange ?: (activeOption : IOption, id : string) => unknown
     preset ?: ISelectPreset
     width ?: string | number
+    overrideOnClickEvent ?: () => void
 }
