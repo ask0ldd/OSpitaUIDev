@@ -170,7 +170,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
         </article>
     </aside>)
 
-    if(activeMenuItem == "chain") return(<ChainPanel handleMenuItemClick={handleMenuItemClick} AIAgentsList={AIAgentsList} currentChain={currentChain} setCurrentChain={setCurrentChain} isStreaming={isStreaming}/>)
+    if(activeMenuItem == "chain") return(<ChainPanel handleMenuItemClick={handleMenuItemClick} AIAgentsList={AIAgentsList} currentChain={currentChain} setCurrentChain={setCurrentChain} isStreaming={isStreaming} memoizedSetModalStatus={memoizedSetModalStatus}/>)
 
     return(
         <aside className="rightDrawer">
