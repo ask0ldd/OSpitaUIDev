@@ -6,11 +6,11 @@ function CustomRouter() {
 
     return (
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Installation />} />
-            <Route path="/chat" element={<Chat/>} />
-            <Route path="*" element={<Installation />} />
-          </Routes>
+            <Routes>
+              <Route path="/" element={<Installation />} />
+              <Route path="/chat" element={<Chat/>} />
+              <Route path="*" element={<Installation />} />
+            </Routes>
         </BrowserRouter>
       );
   }
