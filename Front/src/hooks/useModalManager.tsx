@@ -30,6 +30,9 @@ function useModalManager({initialVisibility, initialModalContentId} : IModalObje
                 e.stopPropagation(); 
                 setModalVisibility(false)
             }
+            if (e.key === 'Enter' && modalVisibility) {
+                e.preventDefault();
+            }
         }
 
         window.addEventListener('keydown', keyboardListener)

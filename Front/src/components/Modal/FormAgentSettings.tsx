@@ -168,8 +168,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
     }
 
     return (
-        <form className="agentForm">
-
+        <form className="agentForm" onSubmit={() => false}>
             <div className="labelErrorContainer">
                 <label id="labelAgentName" style={{marginTop:0}} className="formLabel">Agent Name</label>
                 {(error != "" && error.includes("Agent name")) && <span className="errorMessage">{error}</span>}
