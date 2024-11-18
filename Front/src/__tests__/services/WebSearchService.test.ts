@@ -59,7 +59,16 @@ const mockOptimizerRequest = {
     "options": { 
         "num_ctx": mockAgentsList[0].num_ctx,
         "temperature" : mockAgentsList[0].temperature, 
-        "num_predict" : mockAgentsList[0].num_predict 
+        "num_predict" : mockAgentsList[0].num_predict,
+        "mirostat": 0,
+        "mirostat_eta": 0.1,
+        "mirostat_tau": 5.0,
+        "repeat_last_n": 64,
+        "repeat_penalty": 1.1,
+        "seed": 0,
+        "tfs_z": 1,
+        "top_k": 40,
+        "top_p": 0.9,
     }   
 }
 
@@ -75,7 +84,16 @@ const mockSummarizerRequest = {
     "options": { 
         "num_ctx": mockAgentsList[0].num_ctx,
         "temperature" : mockAgentsList[0].temperature, 
-        "num_predict" : mockAgentsList[0].num_predict 
+        "num_predict" : mockAgentsList[0].num_predict,
+        "mirostat": 0,
+        "mirostat_eta": 0.1,
+        "mirostat_tau": 5.0,
+        "repeat_last_n": 64,
+        "repeat_penalty": 1.1,
+        "seed": 0,
+        "tfs_z": 1,
+        "top_k": 40,
+        "top_p": 0.9,
     }   
 }
 
