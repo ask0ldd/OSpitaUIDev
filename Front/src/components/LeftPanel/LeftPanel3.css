@@ -362,6 +362,55 @@
       }
     }
   }
+
+  .closedImagesSlot:hover,
+  .closedDocumentsSlot:hover {
+    border: 1px solid var(--purple-button-color);
+    background: linear-gradient(to bottom, hsl(252, 50%, 92%), #d8d2f0);
+    box-shadow: 0 1px 2px -1px hsla(252, 34%, 45%, 0.493),
+      0 4px 8px -1px hsla(261, 47%, 43%, 0.466);
+
+    h3 {
+      color: var(--purple-button-color);
+    }
+
+    svg {
+      fill: var(--purple-button-color);
+
+      path {
+        fill: var(--purple-button-color);
+      }
+    }
+  }
+
+  .imagesSlot {
+    row-gap: 1rem;
+
+    input {
+      width: 100%;
+    }
+
+    .imagesContainer {
+      display: flex;
+      row-gap: 0.25rem;
+      column-gap: 0.25rem;
+      width: 100%;
+      flex-wrap: wrap;
+
+      img {
+        flex: 1 1 100%;
+        max-width: calc((100% - 1rem) / 5);
+        aspect-ratio: 1 / 1;
+        border: 1px solid var(--input-border-color);
+        object-fit: cover;
+        cursor: pointer;
+
+        &.active {
+          border: 2px solid var(--purple-button-color);
+        }
+      }
+    }
+  }
 }
 
 @keyframes slideInFromLeft {
