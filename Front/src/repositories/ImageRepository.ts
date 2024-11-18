@@ -1,13 +1,18 @@
 export class ImageRepository{
     static images : Image[] = []
 
-    static pushImage(image : {name : string, data : string}){
-        this.images.push({filename : image.name, data : image.data})
+    static pushImage(image : {id : number, name : string, data : string}){
+        this.images.push({id : image.id, filename : image.name, data : image.data})
     }
 
     static getImages() : Image[]{
         return this.images;
     }
+
+    static getImagesDatas() : string[]{
+        return this.images.map(image => image.data)
+    }
+
 
     static getImagesAsBase64() : string[]{
         return this.images.map(image => image.data.split(',')[1]);
@@ -29,16 +34,17 @@ export class ImageRepository{
         return this.images[index].data.split(',')[1]
     }
 
-    static setImages(images : {name : string, data : string}[]){
-        this.images = images.map(image => ({filename : image.name, data : image.data}));
+    static setImages(images : {id : number, name : string, data : string}[]){
+        this.images = images.map(image => ({id : image.id, filename : image.name, data : image.data}));
     }
 
-    static getLength() : number {
+    static nImages() : number {
         return this.images.length
     }
 }
 
 export interface Image{
+    id : number
     data : string,
     filename : string
 }
