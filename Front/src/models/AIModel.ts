@@ -365,29 +365,24 @@ export class AIModel{
             "context" : [...this.#context],
         }
         const requestWithOptions = {...baseRequest, 
-            "options": { 
+            "options": this.getOptions() /*{ 
                 "num_ctx": this.#num_ctx,
                 "temperature" : this.#temperature, 
                 "num_predict" : this.#num_predict 
-        }}
+        }*/}
         return JSON.stringify(requestWithOptions)
     }
 
     #buildVisionRequest({prompt, images, stream} : {prompt : string, images : string[], stream : boolean}) : string {
         const baseRequest : IBaseVisionOllamaRequest = {
-            "model": this.getModelName(),
+            "model": this.#modelName,
             "stream": stream,
-            "system": this.getSystemPrompt(),
+            "system": this.#systemPrompt,
             "prompt": prompt,
-            "context" : [...this.getContext()],
-            "images" : images,
+            "context" : [...this.#context],
+            "images" : [images[0]]/*.map(image => JSON.stringify(image))*/,
         }
-        const requestWithOptions = {...baseRequest, 
-            "options": { 
-                "num_ctx": this.getContextSize(),
-                "temperature" : this.getTemperature(), 
-                "num_predict" : this.getNumPredict()
-        }}
+        const requestWithOptions = {...baseRequest, "options": this.getOptions()}
         return JSON.stringify(requestWithOptions)
     }
 
@@ -519,6 +514,23 @@ export class AIModel{
             top_k: this.#top_k,
             top_p: this.#top_p,
             status: this.#status
+        })
+    }
+
+    getOptions(){
+        return ({
+            num_ctx: this.#num_ctx,
+            temperature: this.#temperature,
+            num_predict: this.#num_predict,
+            mirostat: this.#mirostat,
+            mirostat_eta: this.#mirostat_eta,
+            mirostat_tau: this.#mirostat_tau,
+            repeat_last_n: this.#repeat_last_n,
+            repeat_penalty: this.#repeat_penalty,
+            seed: this.#seed,
+            tfs_z: this.#tfs_z,
+            top_k: this.#top_k,
+            top_p: this.#top_p,
         })
     }
 }
