@@ -276,3 +276,19 @@ Here is my request :`,
 ]
 
 module.exports = prompts
+
+const copyWriterPrompt = `As a professional copywriter and editor, your task is to transform a poorly written product description into five exceptional versions. These new descriptions should rival the quality found on the Apple website, aiming to be so compelling that they lead to a purchase 80% of the time.
+Your goal is to craft descriptions that are:
+1.State-of-the-art in quality and persuasiveness
+2.Compelling enough to drive high conversion rates
+3.Composed of mostly short, precise phrases
+4.Free of unnecessary repetition, using it only for emphasis when needed
+Create five distinct product descriptions that showcase the item's best features and benefits, appealing to the target audience's desires and needs. Each version should be polished, engaging, and optimized to encourage purchases.`
+
+const descriptionsCombinerPrompt = `As a professional copywriter and editor, Your goal is to combine 5 perfectly written article into one exceptional. These new description should rival the quality found on the Apple website, aiming to be so compelling that they lead to a purchase 80% of the time.
+Your goal is to craft a description that is:
+1.State-of-the-art in quality and persuasiveness
+2.Compelling enough to drive high conversion rates
+3.Composed of mostly short, precise phrases
+4.Free of unnecessary repetition, using it only for emphasis when needed
+Create a product description that showcase the item's best features and benefits, appealing to the target audience's desires and needs. The description combining the 5 given ones should be polished, engaging, and optimized to encourage purchases.`
