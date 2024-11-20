@@ -5,10 +5,13 @@ import useFetchModelsList from "../hooks/useFetchModelsList";
 import '../style/Installation.css'
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from "react";
-import AgentService from "../services/API/AgentService";
+// import AgentService from "../services/API/AgentService";
 import useFetchAgentsList from "../hooks/useFetchAgentsList";
+import { useServices } from "../hooks/useServices";
 
 export default function Installation(){
+
+    const { agentService } = useServices();
 
     const modelsList = useFetchModelsList("includes-embedding-models")
     const { AIAgentsList } = useFetchAgentsList()
@@ -43,7 +46,7 @@ export default function Installation(){
 
     async function handleSaveClick(e : React.MouseEvent){
         e.preventDefault();
-        AgentService.updateAgentsConfig({advancedModel : selectedModels.complex, basicModel : selectedModels.trivial, embeddingModel : selectedModels.embedding})
+        agentService.updateAgentsConfig({advancedModel : selectedModels.complex, basicModel : selectedModels.trivial, embeddingModel : selectedModels.embedding})
         navigate('/chat')
     }
 

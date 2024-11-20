@@ -8,7 +8,6 @@ import { ConversationsRepository } from "../repositories/ConversationsRepository
 import FollowUpQuestions from "../components/FollowUpQuestions";
 import CustomTextarea from "../components/CustomTextarea";
 import { ActionType, useActiveConversationReducer } from "../hooks/useActiveConversationReducer";
-import { WebSearchService } from "../services/WebSearchService";
 import Modal from "../components/Modal/Modal";
 import FormAgentSettings from "../components/Modal/FormAgentSettings";
 import LeftPanel from "../components/LeftPanel/LeftPanel";
@@ -31,12 +30,15 @@ import AIAgentChain from "../models/AIAgentChain";
 import AnswerFormatingService from "../services/AnswerFormatingService";
 import InferenceStatsFormatingService from "../services/InferenceStatsFormatingService";
 import { FormSelectChainAgent } from "../components/Modal/FormSelectChainAgent";
+import { useServices } from "../hooks/useServices";
 // import { TTSService } from "../services/TTSService";
 // import SpeechRecognitionService from "../services/SpeechRecognitionService";
 
 function Chat() {
 
     useEffect(() => console.log("chat render"))
+
+    const { webSearchService } = useServices();
 
     const {AIAgentsList, triggerAIAgentsListRefresh} = useFetchAgentsList()
     
@@ -143,7 +145,7 @@ function Chat() {
             // Handle web search if activated, otherwise use internal knowledge
             if (isWebSearchActivatedRef.current == true) {
                 console.log("***Web Search***")
-                const scrapedPages = await WebSearchService.scrapeRelatedDatas({query, maxPages : 3})
+                const scrapedPages = await webSearchService.scrapeRelatedDatas({query, maxPages : 3})
                 if(scrapedPages == null) {
                     // showErrorModal("No results found for your query")
                     throw new Error("No results found for your query")
@@ -167,12 +169,13 @@ function Chat() {
                 // If any document is selected, extract the relevant datas for RAG
                 const ragContext = ChatService.getRAGTargetsFilenames().length > 0 ? await buildRAGContext(query) : ""
 
+                const selectedImage = ImageRepository.getSelectedImageAsBase64()
                 const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(
                     {
                         question : ragContext + query, 
                         chunkProcessorCallback : onStreamedChunkReceived_Callback, 
                         context : ragContext == "" ? currentContext : [], 
-                        images : ImageRepository.getImagesAsBase64()
+                        images : selectedImage != null ? [selectedImage] : []
                     })
                 newContext = finalDatas.newContext
                 inferenceStats = finalDatas.inferenceStats
@@ -193,7 +196,7 @@ function Chat() {
         catch (error : unknown) {
             dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
 
-            if(isWebSearchActivatedRef.current) WebSearchService.abortLastRequest()
+            if(isWebSearchActivatedRef.current) webSearchService.abortLastRequest()
             console.error(error)
 
             // Abort requests shouldn't display any error modale
@@ -293,7 +296,7 @@ function Chat() {
 
     function handleAbortStreamingClick() {
         ChatService.abortAgentLastRequest()
-        if(isWebSearchActivatedRef.current) WebSearchService.abortLastRequest()
+        if(isWebSearchActivatedRef.current) webSearchService.abortLastRequest()
         AIAgentChain.abortProcess()
     }
 

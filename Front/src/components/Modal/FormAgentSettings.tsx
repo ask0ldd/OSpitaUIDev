@@ -7,13 +7,15 @@ import useFetchModelsList from "../../hooks/useFetchModelsList";
 import IFormStructure from "../../interfaces/IAgentFormStructure";
 import picots from '../../assets/sliderpicots.png'
 import { ChatService } from "../../services/ChatService";
-import AgentService from "../../services/API/AgentService";
 import useFetchAgentsList from "../../hooks/useFetchAgentsList";
+import { useServices } from "../../hooks/useServices";
 
 export default function FormAgentSettings({memoizedSetModalStatus, role, triggerAIAgentsListRefresh} : IProps){
 
     const modelList = useFetchModelsList()
     const currentAgent = useRef<AIAgent | null>(null)
+
+    const  { agentService } = useServices()
 
     const { AIAgentsList } = useFetchAgentsList()
 
@@ -22,7 +24,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
 
     useEffect(() => {
         async function retrieveAgent(agentName : string) {
-            const agentDatas = await AgentService.getAgentByName(agentName)
+            const agentDatas = await agentService.getAgentByName(agentName)
             if(agentDatas) currentAgent.current = new AIAgent({...agentDatas, modelName : agentDatas.model})
             const baseForm : IFormStructure = {
                 agentName: role == "edit" && currentAgent.current ? currentAgent.current.getName() : "",
@@ -90,7 +92,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
 
     async function handleDeleteClick(e: React.MouseEvent<HTMLButtonElement>){
         e.preventDefault()
-        await AgentService.deleteAgent(ChatService.getActiveAgent().getName())
+        await agentService.deleteAgent(ChatService.getActiveAgent().getName())
         triggerAIAgentsListRefresh()
         ChatService.setActiveAgent(AIAgentsList[0])
         memoizedSetModalStatus({visibility : false})
@@ -118,12 +120,12 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
         .setRepeatPenalty(formValues.repeatPenalty || 1.1)
 
         let response
-        if(role == "create") response = await AgentService.save(newAgent)
+        if(role == "create") response = await agentService.save(newAgent)
         if(role == "edit") {
             if(!currentAgent.current) return
-            const agent = await AgentService.getAgentByName(currentAgent.current.getName())
+            const agent = await agentService.getAgentByName(currentAgent.current.getName())
             console.log(JSON.stringify(agent))
-            response = await AgentService.updateById(newAgent)
+            response = await agentService.updateById(newAgent)
         }
         
         // if any error saving or updating the model -> the modal stays open & the active agent is not updated

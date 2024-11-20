@@ -11,7 +11,7 @@ function useFetchPrompt(name : string | undefined){
     useEffect(() => {
 
         async function fetchPrompt(name : string) {
-            const retrievedPrompt = await PromptService.getByName(name)
+            const retrievedPrompt = await new PromptService().getByName(name)
             if(retrievedPrompt == undefined) {
                 return setPrompt(genericPrompt)
             }

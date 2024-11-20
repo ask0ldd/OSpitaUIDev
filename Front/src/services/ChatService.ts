@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { IConversationElement, IInferenceStats } from "../interfaces/IConversation";
 import IScrapedPage from "../interfaces/IScrapedPage";
-import { ICompletionResponse } from "../interfaces/responses/ICompletionResponse";
 import { AIAgent } from "../models/AIAgent";
 import ScrapedPage from "../models/ScrapedPage";
 import AnswerFormatingService from "./AnswerFormatingService";
@@ -55,13 +54,15 @@ export class ChatService{
 
     static stillInUseAgent = this.activeAgent
 
+    // static FUPQuestionsGeneration = true
+
     static async askForFollowUpQuestions(question : string, context:number[] = []) : Promise<string>
     {
       try{
         if(this.activeAgent == null) throw new Error(`Agent is not available`)
 
         // if vision model, no follow up questions
-        if(this.activeAgent.getModelName().includes("vision") || this.activeAgent.getModelName().includes("minicpm") || this.activeAgent.getModelName().includes("llava")) return ""
+        // if(this.FUPQuestionsGeneration == false) return Promise.resolve(JSON.stringify([]))
 
         this.activeAgent.setContext(context)
         const answer = await this.activeAgent.ask(question)
@@ -98,6 +99,9 @@ export class ChatService{
       images} : IAskedStreamedResponseParameters) : Promise<{newContext :number[], inferenceStats : IInferenceStats}>
     {
       if(this.activeAgent == null) throw new Error(`Agent is not available`)
+
+      // this.FUPQuestionsGeneration = images && images.length > 0 ? false : true
+
       this.setCurrentlyUsedAgent(this.activeAgent)
 
       let newContext = []
@@ -130,7 +134,7 @@ export class ChatService{
 
               // deal with the very last datas chunk being unexpectedly split into partial chunks
               if(decodedValue.includes('"done":true') && !decodedValue.trim().endsWith("}")) {
-                console.log("endvalue no curly bracket : " + decodedValue)
+                // console.log("endvalue no curly bracket : " + decodedValue)
                 let followingChunk = ""
                 while(true){
                   console.log("trying to add subsequent value")

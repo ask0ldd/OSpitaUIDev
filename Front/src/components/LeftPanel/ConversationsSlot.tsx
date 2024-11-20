@@ -4,12 +4,14 @@ import { IConversation } from "../../interfaces/IConversation"
 import { ConversationsRepository } from "../../repositories/ConversationsRepository"
 import { ChatService } from "../../services/ChatService"
 import { ActionType, TAction } from "../../hooks/useActiveConversationReducer"
-import { WebSearchService } from "../../services/WebSearchService"
+import { useServices } from "../../hooks/useServices"
 
 export function ConversationsSlot({activeConversationId, setActiveConversationId, dispatch} : IProps){
     
     const [conversationsListState, setConversationsListState] = useState<IConversation[]>(ConversationsRepository.getConversations()) 
     const [conversationsListPage, setConversationsListPage] = useState<number>(0)
+
+    const { webSearchService } = useServices()
 
     // when the conversation state is modified, retrieve the conversations from the repository and update the displayed list
     /*useEffect(() => {
@@ -61,7 +63,7 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
         // if the conversation is the active one, abort the streaming process in case it is currently active
         if(id == activeConversationId) {
             ChatService.abortAgentLastRequest()
-            WebSearchService.abortLastRequest()
+            webSearchService.abortLastRequest()
         }
         // deleting the first one and only conversation
         if(id == 0 && ConversationsRepository.getConversations().length < 2){

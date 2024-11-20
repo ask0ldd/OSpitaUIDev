@@ -4,7 +4,7 @@ import { AIAgent } from "../../models/AIAgent";
 
 export default class AgentService{
 
-    static async save(agent : AIAgent) : Promise<string | void>{
+    async save(agent : AIAgent) : Promise<string | void>{
         try{
             const reponse = await fetch('/backend/agent', {
                 method : 'POST',
@@ -18,7 +18,7 @@ export default class AgentService{
         }
     }
 
-    static async updateByName(agentName : string, agent : AIAgent) : Promise<string | void>{
+    async updateByName(agentName : string, agent : AIAgent) : Promise<string | void>{
         try{
             const reponse = await fetch('/backend/agent/byName/' + agentName, {
                 method : 'PUT',
@@ -32,7 +32,7 @@ export default class AgentService{
         }
     }
 
-    static async updateById(agent : AIAgent) : Promise<string | void>{
+    async updateById(agent : AIAgent) : Promise<string | void>{
         try{
             const reponse = await fetch('/backend/agent/byId/' + agent.getId(), {
                 method : 'PUT',
@@ -46,7 +46,7 @@ export default class AgentService{
         }
     }
 
-    static async getAll(): Promise<IAgentResponse[] | undefined>{
+    async getAll(): Promise<IAgentResponse[] | undefined>{
         try {
             const response = await fetch("/backend/agents", {
                 method: "GET",
@@ -65,12 +65,12 @@ export default class AgentService{
         }
     }
 
-    static async getAgentsNameList() : Promise<string[]> {
+    async getAgentsNameList() : Promise<string[]> {
         const allAgents = await this.getAll()
         return allAgents?.map(agent => agent.name) || []        
     }
 
-    static async getAgentByName(name : string): Promise<IAgentResponse | undefined>{
+    async getAgentByName(name : string): Promise<IAgentResponse | undefined>{
         try {
             const response = await fetch("/backend/agent/byName/" + name, {
                 method: "GET",
@@ -89,7 +89,7 @@ export default class AgentService{
         }
     }
 
-    static async deleteAgent(name : string): Promise<void>{
+    async deleteAgent(name : string): Promise<void>{
         try{
             const response = await fetch("/backend/agent/byName/" + name, {
                 method: "DELETE",
@@ -104,7 +104,7 @@ export default class AgentService{
         }
     }
 
-    static async updateAgentsConfig({advancedModel, basicModel, embeddingModel} : {advancedModel : string, basicModel : string, embeddingModel : string}) : Promise<void>{
+    async updateAgentsConfig({advancedModel, basicModel, embeddingModel} : {advancedModel : string, basicModel : string, embeddingModel : string}) : Promise<void>{
         try{
             const reponse = await fetch('/backend/agents/config', {
                 method : 'PUT',

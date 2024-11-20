@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react"
 import './FormPromptSettings.css'
 import useFetchPrompt from "../../hooks/useFetchPrompt"
-import PromptService from "../../services/API/PromptService"
+import { useServices } from "../../hooks/useServices"
 
 export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRef, setForceLeftPanelRefresh, role} : IProps){
+
+    const {promptService} = useServices()
 
     const { prompt, setPrompt } = useFetchPrompt(selectedPromptNameRef?.current)
     const [error, setError] = useState("")
@@ -25,10 +27,10 @@ export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRe
         e.preventDefault()
         if(!isFormValid()) return // !!! error message missing
         if(role == "edit") {
-            PromptService.updateByName(prompt.name, { newName : formValues.name, prompt : formValues.prompt, version : formValues.currentVersion })
+            promptService.updateByName(prompt.name, { newName : formValues.name, prompt : formValues.prompt, version : formValues.currentVersion })
         }
         if(role == "create") {
-            PromptService.save(formValues.name, formValues.prompt)
+            promptService.save(formValues.name, formValues.prompt)
         }
         if(setForceLeftPanelRefresh) setForceLeftPanelRefresh(prev => prev + 1)
         memoizedSetModalStatus({visibility  : false})
@@ -36,7 +38,7 @@ export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRe
 
     function handleDeleteClick(e : React.MouseEvent){
         e.preventDefault()
-        if(prompt.id) PromptService.deleteById(prompt.id)
+        if(prompt.id) promptService.deleteById(prompt.id)
         if(setForceLeftPanelRefresh) setForceLeftPanelRefresh(prev => prev + 1)
         memoizedSetModalStatus({visibility  : false})
     }

@@ -33,7 +33,7 @@ export default class AIAgentChain{
     }
 
     static async refreshAgents(){
-        const retrievedAgentsList = await AgentService.getAll()
+        const retrievedAgentsList = await new AgentService().getAll()
         if(retrievedAgentsList == null) return this.agents = []
         const newAgents = this.agents.map(agent => {
             let updatedAgentJSON = retrievedAgentsList.find(retrievedAgent => retrievedAgent.name == agent.getName())

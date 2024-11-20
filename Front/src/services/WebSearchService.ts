@@ -7,14 +7,14 @@ import AgentService from "./API/AgentService";
 
 export class WebSearchService{
 
-    static #abortController : AbortController = new AbortController()
-    static #signal = this.#abortController.signal
-    static #queryOptimizer : AIAgent
-    static #scrapedDatasSummarizer : AIAgent
+    #abortController : AbortController = new AbortController()
+    #signal = this.#abortController.signal
+    #queryOptimizer! : AIAgent
+    #scrapedDatasSummarizer! : AIAgent
 
-    static #isWebSearchSummarizationActivated = false
+    #isWebSearchSummarizationActivated = false
 
-    static async scrapeRelatedDatas({query , maxPages = 3} : {query : string, maxPages? : number, summarize? : boolean}) : Promise<ScrapedPage[] | undefined>{
+    async scrapeRelatedDatas({query , maxPages = 3} : {query : string, maxPages? : number, summarize? : boolean}) : Promise<ScrapedPage[] | undefined>{
         try{
             const optimizedQuery = await this.#optimizeQuery(query)
             const trimedQuery = this.#trimQuotes(optimizedQuery)
@@ -29,7 +29,7 @@ export class WebSearchService{
     }
 
     // !!! should be able to abort
-    static async #callExternalScraper(query : string, maxPages : number = 3) : Promise<ScrapedPage[]>{ // !!! make use of maxPages
+    async #callExternalScraper(query : string, maxPages : number = 3) : Promise<ScrapedPage[]>{ // !!! make use of maxPages
         try {
             const response = await fetch('/backend/scrape', {
                 method: 'POST',
@@ -54,7 +54,7 @@ export class WebSearchService{
             }
     
             // object mapping
-            return scrapedPages.map(page => new ScrapedPage(page.datas, page.source))
+            return scrapedPages.map(page => new ScrapedPage(page.datas, page.source, page.mostRecentDate))
 
         } catch (error) {
             console.error('Error calling the scraper API :', error)
@@ -63,10 +63,10 @@ export class WebSearchService{
     }
 
     // convert the user request into an optimized search query
-    static async #optimizeQuery(query : string) : Promise<string> {
+    async #optimizeQuery(query : string) : Promise<string> {
         try{
             console.log("**Optimizing your query**")
-            const dbAgent = await AgentService.getAgentByName('searchQueryOptimizer')
+            const dbAgent = await new AgentService().getAgentByName('searchQueryOptimizer')
             if(dbAgent == null) throw new Error('No searchQueryOptimizer agent found')
             this.#queryOptimizer = new AIAgent({...dbAgent, modelName : dbAgent.model})
             return (await this.#queryOptimizer.ask(query)).response
@@ -77,10 +77,10 @@ export class WebSearchService{
     }
 
     // summarizing the scraped datas so it will take less context
-    static async #summarizeScrapedPages(scrapedPages : ScrapedPage[], query : string) : Promise<ScrapedPage[]> {
+    async #summarizeScrapedPages(scrapedPages : ScrapedPage[], query : string) : Promise<ScrapedPage[]> {
         try{
             console.log("**Summarizing**")
-            const dbAgent = await AgentService.getAgentByName('scrapedDatasSummarizer')
+            const dbAgent = await new AgentService().getAgentByName('scrapedDatasSummarizer')
             if(dbAgent == null) return scrapedPages
             const summarizedPages = [...scrapedPages]
             this.#scrapedDatasSummarizer = new AIAgent({...dbAgent, modelName : dbAgent.model})
@@ -103,11 +103,11 @@ export class WebSearchService{
         }
     }
 
-    static #trimQuotes(str : string) : string {
+    #trimQuotes(str : string) : string {
         return str.replace(/^['"]|['"]$/g, '').replace('"', " ").replace("'", " ")
     }
 
-    static abortLastRequest() : void{
+    abortLastRequest() : void{
         if(this.#abortController) this.#abortController.abort("Signal aborted.")
         if(this.#scrapedDatasSummarizer) this.#scrapedDatasSummarizer.abortLastRequest()
         if(this.#queryOptimizer) this.#queryOptimizer.abortLastRequest()
@@ -116,16 +116,16 @@ export class WebSearchService{
         this.generateNewAbortControllerAndSignal()
     }
 
-    static generateNewAbortControllerAndSignal() : void{
+    generateNewAbortControllerAndSignal() : void{
         this.#abortController = new AbortController()
         this.#signal = this.#abortController.signal
     }
 
-    static getWebSearchSummarizationStatus() : boolean{
+    getWebSearchSummarizationStatus() : boolean{
         return this.#isWebSearchSummarizationActivated
     }
 
-    static setWebSearchSummarizationStatus(status : boolean) : void{
+    setWebSearchSummarizationStatus(status : boolean) : void{
         this.#isWebSearchSummarizationActivated = status
     }
 }

@@ -1,6 +1,6 @@
 /* c8 ignore start */
 
-export default class PromptService{
+export default class TTSService{
 
     static async generateAudio(text : string){
         try{

@@ -10,7 +10,7 @@ function useFetchPromptsList(){
     useEffect(() => {
 
         async function fetchPromptsList () {
-            const retrievedPromptsList = await PromptService.getAll()
+            const retrievedPromptsList = await new PromptService().getAll()
             if (retrievedPromptsList == null) return setPromptsList([])
             return setPromptsList([...retrievedPromptsList])
         }
