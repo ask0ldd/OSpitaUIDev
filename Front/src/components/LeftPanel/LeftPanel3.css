@@ -384,8 +384,6 @@
   }
 
   .imagesSlot {
-    row-gap: 1rem;
-
     input {
       width: 100%;
     }
@@ -396,17 +394,45 @@
       column-gap: 0.25rem;
       width: 100%;
       flex-wrap: wrap;
+      margin-top: 12px;
 
-      img {
+      & > img,
+      .fillerMiniature {
+        box-sizing: border-box;
+        display: flex;
         flex: 1 1 100%;
         max-width: calc((100% - 1rem) / 5);
         aspect-ratio: 1 / 1;
         border: 1px solid var(--input-border-color);
         object-fit: cover;
         cursor: pointer;
+        justify-content: center;
+        align-items: center;
 
         &.active {
           border: 2px solid var(--purple-button-color);
+        }
+      }
+
+      .fillerMiniature {
+        background-color: rgb(222, 227, 239);
+        cursor: auto;
+      }
+
+      .uploadButton {
+        display: flex;
+        flex: 1 1 100%;
+        max-width: calc((100% - 1rem) / 5);
+        aspect-ratio: 1 / 1;
+        border: 1px solid var(--input-border-color);
+        object-fit: cover;
+        cursor: pointer;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(222, 227, 239);
+
+        img {
+          transform: translateY(-1px);
         }
       }
     }

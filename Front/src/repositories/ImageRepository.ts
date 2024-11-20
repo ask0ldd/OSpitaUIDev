@@ -1,6 +1,8 @@
 export class ImageRepository{
     static images : Image[] = []
 
+    static selectedImageIndex : number = -1;
+
     static pushImage(image : {id : number, name : string, data : string}){
         this.images.push({id : image.id, filename : image.name, data : image.data})
     }
@@ -12,7 +14,6 @@ export class ImageRepository{
     static getImagesDatas() : string[]{
         return this.images.map(image => image.data)
     }
-
 
     static getImagesAsBase64() : string[]{
         return this.images.map(image => image.data.split(',')[1]);
@@ -34,12 +35,25 @@ export class ImageRepository{
         return this.images[index].data.split(',')[1]
     }
 
+    static getSelectedImageAsBase64() : string | undefined{
+        if(this.selectedImageIndex == -1) return undefined
+        return this.getImageAsBase64(this.selectedImageIndex)
+    }
+
+    static setSelectedImageId(index : number){
+        this.selectedImageIndex = index;
+    }
+
     static setImages(images : {id : number, name : string, data : string}[]){
         this.images = images.map(image => ({id : image.id, filename : image.name, data : image.data}));
     }
 
     static nImages() : number {
         return this.images.length
+    }
+
+    static isAnImageSelected() : boolean {
+        return this.selectedImageIndex!= -1;
     }
 }
 
