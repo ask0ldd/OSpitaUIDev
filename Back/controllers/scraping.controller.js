@@ -45,8 +45,8 @@ const getScrapedDatas = (db) => async (req, res) => {
       }
       const pageDatasNSources = pageDatas.map((datas, index) => {
           if(datas == null || filteredSearchResults[index].url == null) return undefined
-          return {datas : datas, source : filteredSearchResults[index].url}
-      }).filter((pageData) => pageData!= undefined)
+          return {datas : datas, source : filteredSearchResults[index].url, mostRecentDate : findMostRecentDate(datas) | "2020-01-01"}
+      }).filter((pageData) => pageData!= undefined).sort((a, b) => new Date(a.mostRecentDate) - new Date(b.mostRecentDate)).reverse() // reorder the scraped page by body's most recent date
       return res.status(200).setHeader("Access-Control-Allow-Origin", "*").json(pageDatasNSources)
     } catch (error) {
       console.error(error)
@@ -235,3 +235,74 @@ function sanityCheck(options) {
       throw new Error(`${options.vqd} is an invalid VQD!`);
   return options;
 }
+
+function findMostRecentDate(inputString) {
+    // Regular expression to match various date formats
+    const dateRegex = /\b(?:(?:\d{1,4}[-/]\d{1,2}[-/]\d{1,4})|(?:\d{1,2}[-/](?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*[-/]\d{1,4})|(?:(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\s+\d{1,2},?\s+\d{4})|(?:\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\s+\d{4}))\b/gi;
+    
+    // Find all date matches in the input string
+    const dateMatches = inputString.match(dateRegex);
+
+    // console.log(dateMatches)
+    
+    if (!dateMatches) {
+      return null; // No dates found
+    }
+    
+    // Convert matches to Date objects
+    const dates = dateMatches.map(dateString => {
+      // Try parsing with Date.parse
+      const parsedDate = Date.parse(dateString);
+      if (!isNaN(parsedDate)) {
+        return new Date(parsedDate);
+      }
+      
+      // If Date.parse fails, try manual parsing
+      const parts = dateString.split(/[-/\s,]+/);
+      if (parts.length === 3) {
+        const [part1, part2, part3] = parts;
+        
+        // Check if part1 is a month name
+        const monthIndex = getMonthIndex(part1);
+        if (monthIndex !== -1) {
+          return new Date(part3, monthIndex, part2);
+        }
+        
+        // Check if part2 is a month name
+        const monthIndex2 = getMonthIndex(part2);
+        if (monthIndex2 !== -1) {
+          return new Date(part3, monthIndex2, part1);
+        }
+        
+        // Assume format is MM/DD/YYYY or YYYY/MM/DD
+        if (part1.length === 4) {
+          return new Date(part1, part2 - 1, part3);
+        } else {
+          return new Date(part3, part1 - 1, part2);
+        }
+      }
+      
+      return null; // Unable to parse
+    }).filter(d => d!= null)
+    
+    if (dates.length === 0) {
+      return null; // No valid dates found
+    }
+    
+    // Find the most recent date
+    const mostRecentDate = new Date(Math.max.apply(null, dates));
+
+    console.log(mostRecentDate)
+    
+    // Format the result as a string (YYYY-MM-DD)
+    return mostRecentDate.toISOString().split('T')[0];
+  }
+  
+  // Helper function to get month index from name
+  function getMonthIndex(month) {
+    const months = [
+      "january", "february", "march", "april", "may", "june",
+      "july", "august", "september", "october", "november", "december"
+    ];
+    return months.findIndex(m => m.toLowerCase().startsWith(month.toLowerCase()));
+  }
