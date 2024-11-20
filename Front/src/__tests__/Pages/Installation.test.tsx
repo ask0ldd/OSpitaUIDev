@@ -6,9 +6,9 @@ import '@testing-library/react/dont-cleanup-after-each'
 import Installation from '../../pages/Installation';
 import { OllamaService } from '../../services/OllamaService'
 import { fireEvent } from '@testing-library/dom'
-import AgentService from '../../services/API/AgentService';
 import mockModelsList from '../../__mocks__/mockModelsList';
 import mockAgentsList from '../../__mocks__/mockAgentsList';
+import AgentService from '../../services/API/AgentService';
 
 const mockedUsedNavigate = vi.fn()
 
@@ -22,8 +22,8 @@ describe('Given I am on the Configuration page', () => {
 
     beforeEach(() => {
         vi.spyOn(OllamaService, 'getModelList').mockResolvedValue(mockModelsList)
-        vi.spyOn(AgentService, 'updateAgentsConfig').mockResolvedValueOnce()
-        vi.spyOn(AgentService, 'getAll').mockResolvedValue(mockAgentsList)
+        vi.spyOn(AgentService.prototype, 'updateAgentsConfig').mockResolvedValueOnce()
+        vi.spyOn(AgentService.prototype, 'getAll').mockResolvedValue(mockAgentsList)
         vi.mock('react-router-dom', async () => {
             const actual = await vi.importActual('react-router-dom')
             return {
@@ -140,7 +140,7 @@ describe('Given I am on the Configuration page', () => {
             const saveButton : HTMLElement = screen.queryAllByRole("button").filter(button => button.textContent  == "Save")[0]
             expect(saveButton).toBeDefined()
             act(() => saveButton.click())
-            await waitFor(() => expect(AgentService.updateAgentsConfig).toHaveBeenCalledWith({advancedModel : "aya-expanse:8b", basicModel : "llama3.2:1b", embeddingModel : "nomic-embed-text:v1.5"}))
+            await waitFor(() => expect(AgentService.prototype.updateAgentsConfig).toHaveBeenCalledWith({advancedModel : "aya-expanse:8b", basicModel : "llama3.2:1b", embeddingModel : "nomic-embed-text:v1.5"}))
         })
     })
 

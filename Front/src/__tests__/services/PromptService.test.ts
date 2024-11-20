@@ -21,7 +21,7 @@ describe('PromptService', () => {
       const mockResponse = { ok: true };
       mockFetch.mockResolvedValue(mockResponse)
 
-      await PromptService.save(mockPromptsList[0].name, mockPromptsList[0].prompts[0].text)
+      await new PromptService().save(mockPromptsList[0].name, mockPromptsList[0].prompts[0].text)
 
       expect(mockFetch).toHaveBeenCalledWith('/backend/prompt', {
         method: 'POST',
@@ -35,7 +35,7 @@ describe('PromptService', () => {
       mockFetch.mockResolvedValue(mockResponse)
       console.error = vi.fn()
 
-      await PromptService.save('Test Prompt', 'This is a test prompt')
+      await new PromptService().save('Test Prompt', 'This is a test prompt')
 
       expect(console.error).toHaveBeenCalled()
     })
@@ -46,7 +46,7 @@ describe('PromptService', () => {
       const mockResponse = { ok: true };
       mockFetch.mockResolvedValue(mockResponse)
 
-      await PromptService.updateByName(mockPromptsList[0].name, { newName: 'New Name', prompt: 'Updated prompt', version: 2 })
+      await new PromptService().updateByName(mockPromptsList[0].name, { newName: 'New Name', prompt: 'Updated prompt', version: 2 })
 
       expect(mockFetch).toHaveBeenCalledWith('/backend/prompt/byName/' + mockPromptsList[0].name, {
         method: 'PUT',
@@ -60,7 +60,7 @@ describe('PromptService', () => {
       mockFetch.mockResolvedValue(mockResponse)
       console.error = vi.fn()
 
-      await PromptService.updateByName('Old Name', { newName: 'New Name', prompt: 'Updated prompt', version: 2 })
+      await new PromptService().updateByName('Old Name', { newName: 'New Name', prompt: 'Updated prompt', version: 2 })
 
       expect(console.error).toHaveBeenCalled()
     })
@@ -71,7 +71,7 @@ describe('PromptService', () => {
       const mockResponse = { ok: true };
       mockFetch.mockResolvedValue(mockResponse)
 
-      await PromptService.updateById('123', { name: 'Updated Name', prompt: 'Updated prompt', version: 2 })
+      await new PromptService().updateById('123', { name: 'Updated Name', prompt: 'Updated prompt', version: 2 })
 
       expect(mockFetch).toHaveBeenCalledWith('/backend/prompt/byId/123', {
         method: 'PUT',
@@ -85,7 +85,7 @@ describe('PromptService', () => {
       mockFetch.mockResolvedValue(mockResponse)
       console.error = vi.fn()
 
-      await PromptService.updateById('123', { name: 'Updated Name', prompt: 'Updated prompt', version: 2 })
+      await new PromptService().updateById('123', { name: 'Updated Name', prompt: 'Updated prompt', version: 2 })
 
       expect(console.error).toHaveBeenCalled()
     })
@@ -97,7 +97,7 @@ describe('PromptService', () => {
       const mockResponse = { ok: true, json: () => Promise.resolve(mockPrompt) };
       mockFetch.mockResolvedValue(mockResponse)
 
-      const result = await PromptService.getByName(mockPromptsList[0].name)
+      const result = await new PromptService().getByName(mockPromptsList[0].name)
 
       expect(result).toEqual(mockPrompt)
       expect(mockFetch).toHaveBeenCalledWith('/backend/prompt/byName/' + mockPromptsList[0].name, {
@@ -111,7 +111,7 @@ describe('PromptService', () => {
       mockFetch.mockResolvedValue(mockResponse)
       console.error = vi.fn()
 
-      const result = await PromptService.getByName('Non-existent Prompt')
+      const result = await new PromptService().getByName('Non-existent Prompt')
 
       expect(result).toBeUndefined()
       expect(console.error).toHaveBeenCalled()
@@ -126,7 +126,7 @@ describe('PromptService', () => {
       const mockResponse = { ok: true, json: () => Promise.resolve(mockPrompts) };
       mockFetch.mockResolvedValue(mockResponse)
 
-      const result = await PromptService.getAll()
+      const result = await new PromptService().getAll()
 
       expect(result).toEqual(mockPrompts)
       expect(mockFetch).toHaveBeenCalledWith('/backend/prompts', {
@@ -140,7 +140,7 @@ describe('PromptService', () => {
       mockFetch.mockResolvedValue(mockResponse)
       console.error = vi.fn()
 
-      const result = await PromptService.getAll()
+      const result = await new PromptService().getAll()
 
       expect(result).toBeUndefined()
       expect(console.error).toHaveBeenCalled()
@@ -152,7 +152,7 @@ describe('PromptService', () => {
       const mockResponse = { ok: true };
       mockFetch.mockResolvedValue(mockResponse)
 
-      await PromptService.deleteById('123')
+      await new PromptService().deleteById('123')
 
       expect(mockFetch).toHaveBeenCalledWith('/backend/prompt/byId/123', {
         method: 'DELETE'
@@ -164,7 +164,7 @@ describe('PromptService', () => {
       mockFetch.mockResolvedValue(mockResponse)
       console.error = vi.fn()
 
-      await PromptService.deleteById('non-existent-id')
+      await new PromptService().deleteById('non-existent-id')
 
       expect(console.error).toHaveBeenCalled()
     })
@@ -175,7 +175,7 @@ describe('PromptService', () => {
       const mockResponse = { ok: true };
       mockFetch.mockResolvedValue(mockResponse)
 
-      await PromptService.deleteByName('Test Prompt')
+      await new PromptService().deleteByName('Test Prompt')
 
       expect(mockFetch).toHaveBeenCalledWith('/backend/prompt/byName/Test Prompt', {
         method: 'DELETE'
@@ -187,7 +187,7 @@ describe('PromptService', () => {
       mockFetch.mockResolvedValue(mockResponse)
       console.error = vi.fn()
 
-      await PromptService.deleteByName('Non-existent Prompt')
+      await new PromptService().deleteByName('Non-existent Prompt')
 
       expect(console.error).toHaveBeenCalled()
     })

@@ -3,7 +3,6 @@ import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/react/dont-cleanup-after-each'
 import Chat from '../../pages/Chat';
 import { OllamaService } from '../../services/OllamaService';
-import AgentService from '../../services/API/AgentService';
 import { render, screen, waitFor, act, cleanup } from '@testing-library/react';
 import {describe, beforeEach, vi, expect, test, afterEach } from 'vitest';
 import '@testing-library/react/dont-cleanup-after-each'
@@ -18,6 +17,7 @@ import { ConversationsRepository } from '../../repositories/ConversationsReposit
 import mockConversationsList from '../../__mocks__/mockConversationsList';
 import { ChatService } from '../../services/ChatService';
 import { WebSearchService } from '../../services/WebSearchService';
+import AgentService from '../../services/API/AgentService';
 
 const MockedRouter = () => (
     <MemoryRouter>
@@ -39,6 +39,7 @@ const mockFirstConversation =
     images : []
 }
 
+let webSearchService
 describe('Given I am on the Chat page', () => {
     beforeEach(() => {
         HTMLDialogElement.prototype.show = vi.fn()
@@ -46,15 +47,16 @@ describe('Given I am on the Chat page', () => {
         HTMLDialogElement.prototype.close = vi.fn()
         vi.spyOn(OllamaService, 'getModelList').mockResolvedValue(mockModelsList)
         vi.spyOn(OllamaService, 'getRunningModelInfos').mockResolvedValue(mockRunningModelsInfos)
-        vi.spyOn(AgentService, 'getAll').mockResolvedValue(mockAgentsList)
-        vi.spyOn(AgentService, 'getAgentByName').mockResolvedValue(mockAgentsList[0])
+        vi.spyOn(AgentService.prototype, 'getAll').mockResolvedValue(mockAgentsList)
+        vi.spyOn(AgentService.prototype, 'getAgentByName').mockResolvedValue(mockAgentsList[0])
         vi.spyOn(DocService, 'getAll').mockResolvedValue(mockRAGDocumentsList)
-        vi.spyOn(PromptService, 'getAll').mockResolvedValue(mockPromptsList)
+        vi.spyOn(PromptService.prototype, 'getAll').mockResolvedValue(mockPromptsList)
         /*vi.spyOn(ConversationsRepository, 'getConversations').mockReturnValue([mockFirstConversation, ...mockConversationsList])
         vi.spyOn(ConversationsRepository, 'deleteConversation')*/
         ConversationsRepository.setConversations([mockFirstConversation, mockConversationsList[0], mockConversationsList[1], mockConversationsList[2]])
         ChatService.abortAgentLastRequest = vi.fn()
-        WebSearchService.abortLastRequest = vi.fn()
+        webSearchService = new WebSearchService()
+        webSearchService.abortLastRequest = vi.fn()
         vi.stubGlobal('speechSynthesis', {
             getVoices: vi.fn().mockReturnValue(mockVoices),
         });

@@ -26,7 +26,7 @@ describe('AgentService', () => {
         ok: true,
       })
 
-      const result = await AgentService.save(mockAgent)
+      const result = await new AgentService().save(mockAgent)
       expect(result).toBeUndefined()
       expect(mockFetch).toHaveBeenCalledWith('/backend/agent', {
         method: 'POST',
@@ -42,7 +42,7 @@ describe('AgentService', () => {
         text: () => Promise.resolve('Error saving agent'),
       })
 
-      const result = await AgentService.save(mockAgent)
+      const result = await new AgentService().save(mockAgent)
       expect(result).toBe('Error saving agent')
     })
   })
@@ -54,7 +54,7 @@ describe('AgentService', () => {
         ok: true,
       })
 
-      const result = await AgentService.updateByName(mockAgentParameters.name, mockAgent)
+      const result = await new AgentService().updateByName(mockAgentParameters.name, mockAgent)
       expect(result).toBeUndefined()
       expect(mockFetch).toHaveBeenCalledWith('/backend/agent/byName/' + mockAgentParameters.name, {
         method: 'PUT',
@@ -70,7 +70,7 @@ describe('AgentService', () => {
         text: () => Promise.resolve('Error updating agent'),
       })
 
-      const result = await AgentService.updateByName(mockAgentParameters.name, mockAgent)
+      const result = await new AgentService().updateByName(mockAgentParameters.name, mockAgent)
       expect(result).toBe('Error updating agent')
     })
   })
@@ -83,7 +83,7 @@ describe('AgentService', () => {
         ok: true,
       })
 
-      const result = await AgentService.updateById(mockAgent)
+      const result = await new AgentService().updateById(mockAgent)
       expect(result).toBeUndefined()
       expect(mockFetch).toHaveBeenCalledWith('/backend/agent/byId/123', {
         method: 'PUT',
@@ -100,7 +100,7 @@ describe('AgentService', () => {
         text: () => Promise.resolve('Error updating agent'),
       })
 
-      const result = await AgentService.updateById(mockAgent)
+      const result = await new AgentService().updateById(mockAgent)
       expect(result).toBe('Error updating agent')
     })
   })
@@ -116,7 +116,7 @@ describe('AgentService', () => {
         json: () => Promise.resolve(mockAgents),
       })
 
-      const result = await AgentService.getAll()
+      const result = await new AgentService().getAll()
       expect(result).toEqual(mockAgents)
       expect(mockFetch).toHaveBeenCalledWith('/backend/agents', {
         method: 'GET',
@@ -127,7 +127,7 @@ describe('AgentService', () => {
     it('should return undefined when fetch fails', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
-      const result = await AgentService.getAll()
+      const result = await new AgentService().getAll()
       expect(result).toBeUndefined()
     })
   })
@@ -138,17 +138,19 @@ describe('AgentService', () => {
             mockAgentsList[0],
             mockAgentsList[1],
         ];
-        vi.spyOn(AgentService, 'getAll').mockResolvedValueOnce(mockAgents)
+        const agentService = new AgentService();
+        vi.spyOn(agentService, 'getAll').mockResolvedValueOnce(mockAgents)
 
-        const result = await AgentService.getAgentsNameList()
+        const result = await agentService.getAgentsNameList()
         expect(result).toEqual([mockAgentsList[0].name, mockAgentsList[1].name])
     })
 
     it('should return an empty array when no agents are found', async () => {
-        vi.spyOn(AgentService, 'getAll').mockResolvedValueOnce(undefined)
+      const agentService = new AgentService();
+      vi.spyOn(agentService, 'getAll').mockResolvedValueOnce(undefined)
 
-        const result = await AgentService.getAgentsNameList()
-        expect(result).toEqual([])
+      const result = await agentService.getAgentsNameList()
+      expect(result).toEqual([])
     })
   })
 
@@ -160,7 +162,7 @@ describe('AgentService', () => {
         json: () => Promise.resolve(mockAgent),
       })
 
-      const result = await AgentService.getAgentByName(mockAgent.name)
+      const result = await new AgentService().getAgentByName(mockAgent.name)
       expect(result).toEqual(mockAgent)
       expect(mockFetch).toHaveBeenCalledWith('/backend/agent/byName/' + mockAgent.name, {
         method: 'GET',
@@ -171,7 +173,7 @@ describe('AgentService', () => {
     it('should return undefined when fetch fails', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
-      const result = await AgentService.getAgentByName(mockAgentsList[0].name)
+      const result = await new AgentService().getAgentByName(mockAgentsList[0].name)
       expect(result).toBeUndefined()
     })
   })
@@ -182,7 +184,7 @@ describe('AgentService', () => {
         ok: true,
       })
 
-      await expect(AgentService.deleteAgent(mockAgentsList[0].name)).resolves.toBeUndefined()
+      await expect(new AgentService().deleteAgent(mockAgentsList[0].name)).resolves.toBeUndefined()
       expect(mockFetch).toHaveBeenCalledWith('/backend/agent/byName/' + mockAgentsList[0].name, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
@@ -211,7 +213,7 @@ describe('AgentService', () => {
         embeddingModel: 'embedding',
       };
 
-      await expect(AgentService.updateAgentsConfig(config)).resolves.toBeUndefined()
+      await expect(new AgentService().updateAgentsConfig(config)).resolves.toBeUndefined()
       expect(mockFetch).toHaveBeenCalledWith('/backend/agents/config', {
         method: 'PUT',
         body: JSON.stringify(config),

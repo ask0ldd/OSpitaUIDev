@@ -2,7 +2,6 @@ import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/react/dont-cleanup-after-each'
 import Chat from '../../pages/Chat';
 import { OllamaService } from '../../services/OllamaService';
-import AgentService from '../../services/API/AgentService';
 import { render, screen, waitFor, act, cleanup } from '@testing-library/react';
 import {describe, beforeEach, vi, expect, test, afterEach } from 'vitest';
 import '@testing-library/react/dont-cleanup-after-each'
@@ -13,6 +12,7 @@ import mockRAGDocumentsList from '../../__mocks__/mockRAGDocumentsList';
 import PromptService from '../../services/API/PromptService';
 import mockPromptsList from '../../__mocks__/mockPromptsList';
 import mockRunningModelsInfos from '../../__mocks__/mockRunningModelsInfos';
+import AgentService from '../../services/API/AgentService';
 
 const MockedRouter = () => (
     <MemoryRouter>
@@ -32,11 +32,11 @@ describe('Given I am on the Chat page', () => {
         HTMLDialogElement.prototype.close = vi.fn()
         vi.spyOn(OllamaService, 'getModelList').mockResolvedValue(mockModelsList)
         vi.spyOn(OllamaService, 'getRunningModelInfos').mockResolvedValue(mockRunningModelsInfos)
-        vi.spyOn(AgentService, 'getAll').mockResolvedValue(mockAgentsList)
-        vi.spyOn(AgentService, 'getAgentByName').mockResolvedValue(mockAgentsList[0])
+        vi.spyOn(AgentService.prototype, 'getAll').mockResolvedValue(mockAgentsList)
+        vi.spyOn(AgentService.prototype, 'getAgentByName').mockResolvedValue(mockAgentsList[0])
         vi.spyOn(DocService, 'getAll').mockResolvedValue(mockRAGDocumentsList)
-        vi.spyOn(PromptService, 'getAll').mockResolvedValue(mockPromptsList)
-        vi.spyOn(PromptService, 'getByName').mockResolvedValue(mockPromptsList[0])
+        vi.spyOn(PromptService.prototype, 'getAll').mockResolvedValue(mockPromptsList)
+        vi.spyOn(PromptService.prototype, 'getByName').mockResolvedValue(mockPromptsList[0])
         vi.stubGlobal('speechSynthesis', {
             getVoices: vi.fn().mockReturnValue(mockVoices),
         });

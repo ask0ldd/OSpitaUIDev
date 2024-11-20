@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { AIAgent } from '../../models/AIAgent'
-import AgentService from '../../services/API/AgentService'
 import { WebSearchService } from '../../services/WebSearchService'
 import mockAgentsList from '../../__mocks__/mockAgentsList'
 import { ICompletionResponse } from '../../interfaces/responses/ICompletionResponse'
 import IScrapedPage from '../../interfaces/IScrapedPage'
 import ScrapedPage from '../../models/ScrapedPage'
+import AgentService from '../../services/API/AgentService'
 
 // Mock dependencies
 vi.mock('./API/AgentService')
@@ -97,14 +96,18 @@ const mockSummarizerRequest = {
     }   
 }
 
+let webSearchService = new WebSearchService()
+
 describe('WebSearchService', () => {
     beforeEach(() => {
         // Reset mocks before each test
         vi.resetAllMocks()
+
+        webSearchService = new WebSearchService()
         
         // Reset WebSearchService
-        WebSearchService.setWebSearchSummarizationStatus(false)
-        WebSearchService.generateNewAbortControllerAndSignal()
+        webSearchService.setWebSearchSummarizationStatus(false)
+        webSearchService.generateNewAbortControllerAndSignal()
     })
 
     afterEach(() => {
@@ -113,7 +116,7 @@ describe('WebSearchService', () => {
 
     describe('scraping', () => {
         it('should scrape data without summarization', async () => {
-            vi.spyOn(AgentService, 'getAgentByName').mockResolvedValueOnce(mockAgentsList[0])
+            vi.spyOn(AgentService.prototype, 'getAgentByName').mockResolvedValueOnce(mockAgentsList[0])
 
             mockFetch.mockResolvedValueOnce({
                 ok: true,
@@ -123,7 +126,7 @@ describe('WebSearchService', () => {
                 json: vi.fn().mockResolvedValue(mockScrapedPages)
             })
 
-            const result = await WebSearchService.scrapeRelatedDatas({query : "query", maxPages : 5})
+            const result = await webSearchService.scrapeRelatedDatas({query : "query", maxPages : 5})
 
             expect(mockFetch).toHaveBeenCalledWith("/ollama/api/generate", {
                 method: "POST",
@@ -147,7 +150,7 @@ describe('WebSearchService', () => {
         })
 
         it('scrape endpoint doesnt send an array back', async () => {
-            vi.spyOn(AgentService, 'getAgentByName').mockResolvedValueOnce(mockAgentsList[0])
+            vi.spyOn(AgentService.prototype, 'getAgentByName').mockResolvedValueOnce(mockAgentsList[0])
 
             mockFetch.mockResolvedValueOnce({
                 ok: true,
@@ -159,7 +162,7 @@ describe('WebSearchService', () => {
 
             console.error = vi.fn()
 
-            await expect(WebSearchService.scrapeRelatedDatas({query: "query", maxPages: 5}))
+            await expect(webSearchService.scrapeRelatedDatas({query: "query", maxPages: 5}))
             .rejects.toThrow();
 
             expect(mockFetch).toHaveBeenCalledWith("/ollama/api/generate", {
@@ -184,28 +187,28 @@ describe('WebSearchService', () => {
         })
 
         it('should handle API error and log it', async () => {
-            vi.spyOn(AgentService, 'getAgentByName').mockResolvedValueOnce(mockAgentsList[0])
+            vi.spyOn(AgentService.prototype, 'getAgentByName').mockResolvedValueOnce(mockAgentsList[0])
             mockFetch.mockRejectedValue(new Error('API Error'))
             console.error = vi.fn()
 
-            await expect(WebSearchService.scrapeRelatedDatas({query: "query", maxPages: 5}))
+            await expect(webSearchService.scrapeRelatedDatas({query: "query", maxPages: 5}))
             .rejects.toThrow();
             expect(console.error).toHaveBeenCalled()
         })
 
         it('should handle queryOptimizer agent missing and log it', async () => {
-            vi.spyOn(AgentService, 'getAgentByName').mockResolvedValueOnce(undefined)
+            vi.spyOn(AgentService.prototype, 'getAgentByName').mockResolvedValueOnce(undefined)
             mockFetch.mockRejectedValue(new Error('API Error'))
             console.error = vi.fn()
 
-            await expect(WebSearchService.scrapeRelatedDatas({query: "query", maxPages: 5}))
+            await expect(webSearchService.scrapeRelatedDatas({query: "query", maxPages: 5}))
             .rejects.toThrow();
             expect(console.error).toHaveBeenCalled()
         })
 
         it('should scrape data with summarization', async () => {
-            vi.spyOn(AgentService, 'getAgentByName').mockResolvedValue(mockAgentsList[0])
-            WebSearchService.setWebSearchSummarizationStatus(true)
+            vi.spyOn(AgentService.prototype, 'getAgentByName').mockResolvedValue(mockAgentsList[0])
+            webSearchService.setWebSearchSummarizationStatus(true)
 
             mockFetch.mockResolvedValueOnce({
                 ok: true,
@@ -218,7 +221,7 @@ describe('WebSearchService', () => {
                 json: vi.fn().mockResolvedValue(mockSummarizationResponse)
             })
 
-            const result = await WebSearchService.scrapeRelatedDatas({query : "query", maxPages : 5})
+            const result = await webSearchService.scrapeRelatedDatas({query : "query", maxPages : 5})
 
             expect(mockFetch).toHaveBeenCalledWith("/ollama/api/generate", {
                 method: "POST",
@@ -252,12 +255,12 @@ describe('WebSearchService', () => {
 
     describe('web search status', () => {
         it('should be false by default', async() => {
-            expect(WebSearchService.getWebSearchSummarizationStatus()).toBeFalsy()
+            expect(webSearchService.getWebSearchSummarizationStatus()).toBeFalsy()
         })
 
         it('should be true when set to true', async() => {
-            WebSearchService.setWebSearchSummarizationStatus(true)
-            expect(WebSearchService.getWebSearchSummarizationStatus()).toBeTruthy()
+            webSearchService.setWebSearchSummarizationStatus(true)
+            expect(webSearchService.getWebSearchSummarizationStatus()).toBeTruthy()
         })
     })
 })
