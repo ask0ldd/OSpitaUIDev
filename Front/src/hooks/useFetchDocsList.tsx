@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { IRAGDocument } from "../interfaces/IRAGDocument";
 import DocService from "../services/API/DocService";
 
-function useFetchDocsList(){
+export function useFetchDocsList(){
     const [docsList, _setDocsList] = useState<IRAGDocument[]>([])
     const docsListRef = useRef<IRAGDocument[]>(docsList)
 
@@ -30,5 +30,3 @@ function useFetchDocsList(){
 
     return { docsList, setDocsList, docsListRef };
 }
-
-export default useFetchDocsList
