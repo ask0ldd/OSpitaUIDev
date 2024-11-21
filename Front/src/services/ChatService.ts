@@ -115,7 +115,7 @@ export class ChatService{
       }
 
       this.activeAgent.setContext(context)
-      const concatenatedWebDatas = scrapedPages ? scrapedPages.reduce((acc, currentPage)=> acc + '\n\n' + currentPage.datas, "When replying to **MY REQUEST**, always use the following datas as your MAIN source of informations especialy if it contradict your training dataset : ") : ""
+      const concatenatedWebDatas = scrapedPages ? scrapedPages.reduce((acc, currentPage)=> acc + '\n\n' + currentPage.datas, "When replying to **MY REQUEST**, always consider the following datas as superseeding your training datas : ") : ""
       // console.log('CONCATENATED : ' + concatenatedWebDatas)
       const availableContextForWebDatas = this.activeAgent.getContextSize()
       const webDatasSizedForAvailableContext = concatenatedWebDatas.substring(0, availableContextForWebDatas)
