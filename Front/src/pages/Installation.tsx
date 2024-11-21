@@ -41,7 +41,9 @@ export default function Installation(){
 
     function handleSelectModelOnStep2(modelName : string){
         setSelectedStep2Model(modelName)
-        setSelectedModels(currentModels => ({...currentModels, complex : modelName}))
+        // setSelectedModels(currentModels => ({...currentModels, complex : modelName}))
+        setSelectedModels(currentModels => ({...currentModels, trivial : modelsList.includes(currentModels.trivial) ? currentModels.trivial : modelsList[0], complex : modelsList.includes(modelName) ? modelName : modelsList[0]}))
+        
     }
 
     async function handleSaveClick(e : React.MouseEvent){
