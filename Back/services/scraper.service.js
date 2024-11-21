@@ -26,10 +26,16 @@ async function fetchPage(url) {
         webpage('form').remove()
         webpage('a').remove()
 
+        // trying to get the publication date out of the meta tags
+        const modifiedTime = webpage('meta[property="article:modified_time"]').attr('content')
+        const publishedTime = webpage('meta[property="article:published_time"]').attr('content')
+        
+        let date = modifiedTime ?? publishedTime ?? undefined;
+
         var turndownService = new TurndownService()
         var markdown = turndownService.turndown(webpage('body').html())
         await fs.writeFile('./scrapeddatas.txt', markdown, 'utf-8') 
-        return markdown
+        return ({ markdown, date })
 
        /*const imgTagRegex6 = /<img[^>]*>/gi
 
@@ -50,14 +56,14 @@ async function fetchPage(url) {
         // console.log(webpage("body").text().replace(/[\n\t]+/g, '\n').replace(/\t+/g, '')).replace(/[ ]{4,}/g, '   ')
         // await fs.writeFile('./scrapeddatas.txt', webpage("body").text().replace(/[\n\t]+/g, '\n').replace(/[\t\r\v\f]/g, '').replace(/[ ]{4,}/g, '   ').replace(/[\n]{3,}/g, '\n').replace(/[\s\n]+/g, "\n"), 'utf8')
         // await fs.writeFile('./scrapeddatas.txt', webpage("body").text().replace(/\t/g, '').replace(/[\t\r\v\f]/g, '').replace(/[\n]{3,}/g, '\n'), 'utf-8')
-        await fs.writeFile('./scrapeddatas.txt', webpage("body").text().replace(/[\t\r\v\f]/g, '').replace(/[ ]{3,}/g, ' ').replace(/[\n]{2,}/g, '\n').replace(/[\s\n]{2,}/g, "\n\n\n"), 'utf-8')
-        return webpage("body").text().replace(/[\t\r\v\f]/g, '').replace(/[ ]{3,}/g, ' ').replace(/[\n]{2,}/g, '\n').replace(/[\s\n]{2,}/g, "\n\n\n")
+        // await fs.writeFile('./scrapeddatas.txt', webpage("body").text().replace(/[\t\r\v\f]/g, '').replace(/[ ]{3,}/g, ' ').replace(/[\n]{2,}/g, '\n').replace(/[\s\n]{2,}/g, "\n\n\n"), 'utf-8')
+        // return webpage("body").text().replace(/[\t\r\v\f]/g, '').replace(/[ ]{3,}/g, ' ').replace(/[\n]{2,}/g, '\n').replace(/[\s\n]{2,}/g, "\n\n\n")
     }catch(error){
         console.error(error)
     }
 }
 
-function convertTableToMarkdown(table, webpage) {
+/*function convertTableToMarkdown(table, webpage) {
     let markdown = ''
     
     // Extract headers
@@ -97,7 +103,7 @@ function toTelegraphicText(text) {
     })
   
     return words.join(' ')
-}
+}*/
 
 module.exports = {
     fetchPage: fetchPage
