@@ -138,6 +138,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
     }
 
     function handleMenuItemClick(item : string){
+        if(isStreaming) return
         if(item === "agent" || item === "chain" || item === "settings") setActiveMenuItem(item)
     }
 
@@ -163,7 +164,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
     }
 
     if(activeMenuItem == "settings") return (<aside className="rightDrawer">
-        <RightMenu handleMenuItemClick={handleMenuItemClick}/>
+        <RightMenu handleMenuItemClick={handleMenuItemClick} isStreaming={isStreaming}/>
         <article className='comingSoonContainer'>
             <span className='comingSoon' style={{textAlign:'center', width:'100%'}}>
                 Coming Soon
@@ -175,7 +176,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
 
     return(
         <aside className="rightDrawer">
-            <RightMenu handleMenuItemClick={handleMenuItemClick}/>
+            <RightMenu handleMenuItemClick={handleMenuItemClick} isStreaming={isStreaming}/>
             <article className='newAgentContainer'>
                 <button className='purpleShadow' onClick={handleOpenNewAgentFormClick}>+ Create a New Agent</button>
             </article>

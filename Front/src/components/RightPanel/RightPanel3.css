@@ -67,6 +67,23 @@
       }
     }
 
+    &.inactive {
+      button {
+        cursor: auto;
+        opacity: 0.4;
+
+        &:hover {
+          background: linear-gradient(
+            to bottom,
+            #ffffff66,
+            var(--base-container-background-color)
+          );
+          border: 1px solid #ffffffaa;
+          box-shadow: 0 6px 12px -2px #42396b30;
+        }
+      }
+    }
+
     /*img {
       box-shadow: 0 2px 4px -1px hsla(252, 29%, 45%, 0.7),
         0 5px 10px -1px hsla(246, 29%, 47%, 0.6);

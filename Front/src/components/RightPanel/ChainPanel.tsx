@@ -18,7 +18,7 @@ function ChainPanel({handleMenuItemClick, AIAgentsList,  currentChain, setCurren
     }
 
     return (<aside className="rightDrawer">
-        <RightMenu handleMenuItemClick={handleMenuItemClick}/>
+        <RightMenu handleMenuItemClick={handleMenuItemClick} isStreaming={isStreaming}/>
         <article className='chainContainer'>
             <h3 onClick={handleEditChainAgent}>CURRENT CHAIN</h3>
             <p>NB : Each Agent will process its predecessor's response using its own System Prompt. Finally, the last response will be displayed.</p>
