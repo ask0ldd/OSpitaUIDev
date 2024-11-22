@@ -355,7 +355,7 @@ function Chat() {
                     setTextareaValue={setTextareaValue} 
                     focusTextarea={handleCustomTextareaFocus} 
                     isStreaming={isStreaming} 
-                    selfClose={setIsFollowUpQuestionsClosed}/>}
+                    selfClose={setIsFollowUpQuestionsClosed} isFollowUpQuestionsClosed={isFollowUpQuestionsClosed}/>}
                 
                 <div className="sendStatsWebSearchContainer">
                     <div title="active the web search / context length of 10000 recommended" style={{opacity : '1'}} className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
