@@ -84,7 +84,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 3px solid #6d48c1;
+  border: 3px solid var(--purple-button-color);
   font-size: 18px;
   font-weight: 500;
 }

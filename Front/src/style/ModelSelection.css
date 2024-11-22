@@ -47,7 +47,7 @@ main.selectPage {
       .pullCommands {
         display: flex;
         flex-direction: column;
-        background-color: #dee3ef;
+        background-color: var(--input-background-color);
         color: #454545;
         padding: 0.75rem 1rem;
         text-align: left;
@@ -109,7 +109,7 @@ main.selectPage {
 
         img {
           width: 48px;
-          border: 3px solid #6d48c1;
+          border: 3px solid var(--purple-button-color);
           border-radius: 100%;
           opacity: 0.9;
           box-shadow: 0 2px 4px #8565ab60, 0 4px 8px #8565ab40,
@@ -119,7 +119,7 @@ main.selectPage {
 
       table {
         th {
-          background-color: #dee3ef;
+          background-color: var(--input-background-color);
           color: #454545;
         }
 
@@ -161,7 +161,7 @@ main.selectPage {
       }
 
       .alert {
-        background-color: #6d48c1;
+        background-color: var(--purple-button-color);
         color: #fff;
         width: 100%;
         padding: 2.5rem 0 0 0;

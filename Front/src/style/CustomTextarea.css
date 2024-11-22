@@ -31,7 +31,7 @@
 
     &::placeholder {
       font-weight: 300;
-      color: #252525;
+      color: var(--main-black-text-color);
     }
   }
 
