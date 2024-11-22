@@ -20,6 +20,7 @@ const getTTSaudio = async (req, res) => {
         fs.writeFileSync('./result.wav', wav.toBuffer())
 
         res.status(200).send('Audio generated successfully')
+        
     } catch (error) {
         console.error('Error generating audio:', error)
         res.status(500).send('Error generating audio')
