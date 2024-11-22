@@ -14,7 +14,9 @@ const saveConversation = (db) => async (req, res) => {
                 console.log("Database saved successfully")
             }
         })
+
         res.status(201).send('conversation saved successfully')
+
     } catch (error) {
         console.error(error)
         if (error.status) {
@@ -52,12 +54,16 @@ const updateConversationById = (db) => async (req, res) => {
           })
     
           console.log(`Updated agent: ${JSON.stringify(conversationToUpdate)}`)
+
           return res.json({ message: 'Agent updated successfully', conversation: conversationToUpdate })
+
         } else {
           // Create new agent
           const newConversation = { ...req.body }
           await conversationsCollection.insertOne(newConversation)
+
           return res.status(201).json({ message: 'Agent created successfully', conversation: newConversation })
+
         }
       } catch (error) {
         console.error(error)
@@ -76,7 +82,9 @@ const getConversationById = (db) => async (req, res) => {
     try {
         const conversation = await db.getCollection('conversation').findOne({ _id: conversationId })
         if (!conversation) return res.status(404).json({ error: 'The requested conversation was not found' })
+
         return res.status(200).json(conversation)
+
     } catch (error) {
         console.error('Error fetching conversation:', error)
         return res.status(500).json({ error: 'Internal server error' })
@@ -87,7 +95,9 @@ const getAllConversations = (db) => async (req, res) => {
     try {
         console.log("Fetching conversation.")
         const conversation = db.getCollection("conversation").find()
+
         return res.setHeader("Access-Control-Allow-Origin", "*").status(200).json(conversation)
+        
     } catch (error) {
         console.error("Error retrieving conversation:", error)
         res.status(500).json({ message: 'An error occurred while retrieving conversation.' })

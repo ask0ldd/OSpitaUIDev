@@ -30,6 +30,7 @@ const savePrompt = (db) => async (req, res) => {
           }], 
           currentVersion: 1
         })
+
         db.saveDatabase((err) => {
             if (err) {
                 console.error("Error saving database:", err)
@@ -38,7 +39,9 @@ const savePrompt = (db) => async (req, res) => {
                 console.log("Database saved successfully")
             }
         })
+
         res.status(201).send('Prompt saved successfully')
+
     } catch (error) {
         console.error(error)
         if (error.status) {
@@ -79,7 +82,9 @@ const updatePromptById = (db) => async (req, res) => {
           })
     
           console.log(`Updated agent: ${JSON.stringify(promptToUpdate)}`)
+
           return res.json({ message: 'Agent updated successfully', prompt: promptToUpdate })
+
         } else {
           // Create new agent
           const newPrompt = { ...req.body }
@@ -132,12 +137,15 @@ const updatePromptByName = (db) => async (req, res) => {
           })
     
           return res.json({ message: 'Agent updated successfully', prompt: promptToUpdate })
+
         } else {
           // Create new agent
           const newPrompt = { ...req.body }
           await promptsCollection.insertOne(newPrompt)
           console.log(`Created new agent: ${JSON.stringify(newPrompt)}`)
+
           return res.status(201).json({ message: 'Agent created successfully', prompt: newPrompt })
+
         }
       } catch (error) {
         console.error(error)
@@ -156,7 +164,9 @@ const getPromptById = (db) => async (req, res) => {
     try {
         const prompt = await db.getCollection('prompts').findOne({ _id: promptId })
         if (!prompt) return res.status(404).json({ error: 'The requested prompt was not found' })
+
         return res.status(200).json(prompt)
+
     } catch (error) {
         console.error('Error fetching prompt:', error)
         return res.status(500).json({ error: 'Internal server error' })
@@ -171,7 +181,9 @@ const getPromptByName = (db) => async (req, res) => {
     try {
         const prompt = await db.getCollection('prompts').findOne({ name: promptName })
         if (!prompt) return res.status(404).json({ error: 'The requested prompt was not found' })
+
         return res.status(200).json(prompt)
+
     } catch (error) {
         console.error('Error fetching prompt:', error)
         return res.status(500).json({ error: 'Internal server error' })
@@ -183,7 +195,9 @@ const getAllPrompts = (db) => async (req, res) => {
         console.log("Fetching prompts.")
         const prompts = db.getCollection("prompts").find()
         const formattedPrompts = prompts.map(({ name, prompt }) => ({ name, prompt }))
+
         return res.setHeader("Access-Control-Allow-Origin", "*").status(200).json(formattedPrompts)
+
     } catch (error) {
         console.error("Error retrieving prompts:", error)
         res.status(500).json({ message: 'An error occurred while retrieving prompts.' })
@@ -212,7 +226,9 @@ const deletePromptById = (db) => async (req, res) => {
               return res.status(500).json({ error: 'Cannot save the database' })
           }
           console.log("Database saved successfully")
+
           return res.status(204).send()
+          
       })
   } catch (error) {
       console.error('Error deleting prompt:', error)
