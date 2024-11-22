@@ -3,6 +3,10 @@ export class ImageRepository{
 
     static selectedImageIndex : number = -1;
 
+    static selectedImages : Set<number> = new Set();
+
+    // static selectedImagesData : string[]
+
     static pushImage(image : {id : number, name : string, data : string}){
         this.images.push({id : image.id, filename : image.name, data : image.data})
     }
@@ -41,8 +45,43 @@ export class ImageRepository{
     }
 
     static setSelectedImageId(index : number){
-        this.selectedImageIndex = index;
+        this.selectedImageIndex = index
     }
+
+    /* multiple images
+
+    static getSelectedImagesAsBase64() : string[]{
+        console.log('nSelectImages : ' + this.selectedImages.size)
+        console.log(this.images.length)
+        return this.images.map(image => (image.data.split(',')[1])) // .filter((image, index) => this.selectedImages.has(index))
+    }
+
+    static selectImage(index : number){
+        this.selectedImages.add(index)
+    }
+
+    static deselectImage(index : number){
+        this.selectedImages.delete(index)
+    }
+
+    static clearSelectedImages(){
+        this.selectedImages = new Set()
+    }
+
+    static isImageSelected(index  : number)  : boolean {
+        return this.selectedImages.has(index)
+    }
+
+    static isAnImageSelected() : boolean {
+        return this.selectedImages.size > 0
+        // return this.selectedImageIndex!= -1;
+    }
+
+    static getSelectedImagesIds() : Set<number> {
+        return new Set(this.selectedImages)
+    }
+
+    end */
 
     static setImages(images : {id : number, name : string, data : string}[]){
         this.images = images.map(image => ({id : image.id, filename : image.name, data : image.data}));
@@ -52,9 +91,10 @@ export class ImageRepository{
         return this.images.length
     }
 
-    static isAnImageSelected() : boolean {
-        return this.selectedImageIndex!= -1;
+    static deselectAllImages(){
+        this.selectedImageIndex = -1
     }
+
 }
 
 export interface Image{

@@ -170,11 +170,14 @@ function Chat() {
                 const ragContext = ChatService.getRAGTargetsFilenames().length > 0 ? await buildRAGContext(query) : ""
 
                 const selectedImage = ImageRepository.getSelectedImageAsBase64()
+                // const selectedImages = ImageRepository.getSelectedImagesAsBase64()
+
                 const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(
                     {
                         question : ragContext + query, 
                         chunkProcessorCallback : onStreamedChunkReceived_Callback, 
                         context : ragContext == "" ? currentContext : [], 
+                        // images : selectedImages.length > 0 ? [selectedImages[0]] : []
                         images : selectedImage != null ? [selectedImage] : []
                     })
                 newContext = finalDatas.newContext

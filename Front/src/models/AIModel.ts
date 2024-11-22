@@ -119,13 +119,15 @@ export class AIModel{
 
     async askForAStreamedResponse(prompt : string, images : string[] = []) : Promise<ReadableStreamDefaultReader<Uint8Array>>{
         try {
+            if((this.#modelName.includes("vision") || this.#modelName.includes("llava") || this.#modelName.includes("minicpm")) && images.length < 1) throw new Error("No image provided.")
+
             const response = await fetch("/ollama/api/generate", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 // ? querying an image : no image
-                body:  (images.length && this.#modelName.includes("vision")) ? this.#buildVisionRequest({prompt, stream : true, images}) : this.#buildRequest({prompt, stream : true}),
+                body:  (images.length && (this.#modelName.includes("vision") || this.#modelName.includes("llava") || this.#modelName.includes("minicpm"))) ? this.#buildVisionRequest({prompt, stream : true, images}) : this.#buildRequest({prompt, stream : true}),
                 signal: this.#signal,
                 // keepalive: true
             })
@@ -377,10 +379,10 @@ export class AIModel{
         const baseRequest : IBaseVisionOllamaRequest = {
             "model": this.#modelName,
             "stream": stream,
-            "system": this.#systemPrompt,
+            // "system": this.#systemPrompt,
             "prompt": prompt,
-            "context" : [...this.#context],
-            "images" : [images[0]]/*.map(image => JSON.stringify(image))*/,
+            // "context" : [...this.#context],
+            "images" : [...images],
         }
         const requestWithOptions = {...baseRequest, "options": this.getOptions()}
         return JSON.stringify(requestWithOptions)
@@ -535,15 +537,18 @@ export class AIModel{
     }
 }
 
-export interface IBaseOllamaRequest{
+interface IBaseRequest{
     model: string
     stream: boolean
-    system: string
     prompt: string
+}
+
+export interface IBaseOllamaRequest extends IBaseRequest{
+    system: string
     context : number[]
     options? : unknown
 }
 
-interface IBaseVisionOllamaRequest extends IBaseOllamaRequest {
+interface IBaseVisionOllamaRequest extends IBaseRequest {
     images: string[]
 }
