@@ -124,8 +124,9 @@ export default function Installation(){
                     <div className="pullCommands">
                         &gt; ollama pull llama3.2:3b<br/>
                         &gt; ollama pull nomic-embed-text<br/>
-                        {selectedStep2Model == "mistral-nemo:12b" && <>&gt; ollama pull mistral-nemo</>}
-                        {selectedStep2Model == "aya-expanse:8b" && <>&gt; ollama pull aya-expanse:8b</>}
+                        {selectedStep2Model == "mistral-nemo:12b" && <>&gt; ollama pull mistral-nemo:12b</>}
+                        {selectedStep2Model == "aya-expanse:8b" && <>&gt; ollama pull aya-expanse:8b</>}<br/>
+                        &gt; ollama pull llama3.2-vision:11b (only if you want vision capabilities)
                     </div>
                     <hr/>
                     <button className="purpleShadow" onClick={handleNextClick} style={{width:'33%', marginLeft:'auto', marginTop:'1rem'}}>next</button>
