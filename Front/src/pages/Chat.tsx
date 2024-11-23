@@ -40,9 +40,9 @@ function Chat() {
 
     const { webSearchService } = useServices();
 
-    const {AIAgentsList, triggerAIAgentsListRefresh} = useFetchAgentsList()
+    const { AIAgentsList, triggerAIAgentsListRefresh } = useFetchAgentsList()
     
-    const {isStreaming, isStreamingRef, setIsStreaming} = useStreamingState()
+    const { isStreaming, isStreamingRef, setIsStreaming } = useStreamingState()
 
     // Active Conversation Management
     // Manages the state and context of the current active conversation
@@ -123,7 +123,7 @@ function Chat() {
      * @returns A Promise that resolves when the streaming is complete
      */
     async function askMainAgent_Streaming(query: string): Promise<void> {
-        // console.log(JSON.stringify(activeConversationStateRef.current))
+        
         try {
             // Prevent empty query or multiple concurrent streams
             if (query == "" || isStreamingRef.current) return
@@ -144,10 +144,11 @@ function Chat() {
 
             // Handle web search if activated, otherwise use internal knowledge
             if (isWebSearchActivatedRef.current == true) {
+                // web search unavailable when a vision model is active
+                if(ChatService.isAVisionModelActive()) throw new Error("Web search not available when a vision model is selected.")
                 console.log("***Web Search***")
                 const scrapedPages = await webSearchService.scrapeRelatedDatas({query, maxPages : 3})
                 if(scrapedPages == null) {
-                    // showErrorModal("No results found for your query")
                     throw new Error("No results found for your query")
                 }
                 console.log("***LLM Loading***")
@@ -169,12 +170,11 @@ function Chat() {
                 // If any document is selected, extract the relevant datas for RAG
                 const ragContext = ChatService.getRAGTargetsFilenames().length > 0 ? await buildRAGContext(query) : ""
 
-                const selectedImage = ImageRepository.getSelectedImageAsBase64()
-                // const selectedImages = ImageRepository.getSelectedImagesAsBase64()
+                const selectedImage = ImageRepository.getSelectedImageAsBase64() // const selectedImages = ImageRepository.getSelectedImagesAsBase64()
 
                 const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(
                     {
-                        question : ragContext + query, 
+                        question : ChatService.isAVisionModelActive() ? query : ragContext + query, 
                         chunkProcessorCallback : onStreamedChunkReceived_Callback, 
                         context : ragContext == "" ? currentContext : [], 
                         // images : selectedImages.length > 0 ? [selectedImages[0]] : []
@@ -207,7 +207,7 @@ function Chat() {
             if(error instanceof Error && (error.name === "AbortError" || error.name.includes("abort") || error.message.includes("Signal"))) return 
 
             ChatService.abortAgentLastRequest()
-            showErrorModal("Stream failed : " + error)
+            showErrorModal("Stream failed. " + (error instanceof Error ? error.message : error))
         }finally{
             setIsStreaming(false)
         }
@@ -229,7 +229,7 @@ function Chat() {
                 modelUsed : AIAgentChain.getLastAgent().getModelName(),}
             })
             const response = await AIAgentChain.process(query)
-            if(response == null) throw new Error("The chain failed to produce a response")
+            if(response == null) throw new Error("The chain failed to produce a response.")
             dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, payload : {html : await AnswerFormatingService.format(response.response), markdown : response.response}})
             if(textareaValueRef.current == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
             const stats = InferenceStatsFormatingService.extractStats(response)

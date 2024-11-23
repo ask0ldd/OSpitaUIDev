@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import visionModelsClues from "../constants/VisionModelsClues";
 import { IConversationElement, IInferenceStats } from "../interfaces/IConversation";
 import IScrapedPage from "../interfaces/IScrapedPage";
 import { AIAgent } from "../models/AIAgent";
@@ -250,6 +251,10 @@ export class ChatService{
 
     static logScrapedDatas(scrapedPages : IScrapedPage[]){
       scrapedPages?.forEach(page => console.log("scrapedPageData :" + page.datas))
+    }
+
+    static isAVisionModelActive(){
+      return visionModelsClues.some(clue => this.activeAgent.getModelName().toLowerCase().includes(clue))
     }
 
     /*static async askTheActiveAgentForAutoComplete(promptToComplete : string, context:number[] = []) : Promise<{context : number[], response : string}>

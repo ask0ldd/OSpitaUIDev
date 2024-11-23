@@ -3,6 +3,7 @@
 import { ICompletionResponse } from "../interfaces/responses/ICompletionResponse"
 import { IEmbeddingResponse } from "../interfaces/responses/IEmbeddingResponse"
 import { IAIModelParams } from "../interfaces/params/IAIModelParams"
+import visionModelsClues from "../constants/VisionModelsClues"
 
 /**
  * @class AIModel
@@ -119,7 +120,7 @@ export class AIModel{
 
     async askForAStreamedResponse(prompt : string, images : string[] = []) : Promise<ReadableStreamDefaultReader<Uint8Array>>{
         try {
-            if((this.#modelName.includes("vision") || this.#modelName.includes("llava") || this.#modelName.includes("minicpm")) && images.length < 1) throw new Error("No image provided.")
+            if(visionModelsClues.some(clue => this.#modelName.toLowerCase().includes(clue)) && images.length < 1) throw new Error("No image provided.")
 
             const response = await fetch("/ollama/api/generate", {
                 method: "POST",
@@ -127,7 +128,7 @@ export class AIModel{
                     "Content-Type": "application/json",
                 },
                 // ? querying an image : no image
-                body:  (images.length && (this.#modelName.includes("vision") || this.#modelName.includes("llava") || this.#modelName.includes("minicpm"))) ? this.#buildVisionRequest({prompt, stream : true, images}) : this.#buildRequest({prompt, stream : true}),
+                body:  (images.length && visionModelsClues.some(clue => this.#modelName.toLowerCase().includes(clue))) ? this.#buildVisionRequest({prompt, stream : true, images}) : this.#buildRequest({prompt, stream : true}),
                 signal: this.#signal,
                 // keepalive: true
             })

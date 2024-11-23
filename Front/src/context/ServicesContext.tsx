@@ -15,7 +15,11 @@ const defaultContextValue: ServicesContextType = {
   webSearchService: new WebSearchService(),
 };
 
-export const ServicesContext = createContext<ServicesContextType>(defaultContextValue);
+export const ServicesContext = createContext<ServicesContextType>({
+  agentService: new AgentService(),
+  promptService: new PromptService(),
+  webSearchService: new WebSearchService(),
+});
 
 interface ServicesProviderProps {
   children: ReactNode;
