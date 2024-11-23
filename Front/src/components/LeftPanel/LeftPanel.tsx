@@ -31,7 +31,7 @@ const LeftPanel = React.memo(({isWebSearchActivated, setWebSearchActivated, acti
             <figure style={{cursor:'pointer'}} onClick={() => location.reload()}><span>OSSPITA FOR</span> <img src={ollama}/></figure>
             <ConversationsSlot activeConversationId={activeConversationId} setActiveConversationId={setActiveConversationId} dispatch={dispatch}/>
             <DocumentsSlot active={activeSlot == "documents"} setActiveSlot={setActiveSlot} isWebSearchActivated={isWebSearchActivated} setWebSearchActivated={setWebSearchActivated} memoizedSetModalStatus={memoizedSetModalStatus}/>
-            <ImagesSlot active={activeSlot == "images"} setActiveSlot={setActiveSlot}/>
+            <ImagesSlot active={activeSlot == "images"} setActiveSlot={setActiveSlot} isWebSearchActivated={isWebSearchActivated} setWebSearchActivated={setWebSearchActivated}/>
             <PromptsSlot selectedPromptNameRef={selectedPromptNameRef} memoizedSetModalStatus={memoizedSetModalStatus}/>
         </aside>
     )

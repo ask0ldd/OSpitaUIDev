@@ -11,7 +11,7 @@ export default function DocumentsSlot({isWebSearchActivated, setWebSearchActivat
 
     const units = ["B", "KB", "MB", "GB"]
 
-    const nItems = 5
+    const nItems = 4
 
     const { docsList, docsListRef, setDocsList} = useFetchDocsList()
 

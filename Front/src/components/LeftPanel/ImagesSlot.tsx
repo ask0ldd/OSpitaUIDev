@@ -2,12 +2,13 @@
 import { useEffect, useRef, useState } from "react"
 import { ImageRepository, Image } from "../../repositories/ImageRepository";
 
-function ImagesSlot({active, setActiveSlot} : IProps){
+function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchActivated} : IProps){
 
   // should use useSyncExternalStore instead of
   const [images, setImages] = useState<Image[]>([])
+  const [hoveredImage, setHoveredImage] = useState<Image | null>(null)
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null) 
 
   const [selectedImgId, _setSelectedImgId] = useState<number>(-1)
   const selectedImgIdRef = useRef<number>(-1)
@@ -15,6 +16,11 @@ function ImagesSlot({active, setActiveSlot} : IProps){
     selectedImgIdRef.current = id
     _setSelectedImgId(id)
   }
+
+  // activating web search should deselect any image
+  useEffect(() => {
+    if(isWebSearchActivated == true) setSelectedImgId(-1)
+  }, [isWebSearchActivated])
 
   // const [selectedImgsIds, setSelectedImgsIds] = useState<Set<number>>(new Set())
 
@@ -44,6 +50,7 @@ function ImagesSlot({active, setActiveSlot} : IProps){
   }
 
   function handleImgClick(id : number){
+    setWebSearchActivated(false)
     if(selectedImgIdRef.current == id) {
       ImageRepository.setSelectedImageId(-1)
       return setSelectedImgId(-1)
@@ -87,6 +94,10 @@ function ImagesSlot({active, setActiveSlot} : IProps){
     })
   }
 
+  function handleMouseOverPicture(id : number){
+    if(images[id] != null) setHoveredImage(images[id])
+  }
+
   useEffect(()=> {
     setSelectedImgId(-1)
   }, [images])
@@ -104,7 +115,7 @@ function ImagesSlot({active, setActiveSlot} : IProps){
   return(
   <article className="imagesSlot" style={{marginTop:'0.75rem'}}>
       <h3>
-        IMAGES<span className='nPages' style={{color:"#232323", fontWeight:'500'}}></span>
+        IMAGES<span className='nPages' style={{color:"#232323", fontWeight:'500'}}>Vision Model required</span>
       </h3>
       <input ref={fileInputRef} onChange={handleFileSelect} type="file" style={{display: 'none'}}/>
       <div className="imagesContainer">
@@ -112,7 +123,8 @@ function ImagesSlot({active, setActiveSlot} : IProps){
           <img className='purpleShadow' style={{width:'40px', cursor:'pointer'}} src={upload}/>
         </div>*/}
         {
-          images?.map((image, index) => (<img onClick={() => handleImgClick(index)} className={selectedImgIdRef.current == index ? 'active' : ''} style={{width:'48px'}} src={image.data} key={'img'+index}/>))
+          images?.map((image, index) => (<img onClick={() => handleImgClick(index)} onMouseEnter={() => handleMouseOverPicture(index)} onMouseOut={() => setHoveredImage(null)} className={selectedImgIdRef.current  == index ? 'active' : ''} style={{width:'48px'}} src={image.data} key={'img'+index}/>))
+
         }
         {
           nVignettesToFillRow(images.length) > 0 && Array(nVignettesToFillRow(images.length)).fill("").map((_,id) => (<div className='fillerMiniature' key={"blank"+id}></div>))
@@ -135,6 +147,7 @@ function ImagesSlot({active, setActiveSlot} : IProps){
             <svg width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="#fff" d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/></svg>
         </button>
     </div>
+    {/*hoveredImage && <img style={{position:'absolute', top : '0', left : '100%', zIndex: '100', transform:'translateY(-50%)'}} src={hoveredImage.data} alt="preview"/>*/}
   </article>
   )
 }
@@ -148,4 +161,6 @@ export default ImagesSlot
 interface IProps{
   active : boolean
   setActiveSlot : React.Dispatch<React.SetStateAction<"documents" | "images">>
+  isWebSearchActivated : boolean
+  setWebSearchActivated: (value: boolean) => void
 }
