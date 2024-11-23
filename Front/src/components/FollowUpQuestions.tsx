@@ -5,6 +5,7 @@ import '../style/FollowUpQuestions.css'
 import { ChatService } from '../services/ChatService'
 import { IConversationElement } from '../interfaces/IConversation'
 import React from 'react'
+import visionModelsClues from '../constants/VisionModelsClues'
 
 // function FollowUpQuestions({historyElement, setTextareaValue, focusTextarea, isStreaming, selfClose} : IProps){
 
@@ -29,6 +30,8 @@ const FollowUpQuestions = React.memo(({historyElement, setTextareaValue, focusTe
     }
 
     useEffect(() => {
+        // if(visionModelsClues.some(clue => ChatService.getActiveAgent().getModelName().toLowerCase().includes(clue))) return
+        if(ChatService.isAVisionModelActive()) return
         if(historyElement?.question && historyElement.question != "" && historyElement?.context?.length && !isStreaming && !isFollowUpQuestionsClosed) {
             generateFollowUpQuestions(historyElement.question)
         }
