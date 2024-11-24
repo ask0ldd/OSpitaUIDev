@@ -31,7 +31,6 @@ export default function DocumentsSlot({isWebSearchActivated, setWebSearchActivat
     const filterInputRef = useRef<HTMLInputElement>(null)
     const searchInputRef = useRef<HTMLInputElement>(null)
 
-
     function reduceFileSize(filesize : number, round : number = 0) : string | undefined{
         const newFileSize = filesize / 1000
         if(newFileSize < 1) return filesize.toFixed(1) + " " + units[round]
