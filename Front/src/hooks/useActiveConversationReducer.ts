@@ -6,7 +6,7 @@ import ScrapedPage from "../models/ScrapedPage"
 export function useActiveConversationReducer({name, history, lastAgentUsed, lastModelUsed} : IConversation) {
 
     // !!! needs last model used in case the agent model was switched after the last request
-    const activeConversationStateRef = useRef<IConversation>({name : name, history : history, lastAgentUsed  : lastAgentUsed, lastModelUsed : lastModelUsed, images : []}) 
+    const activeConversationStateRef = useRef<IConversation>({name : name, history : history, lastAgentUsed  : lastAgentUsed, lastModelUsed : lastModelUsed}) 
     // {value : 0} instead of a simple 0 -> replacing a {value : 0} with a {value : 0} 
     // will trigger all activeConversationId related effects
     // when replacing a 0 with a 0 won't
@@ -23,6 +23,7 @@ export function useActiveConversationReducer({name, history, lastAgentUsed, last
                         answer : {asMarkdown : "", asHTML : ""}, 
                         context : [],
                         sources : [],
+                        images : [],                        
                         date : new Date().toISOString(),
                 }]}
                 newState.lastAgentUsed = action.payload.agentUsed
@@ -51,6 +52,16 @@ export function useActiveConversationReducer({name, history, lastAgentUsed, last
                 return {...newState}
             }
 
+            case ActionType.UPDATE_LAST_HISTORY_ELEMENT_IMAGES : {
+                const newState = {...state, 
+                    history : [...state.history]
+                }
+                const historyId = newState.history.length -1
+                newState.history[historyId].images = [...action.payload]
+                activeConversationStateRef.current = {...newState}
+                return {...newState}
+            }
+
             case ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS : {
                 const newState = {...state, 
                     history : [...state.history]
@@ -69,6 +80,7 @@ export function useActiveConversationReducer({name, history, lastAgentUsed, last
                         answer : {asMarkdown : action.payload.answer.asMarkdown, asHTML : action.payload.answer.asHTML}, 
                         context : action.payload.context,
                         sources : [],
+                        images : [],
                         date : new Date().toISOString(),
                     }]
                 }
@@ -105,7 +117,7 @@ export function useActiveConversationReducer({name, history, lastAgentUsed, last
         }
     }
 
-    const [activeConversationState, dispatch] = useReducer(conversationReducer, {name : name, history : history, lastAgentUsed  : lastAgentUsed, lastModelUsed : lastModelUsed, images : []})
+    const [activeConversationState, dispatch] = useReducer(conversationReducer, {name : name, history : history, lastAgentUsed  : lastAgentUsed, lastModelUsed : lastModelUsed})
 
     return {activeConversationState, dispatch, activeConversationStateRef, activeConversationId, setActiveConversationId}
 }
@@ -118,6 +130,7 @@ export enum ActionType {
     PUSH_NEW_HISTORY_ELEMENT = "PUSHNEWHISTORYELEMENT",
     SET_CONVERSATION = "SET_CONVERSATION",
     UPDATE_LAST_HISTORY_ELEMENT_CONTEXT = "UPDATE_LAST_HISTORY_CONTEXT",
+    UPDATE_LAST_HISTORY_ELEMENT_IMAGES = "UPDATE_LAST_HISTORY_ELEMENT_IMAGES",
     UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS = "UPDATE_LAST_HISTORY_CONTEXT_NSTATS",
     DELETE_LAST_HISTORY_ELEMENT = "DELETE_LAST_HISTORY_ELEMENT",
     ADD_SOURCES_TO_LAST_ANSWER = "ADD_SOURCES_TO_LAST_ANSWER",
@@ -127,6 +140,7 @@ export type TAction =
     | { type: ActionType.NEW_BLANK_HISTORY_ELEMENT; payload: {message : string, agentUsed : string, modelUsed : string } }
     | { type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER; payload: { html : string, markdown : string } }
     | { type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT; payload: number[] }
+    | { type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_IMAGES; payload: string[] }
     | { type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS; payload: { newContext : number[], inferenceStats : IInferenceStats} }
     | { type: ActionType.PUSH_NEW_HISTORY_ELEMENT; payload: IConversationElement /*{ question : string, html : string, markdown : string, context : number[] }*/}
     | { type: ActionType.SET_CONVERSATION; payload: IConversation }

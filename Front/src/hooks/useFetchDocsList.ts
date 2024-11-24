@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { IRAGDocument } from "../interfaces/IRAGDocument";
 import DocService from "../services/API/DocService";
 
@@ -13,16 +13,24 @@ export function useFetchDocsList(){
         _setDocsList(docsList)
     }
 
-    useEffect(() => {
-
-        async function fetchDocsList () {
+    // won't be triggered each time the component is rerendered
+    const fetchDocsList = useCallback(async () => {
+        try {
             const retrievedDocsList = await DocService.getAll()
-            if(retrievedDocsList == null) return setDocsList([])
-            return setDocsList([...retrievedDocsList])
+            const newDocsList = retrievedDocsList ?? []
+            setDocsList(newDocsList)
+            docsListRef.current = newDocsList
+        } catch (error) {
+            console.error('Error fetching docs list:', error)
+            setDocsList([])
+            docsListRef.current = []
         }
-        
+    }, []);
+
+    useEffect(() => {
         fetchDocsList()
-    }, [/*refreshTrigger*/]);
+    // fetchDocsList used as a dependancy since useCallback used to avoid rerenders
+    }, [fetchDocsList, /*refreshTrigger*/]);
 
     /*const triggerDocsListRefresh = () => {
         setRefreshTrigger(prev => prev + 1);

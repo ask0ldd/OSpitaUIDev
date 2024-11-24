@@ -9,11 +9,11 @@ function useModalManager({initialVisibility, initialModalContentId} : IModalObje
 
     // show an error modal with errorMessageRef as a message
     const errorMessageRef = useRef("")
-    function showErrorModal(errorMessage : string){
+    const showErrorModal = useCallback((errorMessage : string) =>{
         errorMessageRef.current = errorMessage
         setModalContentId("error")
         setModalVisibility(true)
-    }
+    }, [])
 
     // Memoized function to update modal status
     // Prevents unnecessary re-renders
