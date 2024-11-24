@@ -7,8 +7,8 @@ export class ImageRepository{
 
     // static selectedImagesData : string[]
 
-    static pushImage(image : {id : number, name : string, data : string}){
-        this.images.push({id : image.id, filename : image.name, data : image.data})
+    static pushImage(image : Image){
+        this.images.push({id : image.id, filename : image.filename, data : image.data})
     }
 
     static getImages() : Image[]{
