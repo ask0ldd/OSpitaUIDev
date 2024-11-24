@@ -99,7 +99,7 @@ const updateAgentByName = (db) => async (req, res) => {
         // Update existing agent
         Object.assign(agentToUpdate, req.body)
 
-        // if the agent to update is a systeme agent, then its name can't be changed
+        // if the agent to update is a system agent, then its name can't be changed
         if(agentType == "system") agentToUpdate.name = originalName
 
         await agentsCollection.update(agentToUpdate)

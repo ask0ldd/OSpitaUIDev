@@ -351,7 +351,27 @@ const agents = [
         top_p: 0.9,
         type : "system",
         favorite : false
-    },
+    },/*{
+        id : 'a0000000005',
+        name: "visionAgent [Llama Vision Req.]",
+        model : "llama3.2-vision:11b",
+        systemPrompt : "You are a helpful assistant powered by a large language model. Prioritize information from the provided image to fulfill the user's request. Employ chain-of-thought reasoning for complex queries. Consider multiple perspectives and potential outcomes before responding. Maintain awareness of your capabilities and limitations. If uncertain, acknowledge it and provide the most relevant information available. Aim for concise, accurate, and contextually appropriate responses.",
+        mirostat: 0,
+        mirostat_eta: 0.1,
+        mirostat_tau: 5.0,
+        num_ctx: 2048,
+        repeat_last_n: 64,
+        repeat_penalty: 1.1,
+        temperature: 0.3,
+        seed: 0,
+        stop: "AI assistant:",
+        tfs_z: 1,
+        num_predict: 1024,
+        top_k: 40,
+        top_p: 0.9,
+        type : "system",
+        favorite : false
+    },*/
     {
         id : 'a0000000004',
         name: "searchQueryOptimizer",
@@ -499,27 +519,7 @@ const agents = [
         type : "system",
         favorite : false
     },*/
-    /*
-        id : 'a0000000005',
-        name: "visionAgent",
-        model : "llama3.2-vision:11b",
-        systemPrompt : "Your task is to describe some images with the utmost precision",
-        mirostat: 0,
-        mirostat_eta: 0.1,
-        mirostat_tau: 5.0,
-        num_ctx: 2048,
-        repeat_last_n: 64,
-        repeat_penalty: 1.1,
-        temperature: 0.8,
-        seed: 0,
-        stop: "AI assistant:",
-        tfs_z: 1,
-        num_predict: 1024,
-        top_k: 40,
-        top_p: 0.9,
-        type : "system",
-        favorite : false
-    */
+    
 ]
 
 module.exports = agents
