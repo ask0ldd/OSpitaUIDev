@@ -120,7 +120,7 @@ export class AIModel{
 
     async askForAStreamedResponse(prompt : string, images : string[] = []) : Promise<ReadableStreamDefaultReader<Uint8Array>>{
         try {
-            if(visionModelsClues.some(clue => this.#modelName.toLowerCase().includes(clue)) && images.length < 1) throw new Error("No image provided.")
+            if(visionModelsClues.some(clue => this.#modelName.toLowerCase().includes(clue)) && images.length < 1) throw new Error("No image provided / selected.")
 
             const response = await fetch("/ollama/api/generate", {
                 method: "POST",

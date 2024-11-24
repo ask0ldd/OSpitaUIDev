@@ -322,7 +322,9 @@ function Chat() {
     return (
     <div id="globalContainer" className="globalContainer">
 
-        <LeftPanel key={"lp-" + forceLeftPanelRefresh} 
+        {/* key={"lp-" + forceLeftPanelRefresh} */}
+        <LeftPanel 
+            forceLeftPanelRefresh={forceLeftPanelRefresh} 
             isWebSearchActivated={isWebSearchActivated}
             setWebSearchActivated={setWebSearchActivated}
             activeConversationStateRef={activeConversationStateRef} 
