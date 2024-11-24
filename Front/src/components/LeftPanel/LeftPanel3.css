@@ -464,3 +464,29 @@
     opacity: 1;
   }
 }
+
+.previewImage {
+  position: absolute;
+  top: 50%;
+  left: 50vw;
+  z-index: 100;
+  transform: translate(-50%, -50%);
+  max-width: 500px;
+  border: 3px solid var(--base-container-background-color);
+  box-shadow: 0px 16px 32px 0px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  border-radius: 6px;
+  filter: saturate(0);
+  animation: fadeIn 0.35s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    filter: saturate(0);
+  }
+  to {
+    opacity: 1;
+    filter: saturate(0.75);
+  }
+}
