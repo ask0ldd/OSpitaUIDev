@@ -2,8 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from "react"
 import './FormPromptSettings.css'
-import useFetchPrompt from "../../hooks/useFetchPrompt"
-import { useServices } from "../../hooks/useServices"
+import useFetchPrompt from "../../hooks/useFetchPrompt.ts"
+import { useServices } from "../../hooks/useServices.ts"
 
 export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRef, setForceLeftPanelRefresh, role} : IProps){
 

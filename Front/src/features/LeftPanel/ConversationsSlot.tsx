@@ -4,7 +4,7 @@ import { IConversation } from "../../interfaces/IConversation"
 import { ConversationsRepository } from "../../repositories/ConversationsRepository"
 import { ChatService } from "../../services/ChatService"
 import { ActionType, TAction } from "../../hooks/useActiveConversationReducer"
-import { useServices } from "../../hooks/useServices"
+import { useServices } from "../../hooks/useServices.ts"
 
 export function ConversationsSlot({activeConversationId, setActiveConversationId, dispatch} : IProps){
     
@@ -12,11 +12,6 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
     const [conversationsListPage, setConversationsListPage] = useState<number>(0)
 
     const { webSearchService } = useServices()
-
-    // when the conversation state is modified, retrieve the conversations from the repository and update the displayed list
-    /*useEffect(() => {
-        setConversationsListState(ConversationsRepository.getConversations())
-    }, [activeConversationStateRef.current])*/
 
     // conversation list polling every 3s
     useEffect(() => {
@@ -45,11 +40,10 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
     ***/
 
     function handleNewConversation() : void{
-        ConversationsRepository.pushNewConversation("New Conversation", [], ""/*ChatService.activeAgent.asString()*/, ""/*ChatService.activeAgent.getModelName()*/)
-        // const nConversations = ConversationsRepository.getConversations().length
+        ConversationsRepository.pushNewConversation("New Conversation", [], "", "")
         setConversationsListState([...ConversationsRepository.getConversations()])
-        setConversationsListPage(0/*Math.ceil(nConversations / 3) - 1*/)
-        setActiveConversationId({value : 0/*nConversations - 1*/})
+        setConversationsListPage(0)
+        setActiveConversationId({value : 0})
     }
 
     function handleSetActiveConversation(id : number) : void{
@@ -67,8 +61,8 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
         }
         // deleting the first one and only conversation
         if(id == 0 && ConversationsRepository.getConversations().length < 2){
-            dispatch({type : ActionType.SET_CONVERSATION, payload : {name : "New Conversation", history : [], lastAgentUsed  : "", lastModelUsed : "", images : []}})
-            ConversationsRepository.updateConversationById(0, {name  : "New Conversation", history  : [], lastAgentUsed   : "", lastModelUsed : "", images : []})
+            dispatch({type : ActionType.SET_CONVERSATION, payload : {name : "New Conversation", history : [], lastAgentUsed  : "", lastModelUsed : ""}})
+            ConversationsRepository.updateConversationById(0, {name  : "New Conversation", history  : [], lastAgentUsed   : "", lastModelUsed : ""})
             refreshActivePageList()
             return
         }
@@ -81,12 +75,17 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
         refreshActivePageList()
     }
 
-    function handleNextConversationsListPage() : void{
-        setConversationsListPage(conversationsListPage => conversationsListPage + 1 < Math.ceil(conversationsListState.length/3) ? conversationsListPage+1 : 0)
+    function handlePageChange(direction: 'next' | 'prev'){
+        const totalPages = Math.ceil(conversationsListState.length / 3)
+        if(direction === 'next'){
+            setConversationsListPage(conversationsListPage => conversationsListPage + 1 < totalPages ? conversationsListPage+1 : 0)
+        }else{
+            setConversationsListPage(conversationsListPage => conversationsListPage - 1 < 0 ? totalPages - 1 : conversationsListPage - 1)
+        }
     }
 
-    function handlePreviousConversationsListPage() : void{
-        setConversationsListPage(conversationsListPage => conversationsListPage - 1 < 0 ? Math.ceil(conversationsListState.length/3) - 1 : conversationsListPage - 1)
+    function getFilteredConversations(){
+        return [...conversationsListState].slice(conversationsListPage*3, conversationsListPage*3+3)
     }
 
     return(
@@ -95,7 +94,7 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
                     CONVERSATIONS<span className='nPages' style={{color:"#232323", fontWeight:'500'}}>{getPagination()}</span>
                 </h3>
                 <ul style={{minHeight : '118px'}}>
-                    {[...conversationsListState].slice(conversationsListPage*3, conversationsListPage*3+3).map((conversation, id) => 
+                    {getFilteredConversations().map((conversation, id) => 
                         conversationsListPage*3+id != activeConversationId ?
                         <li title={conversation.lastModelUsed || "no model assigned yet"} onClick={() => handleSetActiveConversation(conversationsListPage*3+id)} key={"conversation" + conversationsListPage*3+id} role="button">
                             {conversation.history[0]?.question.substring(0, 45) || conversation.name}
@@ -118,10 +117,10 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
                 </ul>
                 <div className='buttonsContainer'>
                     {/*<span className="activePage">Page {conversationsListPage+1}&nbsp;<span>/&nbsp;{Math.ceil(conversationsListState.length/3)}</span></span>*/}
-                    <button title="previous page" className="white" style={{marginLeft:'auto'}} onClick={handlePreviousConversationsListPage}>
+                    <button title="previous page" className="white" style={{marginLeft:'auto'}} onClick={() => handlePageChange("prev")}>
                         <svg height="16" width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
                     </button>
-                    <button title="next page" className="white" onClick={handleNextConversationsListPage}>
+                    <button title="next page" className="white" onClick={() => handlePageChange("next")}>
                         <svg style={{transform:'rotate(180deg)'}} height="16" width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
                     </button>
                     <button title="new conversation" className="purple purpleShadow" onClick={handleNewConversation}>

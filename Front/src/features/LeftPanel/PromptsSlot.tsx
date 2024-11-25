@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
-import useFetchPromptsList from "../../hooks/useFetchPromptsList";
+import useFetchPromptsList from "../../hooks/useFetchPromptsList.ts";
 
 export function PromptsSlot({memoizedSetModalStatus, selectedPromptNameRef} : IProps){
     
@@ -15,12 +15,13 @@ export function PromptsSlot({memoizedSetModalStatus, selectedPromptNameRef} : IP
     //
     ***/
 
-    function handleNextPage() : void{
-        setPromptsListPage(page => page + 1 < Math.ceil(promptsList.length / itemsPerPage) ? page+1 : 0)
-    }
-
-    function handlePreviousPage() : void{
-        setPromptsListPage(page => page - 1 < 0 ? Math.ceil(promptsList.length / itemsPerPage) - 1 : page - 1)
+    function handlePageChange(direction: 'next' | 'prev'){
+        const totalPages = Math.ceil(promptsList.length / itemsPerPage)
+        if(direction === 'next'){
+            setPromptsListPage(page => page + 1 < totalPages ? page+1 : 0)
+        }else{
+            setPromptsListPage(page => page - 1 < 0 ? totalPages - 1 : page - 1)
+        }
     }
 
     function nBlankConversationSlotsNeededAsFillers() : number{
@@ -50,10 +51,10 @@ export function PromptsSlot({memoizedSetModalStatus, selectedPromptNameRef} : IP
         </ul>
         <div className='buttonsContainer'>
             {/*<span className="activePage">Page {promptsListPage+1}&nbsp;<span>/&nbsp;{Math.ceil(promptsList.length/3)}</span></span>*/}
-            <button title="previous page" className="white" style={{marginLeft:'auto'}} onClick={handlePreviousPage}>
+            <button title="previous page" className="white" style={{marginLeft:'auto'}} onClick={() => handlePageChange('prev')}>
                 <svg height="16" width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
             </button>
-            <button title="next page" className="white" onClick={handleNextPage}>
+            <button title="next page" className="white" onClick={() => handlePageChange('next')}>
                 <svg style={{transform:'rotate(180deg)'}} height="16" width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
             </button>
             <button title="new prompt" className="purple purpleShadow" onClick={handleOpenNewPromptFormClick}>

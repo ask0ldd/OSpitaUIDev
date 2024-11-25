@@ -8,7 +8,7 @@ import { TTSService } from '../../services/TTSService';
 import AnswerButtonsGroup from './AnswerButtonsGroup';
 
 
-function AnswerRow({isStreaming, index, answer, sources, TTS, onDownload, onCopyToClipboard, onRegenerate} : IProps){
+function AnswerRow({isStreaming, index, answer, sources, TTS, onDownload, onCopyToClipboard, onRegenerate, images} : IProps){
 
     function convertSourcesArrayToHTML(sourcesArray : ISource[]) : string{
         if(sourcesArray.length == 0) return ''
@@ -22,7 +22,7 @@ function AnswerRow({isStreaming, index, answer, sources, TTS, onDownload, onCopy
     return(
         <article className="historyItem answerItem" key={'answer' + index} id={'answer' + index}>
             <figure className={ isStreaming ? "actorFigureAnimation" : ""}>
-                <img className="actorIcon" src={computerIcon}/>
+                <img className="actorIcon" src={images.length ? images[0] : computerIcon}/>
             </figure>
             {
                 answer.asHTML == '' ? <AnswerWaitingAnim/> : <div className='answerContainer' dangerouslySetInnerHTML={{ __html: (answer.asHTML.toString() + convertSourcesArrayToHTML(sources)) || "" }}></div>
@@ -40,6 +40,7 @@ interface IProps{
     index : number
     answer : {asMarkdown : string, asHTML : string}
     sources : ISource[]
+    images : string[]
     onDownload : (text : string) => void
     onCopyToClipboard : (text : string) => Promise<void>
     onRegenerate? : () => void

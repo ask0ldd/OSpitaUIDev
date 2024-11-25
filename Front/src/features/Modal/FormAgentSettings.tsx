@@ -3,12 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import { AIAgent } from "../../models/AIAgent";
 import Select, { IOption } from "../CustomSelect/Select";
 import './FormAgentSettings.css'
-import useFetchModelsList from "../../hooks/useFetchModelsList";
+import useFetchModelsList from "../../hooks/useFetchModelsList.ts";
 import IFormStructure from "../../interfaces/IAgentFormStructure";
 import picots from '../../assets/sliderpicots.png'
 import { ChatService } from "../../services/ChatService";
-import useFetchAgentsList from "../../hooks/useFetchAgentsList";
-import { useServices } from "../../hooks/useServices";
+import useFetchAgentsList from "../../hooks/useFetchAgentsList.ts";
+import { useServices } from "../../hooks/useServices.ts";
 
 export default function FormAgentSettings({memoizedSetModalStatus, role, triggerAIAgentsListRefresh} : IProps){
 
