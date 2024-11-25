@@ -1,13 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import Select, { IOption } from "../components/CustomSelect/Select";
-import useFetchModelsList from "../hooks/useFetchModelsList";
+import Select, { IOption } from "../features/CustomSelect/Select";
+import useFetchModelsList from "../hooks/useFetchModelsList.ts";
 import '../style/Installation.css'
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from "react";
 // import AgentService from "../services/API/AgentService";
-import useFetchAgentsList from "../hooks/useFetchAgentsList";
-import { useServices } from "../hooks/useServices";
+import useFetchAgentsList from "../hooks/useFetchAgentsList.ts";
+import { useServices } from "../hooks/useServices.ts";
 
 export default function Installation(){
 
@@ -101,10 +101,14 @@ export default function Installation(){
                     <h3 style={{textAlign:'left', opacity:'0.9'}}>Ollama Installation</h3>
                     <p style={{textAlign:'left'}}>I - Visit the official Ollama website :</p>
                     <div className="pullCommands">
-                                <a href="https://ollama.com/download" target="_blank" rel="noopener noreferrer">https://ollama.com/download</a>
+                        <a href="https://ollama.com/download" target="_blank" rel="noopener noreferrer">https://ollama.com/download</a>
+                        <span style={{marginTop:'0.75rem'}}>& Install the version of the application matching your OS.</span>
                     </div>
                     <hr/>
-                    <p style={{textAlign:'left', marginTop:'1rem'}}>II - Install the version of the application matching your OS.</p>
+                    <p style={{textAlign:'left', marginTop:'0.5rem'}}>II - If Ollama isn't running after this process, execute :</p>
+                    <div className="pullCommands">
+                                &gt; ollama serve<br/>
+                    </div>
                     <hr/>
                     <button className="purpleShadow" onClick={handleNextClick} style={{width:'33%', marginLeft:'auto', marginTop:'1rem'}}>next</button>
                 </section>}
