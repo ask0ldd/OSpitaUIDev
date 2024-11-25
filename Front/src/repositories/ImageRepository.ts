@@ -44,6 +44,11 @@ export class ImageRepository{
         return this.getImageAsBase64(this.selectedImageIndex)
     }
 
+    static getSelectedImage() : string | undefined{
+        if(this.selectedImageIndex == -1) return undefined
+        return this.getImage(this.selectedImageIndex).data
+    }
+
     static setSelectedImageId(index : number){
         this.selectedImageIndex = index
     }

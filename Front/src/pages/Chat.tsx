@@ -2,25 +2,25 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useRef, useState } from "react";
 import { ChatService } from "../services/ChatService";
-import ChatHistory from "../components/ChatHistory/ChatHistory";
+import ChatHistory from "../features/ChatHistory/ChatHistory";
 import '../style/Chat.css'
 import { ConversationsRepository } from "../repositories/ConversationsRepository";
 import FollowUpQuestions from "../components/FollowUpQuestions";
 import CustomTextarea from "../components/CustomTextarea";
 import { ActionType, useActiveConversationReducer } from "../hooks/useActiveConversationReducer";
-import Modal from "../components/Modal/Modal";
-import FormAgentSettings from "../components/Modal/FormAgentSettings";
-import LeftPanel from "../components/LeftPanel/LeftPanel";
-import RightPanel from "../components/RightPanel/RightPanel";
+import Modal from "../features/Modal/Modal";
+import FormAgentSettings from "../features/Modal/FormAgentSettings";
+import LeftPanel from "../features/LeftPanel/LeftPanel";
+import RightPanel from "../features/RightPanel/RightPanel";
 import LoadedModelInfosBar from "../components/LoadedModelInfosBar";
 import useModalManager from "../hooks/useModalManager";
 import { useStreamingState } from "../hooks/useStreamingState";
 import { useWebSearchState } from "../hooks/useWebSearchState";
-import { FormPromptSettings } from "../components/Modal/FormPromptSettings";
+import { FormPromptSettings } from "../features/Modal/FormPromptSettings";
 import { IInferenceStats } from "../interfaces/IConversation";
-import ErrorAlert from "../components/Modal/ErrorAlert";
+import ErrorAlert from "../features/Modal/ErrorAlert";
 import useFetchAgentsList from "../hooks/useFetchAgentsList";
-import { FormUploadFile } from "../components/Modal/FormUploadFile";
+import { FormUploadFile } from "../features/Modal/FormUploadFile";
 import DocService from "../services/API/DocService";
 import DocProcessorService from "../services/DocProcessorService";
 import IRAGChunkResponse from "../interfaces/responses/IRAGChunkResponse";
@@ -29,7 +29,7 @@ import { ImageRepository } from "../repositories/ImageRepository";
 import AIAgentChain from "../models/AIAgentChain";
 import AnswerFormatingService from "../services/AnswerFormatingService";
 import InferenceStatsFormatingService from "../services/InferenceStatsFormatingService";
-import { FormSelectChainAgent } from "../components/Modal/FormSelectChainAgent";
+import { FormSelectChainAgent } from "../features/Modal/FormSelectChainAgent";
 import { useServices } from "../hooks/useServices";
 // import { TTSService } from "../services/TTSService";
 // import SpeechRecognitionService from "../services/SpeechRecognitionService";
@@ -47,7 +47,7 @@ function Chat() {
     // Active Conversation Management
     // Manages the state and context of the current active conversation
     // Used for displaying chat history and handling conversation selection
-    const { activeConversationId, setActiveConversationId, activeConversationState, dispatch, activeConversationStateRef } = useActiveConversationReducer({name : "First Conversation", history : [], lastAgentUsed  : "", lastModelUsed : "", images : []});
+    const { activeConversationId, setActiveConversationId, activeConversationState, dispatch, activeConversationStateRef } = useActiveConversationReducer({name : "First Conversation", history : [], lastAgentUsed  : "", lastModelUsed : ""});
 
     // Auto-scroll Reference
     // Ref used to enable auto-scrolling feature during response streaming
@@ -166,15 +166,22 @@ function Chat() {
             } else {
                 // Use internal knowledge without web search
                 console.log("***LLM Loading***")
+
+                const isVisionModelActive = ChatService.isAVisionModelActive()
                 
                 // If any document is selected, extract the relevant datas for RAG
                 const ragContext = ChatService.getRAGTargetsFilenames().length > 0 ? await buildRAGContext(query) : ""
 
-                const selectedImage = ImageRepository.getSelectedImageAsBase64() // const selectedImages = ImageRepository.getSelectedImagesAsBase64()
+                let selectedImage = null
+                if(isVisionModelActive != false) {
+                    selectedImage = ImageRepository.getSelectedImageAsBase64()
+                    const historyImage = ImageRepository.getSelectedImage()
+                    if(historyImage != null) dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_IMAGES, payload : [historyImage] })
+                }
 
                 const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(
                     {
-                        question : ChatService.isAVisionModelActive() ? query : ragContext + query, 
+                        question : isVisionModelActive ? query : ragContext + query, 
                         chunkProcessorCallback : onStreamedChunkReceived_Callback, 
                         context : ragContext == "" ? currentContext : [], 
                         // images : selectedImages.length > 0 ? [selectedImages[0]] : []
@@ -226,7 +233,7 @@ function Chat() {
                 type: ActionType.NEW_BLANK_HISTORY_ELEMENT, 
                 payload: { message : query, 
                 agentUsed : AIAgentChain.getLastAgent().getName(),
-                modelUsed : AIAgentChain.getLastAgent().getModelName(),}
+                modelUsed : AIAgentChain.getLastAgent().getModelName()}
             })
             const response = await AIAgentChain.process(query)
             if(response == null) throw new Error("The chain failed to produce a response.")

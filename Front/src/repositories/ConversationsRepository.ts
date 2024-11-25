@@ -2,10 +2,10 @@ import { IConversationElement, IConversation } from "../interfaces/IConversation
 
 export class ConversationsRepository{
 
-    static chatConversations : IConversation[] = [{name : "First Conversation", history : [], lastAgentUsed  : "", lastModelUsed : "", images : []}];
+    static chatConversations : IConversation[] = [{name : "First Conversation", history : [], lastAgentUsed  : "", lastModelUsed : ""}];
 
     static pushNewConversation(name : string, history : IConversationElement[], lastAgentUsed : string, lastModelUsed : string) : void {
-        this.chatConversations.unshift({name, history, lastAgentUsed, lastModelUsed, images : []})
+        this.chatConversations.unshift({name, history, lastAgentUsed, lastModelUsed})
     }
 
     static getConversation(id : number) : IConversation {

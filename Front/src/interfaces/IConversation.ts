@@ -5,7 +5,7 @@ export interface IConversation {
     lastModelUsed : string // useful to determine the context format
     hidden? : boolean
     inferenceStats? : IInferenceStats
-    images : string[]
+    // images : string[]
 }
 
 export interface IInferenceStats {
@@ -21,8 +21,9 @@ export interface IConversationElement{
     question : string
     answer : IConversationAnswer
     date : string
-    context : number[],
+    context : number[]
     sources : ISource[]
+    images : string[]
 }
 
 export interface IConversationAnswer{
