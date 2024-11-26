@@ -10,7 +10,7 @@ function usePagination(nItemsPerPage : number, getItemsNumber : () => number){
         if(direction === 'next'){
             setActivePage(currentPage => currentPage + 1 < totalPages ? currentPage + 1 : 0)
         }else{
-            setActivePage(currentPage => currentPage - 1 < 0 ? totalPages - 1 : currentPage - 1)
+            setActivePage(currentPage => currentPage - 1 < 0 ? ( totalPages - 1 < 0 ? 0 : totalPages - 1 ) : currentPage - 1)
         }
     }
 

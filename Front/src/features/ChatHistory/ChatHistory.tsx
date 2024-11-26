@@ -8,7 +8,6 @@ import { useTTS } from "../../hooks/useTTS.ts"
 import React from "react"
 
 const ChatHistory = React.memo(({activeConversationState, isStreaming, setTextareaValue, regenerateLastAnswer} : IProps) => {
-// function ChatHistory({activeConversationState, isStreaming, setTextareaValue, regenerateLastAnswer} : IProps) {
 
   useEffect(() => console.log("chat history render"))
 
@@ -18,7 +17,7 @@ const ChatHistory = React.memo(({activeConversationState, isStreaming, setTextar
   const TTS = useTTS()
 
   // setting up an observer that keep scrolling to the bottom of the chat window
-  // when some new streamed text is added to the conversation history
+  // when some new streamed text is added to the conversation
   useEffect(() => {
     if(isStreaming == false) return
     if(historyContainerRef.current == null) return
@@ -126,8 +125,7 @@ const ChatHistory = React.memo(({activeConversationState, isStreaming, setTextar
   
     return date.toLocaleString('en-US', options);
   }
-
-// }
+  
 }, (prevProps, nextProps) => {
   //if(prevProps.activeConversationId !== nextProps.activeConversationId) return false
   if(prevProps.activeConversationState.history.length !== nextProps.activeConversationState.history.length) return false
