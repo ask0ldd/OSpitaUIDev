@@ -1,7 +1,7 @@
-function ImagePreview(image : string){
+function ImagePreview({imageSrc} : {imageSrc : string}){
     return(
         <div>
-            <img src={image} alt="preview" />
+            <img className="previewImage" src={imageSrc} alt="preview"/>
         </div>
     )
 }

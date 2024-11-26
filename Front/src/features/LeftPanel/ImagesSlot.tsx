@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react"
 import { ImageRepository } from "../../repositories/ImageRepository";
 import { ChatService } from "../../services/ChatService";
 import { useImagesSlotState } from "../../hooks/useImagesSlotState.ts";
+import ImagePreview from "./ImagePreview.tsx";
 
 function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchActivated} : IProps){
 
@@ -19,7 +20,7 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
     const file = e.target.files[0]
 
     const allowTypes = ["image/jpeg", "image/png"]
-    if (!allowTypes.includes(file.type)) return console.log("The provided file was not a jpeg or a png.")
+    if (!allowTypes.includes(file.type)) return console.log("The provided file is not a JPEG or a PNG.")
 
     if (file) {
       const reader = new FileReader();
@@ -111,18 +112,19 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
         }
       }
     } catch (err) {
-      console.error("Failed to read clipboard:", err);
+      console.error("Failed to read the clipboard content:", err);
     }
   }
 
-  useEffect(()=> {
-    setSelectedImgId(-1)
-  }, [images])
-
-  // activating web search should deselect any image
   useEffect(() => {
-    if(isWebSearchActivated == true) setSelectedImgId(-1)
-  }, [isWebSearchActivated])
+    if (images || isWebSearchActivated || active === false) {
+      setSelectedImgId(-1)
+    }
+  
+    if (active === false) {
+      ImageRepository.deselectAllImages()
+    }
+  }, [images, isWebSearchActivated, active])
 
   if(active == false) return(
     <article className="closedImagesSlot" style={{marginTop:'0.75rem', cursor:'pointer'}} onClick={() => setActiveSlot("images")}>
@@ -139,14 +141,14 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
         <h3>
           IMAGES{!isVisionModelActive && <span className='nPages' style={{color:"#870839bb", fontWeight:'500'}}>Select a Llama Vision Agent</span>}
         </h3>
-        <input ref={fileInputRef} onChange={handleFileSelect} type="file" style={{display: 'none'}}/>
+        <input ref={fileInputRef} onChange={handleFileSelect} type="file" data-testid="imageFileInput" style={{display: 'none'}}/>
         <div className="imagesContainer">
           {
-            images?.map((image, index) => (<img onClick={() => handleImgClick(index)} onMouseEnter={() => handleMouseOverPicture(index)} onMouseOut={() => setHoveredImage(null)} className={selectedImgIdRef.current  == index ? 'active' : ''} style={{width:'48px'}} src={image.data} key={'img'+index}/>))
+            images?.map((image, index) => (<img onClick={() => handleImgClick(index)} onMouseEnter={() => handleMouseOverPicture(index)} onMouseOut={() => setHoveredImage(null)} className={selectedImgIdRef.current  == index ? 'active' : ''} style={{width:'48px'}} src={image.data} key={'img'+index} alt={image.filename}/>))
 
           }
           {
-            nVignettesToFillRow(images.length) > 0 && Array(nVignettesToFillRow(images.length)).fill("").map((_,id) => (<div className='fillerMiniature' key={"blank"+id}></div>))
+            nVignettesToFillRow(images.length) > 0 && Array(nVignettesToFillRow(images.length)).fill("").map((_,id) => (<div title="emptySlot" className='fillerMiniature' key={"blank"+id}></div>))
           }
         </div>
         <div className='buttonsContainer'>
@@ -165,7 +167,7 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
               <svg width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="#fff" d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/></svg>
           </button>
       </div>
-      {hoveredImage && <img className="previewImage" src={hoveredImage.data} alt="preview"/>}
+      {hoveredImage && <ImagePreview imageSrc={hoveredImage.data}/>}
     </article>
   )
 

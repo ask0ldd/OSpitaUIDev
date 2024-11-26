@@ -4,16 +4,18 @@ import { IRAGDocument } from "../../interfaces/IRAGDocument";
 import { useFetchDocsList } from "../../hooks/useFetchDocsList.ts";
 import { ChatService } from "../../services/ChatService";
 import DocService from "../../services/API/DocService";
+import usePagination from "../../hooks/usePagination.ts";
+import DefaultSlotButtonsGroup from "./DefaultSlotButtonsGroup.tsx";
 
 export default function DocumentsSlot({isWebSearchActivated, setWebSearchActivated, memoizedSetModalStatus, active, setActiveSlot} : IProps){
 
     const units = ["B", "KB", "MB", "GB"]
 
-    const nItems = 4
+    const itemsPerPage = 4
 
-    const { docsListRef, setDocsList} = useFetchDocsList()
+    const {docsListRef, setDocsList} = useFetchDocsList()
 
-    const [documentsListPage, setDocumentsListPage] = useState<number>(0)
+    const { handlePageChange, activePage, resetActivePage } = usePagination(itemsPerPage, () => getFilteredDocs().length)
 
     const [activeTool, setActiveTool] = useState<"search"|"filter">("search")
 
@@ -36,14 +38,8 @@ export default function DocumentsSlot({isWebSearchActivated, setWebSearchActivat
         if(isWebSearchActivated == true) setDocsList(docsListRef.current.map(doc => ({...doc, selected : false})))
     }, [isWebSearchActivated])
 
-    /***
-    //
-    // Events Handlers
-    //
-    ***/
-
     function handleSearchTermChange(event : React.ChangeEvent): void {
-        setDocumentsListPage(0)
+        resetActivePage()
         setSearchTerm(() => ((event.target as HTMLInputElement).value))
     }
 
@@ -66,26 +62,18 @@ export default function DocumentsSlot({isWebSearchActivated, setWebSearchActivat
         setWebSearchActivated(false)
     }
 
-    function handleDeleteDocsClick(e: React.MouseEvent) : void{
+    async function handleDeleteDocsClick(e: React.MouseEvent) : Promise<void>{
         e.preventDefault();
         const docsToDeleteNames = docsListRef.current.filter(doc => doc.selected === true).map(doc => doc.filename)
         try{
             for(const name of docsToDeleteNames){
-                DocService.deleteByName(name)
+                await DocService.deleteByName(name)
             }
+            resetActivePage()
         }catch(e){
             console.error(e);
         }
         setDocsList(docsListRef.current.filter(doc => !docsToDeleteNames.includes(doc.filename)))
-    }
-
-    function handlePageChange(direction: 'next' | 'prev'){
-        const totalPages = Math.ceil(getFilteredDocs().length / nItems)
-        if(direction === 'next'){
-            setDocumentsListPage(currentPage => currentPage + 1 < totalPages ? currentPage + 1 : 0)
-        }else{
-            setDocumentsListPage(currentPage => currentPage - 1 < 0 ? totalPages - 1 : currentPage - 1)
-        }
     }
 
     function handleOpenUploadFileFormClick() : void {
@@ -102,9 +90,10 @@ export default function DocumentsSlot({isWebSearchActivated, setWebSearchActivat
       </article>        
     )
 
+    // filter the docs by the search term
     const filteredDocuments = docsListRef.current
         .filter(doc => doc.filename.toLowerCase().includes(searchTerm.toLowerCase()))
-        .slice(documentsListPage * nItems, (documentsListPage + 1) * nItems)
+        .slice(activePage * itemsPerPage, (activePage + 1) * itemsPerPage)
 
     return(
         <article style={{marginTop:'0.75rem'}}>
@@ -156,15 +145,11 @@ export default function DocumentsSlot({isWebSearchActivated, setWebSearchActivat
                     </svg>
                     Selected docs
                 </div>
-                <button title="previous page" onClick={() => handlePageChange("prev")} className="white" style={{marginLeft:'auto'}}>
-                    <svg height="16" width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
-                </button>
-                <button title="next page" onClick={() => handlePageChange("next")} className="white">
-                    <svg style={{transform:'rotate(180deg)'}} height="16" width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
-                </button>
-                <button title="upload a new doc" onClick={handleOpenUploadFileFormClick} className="purple purpleShadow">
-                    <svg width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="#fff" d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/></svg>
-                </button>
+                <DefaultSlotButtonsGroup handlePageChange={handlePageChange}>
+                    <button title="upload a new doc" onClick={handleOpenUploadFileFormClick} className="purple purpleShadow">
+                        <svg width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="#fff" d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/></svg>
+                    </button>
+                </DefaultSlotButtonsGroup>
             </div>
         </article>
     )
@@ -174,12 +159,12 @@ export default function DocumentsSlot({isWebSearchActivated, setWebSearchActivat
     }
 
     function nBlankFileSlotsNeededAsFillers() : number{
-        if (documentsListPage*nItems+nItems < docsListRef.current.length) return 0
-        return documentsListPage*nItems+nItems - docsListRef.current.length
+        if (activePage * itemsPerPage + itemsPerPage < docsListRef.current.length) return 0
+        return activePage * itemsPerPage + itemsPerPage - docsListRef.current.length
     }
 
     function getPagination() : string{
-        return `Page ${documentsListPage + 1} on ${Math.ceil(getFilteredDocs().length / nItems) || 1}`
+        return `Page ${activePage + 1} on ${Math.ceil(getFilteredDocs().length / itemsPerPage) || 1}`
     }
 
     function reduceFileSize(filesize : number, round : number = 0) : string | undefined {
