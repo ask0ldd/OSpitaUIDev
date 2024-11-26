@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import './RightPanel3.css'
 import { AIAgent } from '../../models/AIAgent'
 import IFormStructure from '../../interfaces/IAgentFormStructure'
@@ -34,7 +34,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
 
     const isFirstRender = useRef(true)
 
-    // refresh the form if agentList state changes
+    // refresh the form if agentList state changes + set helpfulAssistant as the default agent
     useEffect(() => {
         currentAgent.current = ChatService.getActiveAgent()
         setFormValues(agentToFormDatas(ChatService.getActiveAgent()))
@@ -95,11 +95,10 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
     }
 
     // switch active agent
-    async function handleSwitchAgent(option : IOption){
-        // const targetAgent = AgentLibrary.getAgent(option.value)
-        const targetAgent = await agentService.getAgentByName(option.value)
-        if(targetAgent == null) return
-        const newAIAgent = new AIAgent({...targetAgent, modelName : targetAgent.model})
+    const handleSwitchAgent = useCallback(async (option : IOption) => {
+        const targetAgent = await agentService.getAgentByName(option.value);
+        if (!targetAgent) return
+        const newAIAgent = new AIAgent({ ...targetAgent, modelName: targetAgent.model })
         currentAgent.current = newAIAgent
         ChatService.setActiveAgent(newAIAgent)
         const agent = ChatService.getActiveAgent()
@@ -113,7 +112,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
             webSearchEconomy: true,
         }
         setFormValues({...newFormValues})
-    }
+    }, [agentService]);
 
     useEffect(() => {
         // each agent is cloned to avoid circular observables calling
@@ -274,11 +273,11 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
                 </div>
                 <label>Web Search</label>
                 <div className='webSearchContainer'>
-                    <span>Processing Speed</span>
+                    <span onClick={() => setWebSearchSummarization(false)}>Processing Speed</span>
                     <div className='switchContainer' onClick={() => setWebSearchSummarization(prevStatus => !prevStatus)}>
                         <div className={webSearchSummarization ? 'switch active' : 'switch'}></div>
                     </div>
-                    <span>Context Economy</span>
+                    <span onClick={() => setWebSearchSummarization(true)}>Context Economy</span>
                 </div>
                 <div className='settingsSaveContainer'>
                     <button className='more purpleShadow' onClick={handleOpenEditAgentFormClick}>More Settings</button>

@@ -28,6 +28,9 @@
   --purple-button-4-8-shadow: rgba(109, 72, 193, 0.28);
   --purple-button-1-2-shadow: rgba(158, 141, 231, 0.6);
   --purple-button-1-2-shadow-dark: rgba(0, 0, 0, 0.22);
+  /*--purple-button-4-8-shadow: hsla(265, 70%, 52%, 0.28);
+  --purple-button-1-2-shadow: hsla(265, 65%, 73%, 0.4);
+  --purple-button-1-2-shadow-dark: hsla(265, 50%, 10%, 0.22);*/
 
   --secondary-button-hover-color: #c9cfe8;
   --secondary-button-border-hover-color: #b4bde0;
@@ -37,7 +40,7 @@
   --light-purple-background-color: #d8d2f0;
   --light-purple-border-color: #6d48c1;
 
-  --main-background-color: #e2e6f3;
+  --main-background-color: hsl(226, 41%, 92%); /*hsl(226, 41%, 92%);*/
   --main-black-text-color: #252525;
 
   --dotted-border-color: #a3a8db;
@@ -54,7 +57,7 @@
   --label-grey-text-color: #8490b3ee;
 
   color: var(--main-black-text-color);
-  background-color: var(--main-background-color);
+  background: var(--main-background-color);
 }
 
 html {
