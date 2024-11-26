@@ -191,7 +191,10 @@
   }
 
   &:hover {
-    box-shadow: 0 3px 6px #b3b8bb55, 0 6px 12px #86e5ce55;
+    /*box-shadow: 0 3px 6px #b3b8bb55, 0 6px 12px #86e5ce55;*/
+    box-shadow: 0px 1px 2px -1px var(--purple-button-4-8-shadow),
+      0px 1px 2px var(--purple-button-1-2-shadow),
+      0px 4px 8px var(--purple-button-4-8-shadow);
     border: 1px solid var(--purple-button-color);
     outline: 1px solid var(--purple-button-color);
   }
