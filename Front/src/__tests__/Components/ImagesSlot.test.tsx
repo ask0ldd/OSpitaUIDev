@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/react/dont-cleanup-after-each'
 import Chat from '../../pages/Chat';
@@ -13,6 +14,9 @@ import PromptService from '../../services/API/PromptService';
 import mockPromptsList from '../../__mocks__/mockPromptsList';
 import mockRunningModelsInfos from '../../__mocks__/mockRunningModelsInfos';
 import AgentService from '../../services/API/AgentService';
+import { ImageRepository } from '../../repositories/ImageRepository';
+import { userEvent } from '@testing-library/user-event';
+import { mockImagesList } from '../../__mocks__/mockImagesList';
 
 const MockedRouter = () => (
     <MemoryRouter>
@@ -36,12 +40,12 @@ describe('Given I am on the Chat page', () => {
         vi.spyOn(AgentService.prototype, 'getAgentByName').mockResolvedValue(mockAgentsList[0])
         vi.spyOn(DocService, 'getAll').mockResolvedValue(mockRAGDocumentsList)
         vi.spyOn(PromptService.prototype, 'getAll').mockResolvedValue(mockPromptsList)
-        vi.spyOn(PromptService.prototype, 'getByName').mockResolvedValue(mockPromptsList[0])
-        // vi.spyOn(ChatService, 'isAVisionModelActive').mockReturnValue(false)
-
         vi.stubGlobal('speechSynthesis', {
             getVoices: vi.fn().mockReturnValue(mockVoices),
         });
+        vi.spyOn(ImageRepository, 'setSelectedImageId').mockReturnValue()
+        vi.spyOn(ImageRepository, 'pushImage').mockReturnValue()
+        vi.spyOn(ImageRepository, 'nImages').mockReturnValue(mockImagesList.length)
         render(<MockedRouter />)
     });
 
@@ -50,32 +54,22 @@ describe('Given I am on the Chat page', () => {
         cleanup()
     })
 
-    test('Can navigate between Prompts', async () => {
+    test('Can access the image slot which contains 5 empty slots', async () => {
         await waitFor(() => expect(screen.getByText(/OSSPITA FOR/i)).toBeInTheDocument())
-        expect(screen.getByText(mockPromptsList[0].name)).toBeInTheDocument()
-        expect(screen.getByText(mockPromptsList[1].name)).toBeInTheDocument()
-        expect(screen.getByText(mockPromptsList[2].name)).toBeInTheDocument()
-
-        const previousPages = screen.getAllByTitle("previous page")
-        const nextPages = screen.getAllByTitle("next page")
-
-        act(() => nextPages[2].click())
-        await waitFor(() => expect(screen.getByText(mockPromptsList[3].name)).toBeInTheDocument())
-        expect(screen.queryByText(mockPromptsList[0].name)).not.toBeInTheDocument()
-
-        act(() => previousPages[2].click())
-        await waitFor(() => expect(screen.getByText(mockPromptsList[0].name)).toBeInTheDocument())
-        expect(screen.queryByText(mockPromptsList[3].name)).not.toBeInTheDocument()
+        const imagesButton = (screen.getByText('IMAGES') as HTMLElement).parentElement
+        act(() => imagesButton?.click())
+        expect(screen.getAllByTitle('emptySlot').length).toEqual(5)
     })
 
-    test('Can open a modal to save a new prompt', async () => {
+    test('Can upload a new image and get it displayed', async () => {
         await waitFor(() => expect(screen.getByText(/OSSPITA FOR/i)).toBeInTheDocument())
-        expect(screen.getByText(mockPromptsList[0].name)).toBeInTheDocument()
-
-        const newPromptButton = screen.getByTitle("new prompt")
-
-        act(() => newPromptButton.click())
-        await waitFor(() => expect(screen.getByTestId("modal")).toBeInTheDocument())
-        expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
+        const imagesButton = (screen.getByText('IMAGES') as HTMLElement).parentElement
+        act(() => imagesButton?.click())
+        expect(screen.getAllByTitle('emptySlot').length).toEqual(5)
+        const uploadImageInput = screen.getByTestId('imageFileInput') as HTMLInputElement
+        const file = new File([mockImagesList[0].data], mockImagesList[0].filename, { type: 'image/png' })
+        await userEvent.upload(uploadImageInput, file)
+        await waitFor(() => expect(screen.getAllByTitle('emptySlot').length).toEqual(4))
+        expect(screen.getByAltText(mockImagesList[0].filename)).toBeInTheDocument()
     })
 })
