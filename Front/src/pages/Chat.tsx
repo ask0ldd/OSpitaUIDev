@@ -31,8 +31,7 @@ import AnswerFormatingService from "../services/AnswerFormatingService";
 import InferenceStatsFormatingService from "../services/InferenceStatsFormatingService";
 import { FormSelectChainAgent } from "../features/Modal/FormSelectChainAgent";
 import { useServices } from "../hooks/useServices";
-// import { TTSService } from "../services/TTSService";
-// import SpeechRecognitionService from "../services/SpeechRecognitionService";
+import useRightMenu from "../hooks/useRightMenu";
 
 function Chat() {
 
@@ -71,16 +70,8 @@ function Chat() {
     const {isWebSearchActivated, isWebSearchActivatedRef, setWebSearchActivated} = useWebSearchState()
     const [isFollowUpQuestionsClosed, setIsFollowUpQuestionsClosed] = useState<boolean>(false)
 
-    
-    const [activeMenuItem, _setActiveMenuItem] = useState<"agent"|"settings"|"chain">("agent")
-    const activeMenuItemRef = useRef<"agent"|"settings"|"chain">("agent")
-    function setActiveMenuItem(menuItem: "agent"|"settings"|"chain") {
-        _setActiveMenuItem(menuItem)
-        activeMenuItemRef.current = menuItem
-    }
+    const {activeMenuItem, setActiveMenuItem, activeMenuItemRef} = useRightMenu()
 
-    // Effect hook for initial setup
-    // Initializes conversation repository and sets scrollbar behavior
     const htmlRef = useRef(document.documentElement)
     useEffect(() => {
         // Set scrollbar behavior for better UX
@@ -122,15 +113,13 @@ function Chat() {
      * @param query The user's input query
      * @returns A Promise that resolves when the streaming is complete
      */
-    async function askMainAgent_Streaming(query: string): Promise<void> {
-        
+    async function askActiveAgent_Streaming(query: string): Promise<void> {
         try {
-            // Prevent empty query or multiple concurrent streams
+            // Prevent empty query and multiple concurrent streams
             if (query == "" || isStreamingRef.current) return
             // if the active conversation model has been changed since the last request -> reset the context
             const currentContext = (ChatService.getActiveAgent().getModelName() != activeConversationStateRef.current.lastModelUsed) 
-                ? [] 
-                    : activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context
+                ? [] : activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context
             setIsStreaming(true)
             // Create a new blank conversation Q&A pair in the active conversation state
             dispatch({ 
@@ -147,10 +136,7 @@ function Chat() {
                 // web search unavailable when a vision model is active
                 if(ChatService.isAVisionModelActive()) throw new Error("Web search not available when a vision model is selected.")
                 console.log("***Web Search***")
-                const scrapedPages = await webSearchService.scrapeRelatedDatas({query, maxPages : 3})
-                if(scrapedPages == null) {
-                    throw new Error("No results found for your query")
-                }
+                const scrapedPages = await webSearchService.scrapeRelatedDatas({query, maxPages : 3}) || (() => { throw new Error("No results found for your query") })()
                 console.log("***LLM Loading***")
                 // format YYYY/MM/DD
                 const currentDate = "Current date : " + new Date().getFullYear() + "/" + (new Date().getMonth() + 1) + "/" + new Date().getDate() + ". "
@@ -180,13 +166,13 @@ function Chat() {
                 }
 
                 const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(
-                    {
-                        question : isVisionModelActive ? query : ragContext + query, 
-                        chunkProcessorCallback : onStreamedChunkReceived_Callback, 
-                        context : ragContext == "" ? currentContext : [], 
-                        // images : selectedImages.length > 0 ? [selectedImages[0]] : []
-                        images : selectedImage != null ? [selectedImage] : []
-                    })
+                {
+                    question : isVisionModelActive ? query : ragContext + query, 
+                    chunkProcessorCallback : onStreamedChunkReceived_Callback, 
+                    context : ragContext == "" ? currentContext : [], 
+                    // images : selectedImages.length > 0 ? [selectedImages[0]] : []
+                    images : selectedImage != null ? [selectedImage] : []
+                })
                 newContext = finalDatas.newContext
                 inferenceStats = finalDatas.inferenceStats
             }
@@ -223,8 +209,7 @@ function Chat() {
     // query the active chain
     async function sendRequestThroughActiveChain(query : string): Promise<void>{
         try{
-            if (query == "") return
-            if(AIAgentChain.isEmpty()) return
+            if (query == "" || AIAgentChain.isEmpty()) return
 
             // used to refresh chatHistory
             setIsStreaming(true)
@@ -235,8 +220,7 @@ function Chat() {
                 agentUsed : AIAgentChain.getLastAgent().getName(),
                 modelUsed : AIAgentChain.getLastAgent().getModelName()}
             })
-            const response = await AIAgentChain.process(query)
-            if(response == null) throw new Error("The chain failed to produce a response.")
+            const response = await AIAgentChain.process(query) || (() => { throw new Error("The chain failed to produce a response.") })()
             dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, payload : {html : await AnswerFormatingService.format(response.response), markdown : response.response}})
             if(textareaValueRef.current == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
             const stats = InferenceStatsFormatingService.extractStats(response)
@@ -268,8 +252,7 @@ function Chat() {
     async function buildRAGContext(message : string) : Promise<string> {
         const RAGChunks = await DocService.getRAGResults(message, ChatService.getRAGTargetsFilenames())
         lastRAGResultsRef.current = RAGChunks
-        if(RAGChunks.length == 0) return ""
-        return DocProcessorService.formatRAGDatas(RAGChunks)
+        return RAGChunks.length == 0 ? "" : DocProcessorService.formatRAGDatas(RAGChunks)
     }
 
     function scrollToBottom() {
@@ -282,7 +265,7 @@ function Chat() {
         ConversationsRepository.updateConversationHistoryById(activeConversationId.value, activeConversationStateRef.current.history.slice(0, -1))
         dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
         if(activeMenuItem == "chain") return sendRequestThroughActiveChain(retrievedQuestion)
-        askMainAgent_Streaming(retrievedQuestion)
+        askActiveAgent_Streaming(retrievedQuestion)
     }
 
     function nanosecondsToSeconds(nanoseconds : number) {
@@ -300,7 +283,7 @@ function Chat() {
             await sendRequestThroughActiveChain(query)
             return
         }
-        await askMainAgent_Streaming(query)
+        await askActiveAgent_Streaming(query)
         return
     }
 
@@ -321,9 +304,6 @@ function Chat() {
 
     function handleScrollToTopClick(){
         document.getElementById("globalContainer")?.scrollIntoView({ behavior: "smooth" })
-        // !!! temp
-        console.log(activeConversationStateRef.current.lastAgentUsed)
-        console.log(ChatService.activeAgent.asString())
     }
 
     return (
@@ -392,7 +372,7 @@ function Chat() {
                             <svg style={{width:'22px', flexShrink:0}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/></svg>
                         </button> : 
                         <>
-                            {activeMenuItem == "agent" && <button className="sendButton purpleShadow" onClick={() => askMainAgent_Streaming(textareaValue)}>Send</button>}
+                            {activeMenuItem == "agent" && <button className="sendButton purpleShadow" onClick={() => askActiveAgent_Streaming(textareaValue)}>Send</button>}
                             {activeMenuItem == "chain" && <button className="sendButton purpleShadow" onClick={() => sendRequestThroughActiveChain(textareaValue)}>Send&nbsp;<span style={{fontWeight:'400'}}>(to Chain)</span></button>}
                         </>
                     }
