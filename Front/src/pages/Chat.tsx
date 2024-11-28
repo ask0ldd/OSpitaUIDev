@@ -25,17 +25,19 @@ import DocService from "../services/API/DocService";
 import DocProcessorService from "../services/DocProcessorService";
 import IRAGChunkResponse from "../interfaces/responses/IRAGChunkResponse";
 import useCustomTextareaManager from "../hooks/CustomTextarea/useCustomTextareaManager";
-import { ImageRepository } from "../repositories/ImageRepository";
 import AIAgentChain from "../models/AIAgentChain";
 import AnswerFormatingService from "../services/AnswerFormatingService";
 import InferenceStatsFormatingService from "../services/InferenceStatsFormatingService";
 import { FormSelectChainAgent } from "../features/Modal/FormSelectChainAgent";
 import { useServices } from "../hooks/useServices";
 import useRightMenu from "../hooks/useRightMenu";
+import { useImagesStore } from "../hooks/stores/useImagesStore";
 
 function Chat() {
 
     useEffect(() => console.log("chat render"))
+
+    const { images} = useImagesStore()
 
     const { webSearchService } = useServices();
 
@@ -158,10 +160,10 @@ function Chat() {
                 // If any document is selected, extract the relevant datas for RAG
                 const ragContext = ChatService.getRAGTargetsFilenames().length > 0 ? await buildRAGContext(query) : ""
 
-                let selectedImages : string[] = []
+                let selectedImagesAsBase64 : string[] = []
                 if(isVisionModelActive != false) {
-                    selectedImages = ImageRepository.getSelectedImagesAsBase64()
-                    const historyImage = ImageRepository.getSelectedImage()
+                    selectedImagesAsBase64 = images.map(image => (image.data.split(',')[1]))
+                    const historyImage = images.length > 0 ? images[0].data : null
                     if(historyImage != null) dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_IMAGES, payload : [historyImage] })
                 }
 
@@ -170,7 +172,7 @@ function Chat() {
                     question : isVisionModelActive ? query : ragContext + query, 
                     chunkProcessorCallback : onStreamedChunkReceived_Callback, 
                     context : ragContext == "" ? currentContext : [], 
-                    images : selectedImages.length > 0 ? [...selectedImages] : []
+                    images : selectedImagesAsBase64.length > 0 ? [...selectedImagesAsBase64] : []
                     // images : selectedImage != null ? [selectedImage] : []
                 })
                 newContext = finalDatas.newContext

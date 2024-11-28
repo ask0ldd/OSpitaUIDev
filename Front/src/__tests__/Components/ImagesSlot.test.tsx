@@ -14,7 +14,7 @@ import PromptService from '../../services/API/PromptService';
 import mockPromptsList from '../../__mocks__/mockPromptsList';
 import mockRunningModelsInfos from '../../__mocks__/mockRunningModelsInfos';
 import AgentService from '../../services/API/AgentService';
-import { ImageRepository } from '../../repositories/ImageRepository';
+import { ImageRepository } from '../../interfaces/IImage';
 import { userEvent } from '@testing-library/user-event';
 import { mockImagesList } from '../../__mocks__/mockImagesList';
 

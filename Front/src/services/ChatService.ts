@@ -85,7 +85,7 @@ export class ChatService{
       try{
         const answer = await this.activeAgent.ask(question)
         const responseAsHTML = await AnswerFormatingService.format(answer.response)
-        return {context : [...answer.context as number[]], answer : {asMarkdown : answer.response, asHTML : responseAsHTML}, sources : [], question : question, date : new Date().toISOString()}
+        return {context : [...answer.context as number[]], answer : {asMarkdown : answer.response, asHTML : responseAsHTML}, sources : [], question : question, date : new Date().toISOString(), images : []}
       }catch(error){
         console.error("Failed to query the model : " + error)
         throw error

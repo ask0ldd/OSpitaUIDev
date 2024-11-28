@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useRef, useState } from "react"
-import { ImageRepository } from "../../repositories/ImageRepository";
 import { ChatService } from "../../services/ChatService";
-import { useImagesSlotState } from "../../hooks/useImagesSlotState.ts";
 import ImagePreview from "./ImagePreview.tsx";
+import {useImagesStore } from "../../hooks/stores/useImagesStore.ts";
 
 function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchActivated} : IProps){
 
-  const {images, setImages, hoveredImage, setHoveredImage, toggleImageWithId, selectedImgsIdsRef, deselectAllImages, deleteSelectedImages} = useImagesSlotState()
+  const {images, hoveredImage, selectedImagesIds, deselectAllImages, deleteSelectedImages, toggleImageWithId, pushImage, setHoveredImage } = useImagesStore()
 
   const [isVisionModelActive, setIsVisionModelActive] = useState<boolean>(true)
 
@@ -26,9 +25,8 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
       reader.onload = function(e : ProgressEvent<FileReader>) {
         const dataURL = e.target?.result as string
         if(dataURL != null) {
-          const newId = ImageRepository.nImages()
-          ImageRepository.pushImage({id : newId, filename : file.name, data : dataURL})
-          setImages(images => [...images, {id : newId, filename : file.name, data : dataURL}])
+          const newId = images.length
+          pushImage({id : newId, filename : file.name, data : dataURL})
         }
       };
       
@@ -72,11 +70,9 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
         if (imageType) {
           const blob = await clipboardItem.getType(imageType);
           const dataUrl = await blobToBase64(blob)
-          const newId = ImageRepository.nImages()
-          console.log(dataUrl)
+          const newId = images.length
           const img = {id : newId, filename : 'screenshot'+ newId, data : dataUrl}
-          ImageRepository.pushImage({...img})
-          setImages(images => [...images, {...img}])
+          pushImage(img)
           break;
         }
       }
@@ -91,7 +87,7 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
     }
   
     if (active === false) {
-      ImageRepository.deselectAllImages()
+      deselectAllImages()
     }
   }, [images, isWebSearchActivated, active])
 
@@ -113,7 +109,7 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
         <input ref={fileInputRef} onChange={handleFileSelect} type="file" data-testid="imageFileInput" style={{display: 'none'}}/>
         <div className="imagesContainer">
           {
-            images?.map((image, index) => (<img onClick={() => handleImgClick(index)} onMouseEnter={() => handleMouseOverPicture(index)} onMouseOut={() => setHoveredImage(null)} className={selectedImgsIdsRef.current.has(index) ? 'active' : ''} style={{width:'48px'}} src={image.data} key={'img'+index} alt={image.filename}/>))
+            images?.map((image, index) => (<img onClick={() => handleImgClick(index)} onMouseEnter={() => handleMouseOverPicture(index)} onMouseOut={() => setHoveredImage(null)} className={selectedImagesIds.has(index) ? 'active' : ''} style={{width:'48px'}} src={image.data} key={'img'+index} alt={image.filename}/>))
 
           }
           {
