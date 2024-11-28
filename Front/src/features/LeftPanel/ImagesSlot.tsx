@@ -7,13 +7,11 @@ import ImagePreview from "./ImagePreview.tsx";
 
 function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchActivated} : IProps){
 
-  const {images, setImages, hoveredImage, setHoveredImage, setSelectedImgId, selectedImgIdRef} = useImagesSlotState()
+  const {images, setImages, hoveredImage, setHoveredImage, toggleImageWithId, selectedImgsIdsRef, deselectAllImages, deleteSelectedImages} = useImagesSlotState()
 
   const [isVisionModelActive, setIsVisionModelActive] = useState<boolean>(true)
 
   const fileInputRef = useRef<HTMLInputElement | null>(null) 
-
-  // const [selectedImgsIds, setSelectedImgsIds] = useState<Set<number>>(new Set())
 
   async function handleFileSelect(e : React.ChangeEvent<HTMLInputElement>){
     if (!e.target.files || e.target.files.length === 0) return
@@ -43,32 +41,11 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
   function handleImgClick(id : number){
     if(ChatService.isAVisionModelActive() == false) {
       setIsVisionModelActive(false)
-      return setSelectedImgId(-1)
+      return deselectAllImages()
     }
     setIsVisionModelActive(true)
     setWebSearchActivated(false)
-    if(selectedImgIdRef.current == id) {
-      ImageRepository.setSelectedImageId(-1)
-      return setSelectedImgId(-1)
-    }
-    setSelectedImgId(id)
-    console.log("select id : " + selectedImgIdRef.current)
-    ImageRepository.setSelectedImageId(id)
-    /*
-    // multiple images selectable
-    setSelectedImgsIds(selectedIds => {
-      const newSelectedId = new Set([...selectedIds])
-      if(newSelectedId.has(id)) {
-        newSelectedId.delete(id)
-        return newSelectedId
-      }
-      return newSelectedId.add(id)
-    })
-    if(ImageRepository.isImageSelected(id)) {
-      ImageRepository.deselectImage(id)
-      return
-    }
-    ImageRepository.selectImage(id)*/
+    toggleImageWithId(id)
   }
 
   function handleUploadButtonClick(e : React.MouseEvent){
@@ -80,15 +57,7 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
   function handleDeleteSelectedImgClick(e : React.MouseEvent){
     e.preventDefault()
     e.stopPropagation()
-    if(selectedImgIdRef.current == -1) return
-    console.log("delete id : " + selectedImgIdRef.current)
-    ImageRepository.deselectAllImages()
-    ImageRepository.deleteImage(selectedImgIdRef.current)
-    setImages(images => {
-      const newImages = [...images]
-      newImages.splice(selectedImgIdRef.current, 1)
-      return newImages
-    })
+    deleteSelectedImages()
   }
 
   function handleMouseOverPicture(id : number){
@@ -118,7 +87,7 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
 
   useEffect(() => {
     if (images || isWebSearchActivated || active === false) {
-      setSelectedImgId(-1)
+      deselectAllImages()
     }
   
     if (active === false) {
@@ -144,7 +113,7 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
         <input ref={fileInputRef} onChange={handleFileSelect} type="file" data-testid="imageFileInput" style={{display: 'none'}}/>
         <div className="imagesContainer">
           {
-            images?.map((image, index) => (<img onClick={() => handleImgClick(index)} onMouseEnter={() => handleMouseOverPicture(index)} onMouseOut={() => setHoveredImage(null)} className={selectedImgIdRef.current  == index ? 'active' : ''} style={{width:'48px'}} src={image.data} key={'img'+index} alt={image.filename}/>))
+            images?.map((image, index) => (<img onClick={() => handleImgClick(index)} onMouseEnter={() => handleMouseOverPicture(index)} onMouseOut={() => setHoveredImage(null)} className={selectedImgsIdsRef.current.has(index) ? 'active' : ''} style={{width:'48px'}} src={image.data} key={'img'+index} alt={image.filename}/>))
 
           }
           {

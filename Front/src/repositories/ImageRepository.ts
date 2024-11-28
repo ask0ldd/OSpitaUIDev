@@ -53,7 +53,7 @@ export class ImageRepository{
         this.selectedImageIndex = index
     }
 
-    /* multiple images
+    // multiple images
 
     static getSelectedImagesAsBase64() : string[]{
         console.log('nSelectImages : ' + this.selectedImages.size)
@@ -86,7 +86,7 @@ export class ImageRepository{
         return new Set(this.selectedImages)
     }
 
-    end */
+    // end
 
     static setImages(images : {id : number, name : string, data : string}[]){
         this.images = images.map(image => ({id : image.id, filename : image.name, data : image.data}));
