@@ -11,11 +11,14 @@ import AIAgentChain from '../../models/AIAgentChain'
 import RightMenu from './RightMenu'
 import ChainPanel from './ChainPanel'
 import { useServices } from '../../hooks/useServices'
+import { useImagesStore } from '../../hooks/stores/useImagesStore.ts'
 
 const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreaming, activeMenuItem, setActiveMenuItem} : IProps) => {
 
     // retrieved for the ollama api
     const modelsList = useFetchModelsList()
+
+    const { deselectAllImages } = useImagesStore()
 
     const { webSearchService, agentService } = useServices()
 
@@ -98,6 +101,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
 
     // switch active agent
     const handleSwitchAgent = useCallback(async (option : IOption) => {
+        deselectAllImages()
         setIsFormTouched(false)
         const targetAgent = await agentService.getAgentByName(option.value);
         if (!targetAgent) return
@@ -126,6 +130,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
 
     // switch active model
     function handleSwitchModel(option : IOption){
+        deselectAllImages()
         setIsFormTouched(false)
         setFormValues(currentFormValues => ({...currentFormValues, modelName: option.value}))
     }

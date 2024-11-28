@@ -3,9 +3,9 @@ import { useRef, useReducer, useState } from "react"
 import { IConversation, IConversationElement, IInferenceStats } from "../interfaces/IConversation"
 import ScrapedPage from "../models/ScrapedPage"
 
+// deal with everything related to the active conversation
 export function useActiveConversationReducer({name, history, lastAgentUsed, lastModelUsed} : IConversation) {
 
-    // !!! needs last model used in case the agent model was switched after the last request
     const activeConversationStateRef = useRef<IConversation>({name : name, history : history, lastAgentUsed  : lastAgentUsed, lastModelUsed : lastModelUsed}) 
     // {value : 0} instead of a simple 0 -> replacing a {value : 0} with a {value : 0} 
     // will trigger all activeConversationId related effects
@@ -142,8 +142,8 @@ export type TAction =
     | { type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT; payload: number[] }
     | { type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_IMAGES; payload: string[] }
     | { type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS; payload: { newContext : number[], inferenceStats : IInferenceStats} }
-    | { type: ActionType.PUSH_NEW_HISTORY_ELEMENT; payload: IConversationElement /*{ question : string, html : string, markdown : string, context : number[] }*/}
+    | { type: ActionType.PUSH_NEW_HISTORY_ELEMENT; payload: IConversationElement }
     | { type: ActionType.SET_CONVERSATION; payload: IConversation }
     | { type: ActionType.DELETE_LAST_HISTORY_ELEMENT }
-    | { type: ActionType.ADD_SOURCES_TO_LAST_ANSWER; payload: ScrapedPage[]/*string[]*/ }
+    | { type: ActionType.ADD_SOURCES_TO_LAST_ANSWER; payload: ScrapedPage[] }
     ;
