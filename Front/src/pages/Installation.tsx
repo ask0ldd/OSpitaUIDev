@@ -147,7 +147,8 @@ function Step3Section({selectedStep2Model, handleSelectModelOnStep2, handleNextC
                 &gt; ollama pull llama3.2:3b<br/>
                 &gt; ollama pull nomic-embed-text<br/>
                 {selectedStep2Model == "mistral-nemo:12b" && <>&gt; ollama pull mistral-nemo:12b</>}
-                {selectedStep2Model == "aya-expanse:8b" && <>&gt; ollama pull aya-expanse:8b</>}<br/><br/>
+                {selectedStep2Model == "aya-expanse:8b" && <>&gt; ollama pull aya-expanse:8b</>}
+                <br/><br/>
                 &gt; ollama pull llama3.2-vision:11b (only if you want vision capabilities)
             </div>
             <hr/>

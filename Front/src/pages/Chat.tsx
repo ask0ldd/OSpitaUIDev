@@ -158,9 +158,9 @@ function Chat() {
                 // If any document is selected, extract the relevant datas for RAG
                 const ragContext = ChatService.getRAGTargetsFilenames().length > 0 ? await buildRAGContext(query) : ""
 
-                let selectedImage = null
+                let selectedImages : string[] = []
                 if(isVisionModelActive != false) {
-                    selectedImage = ImageRepository.getSelectedImageAsBase64()
+                    selectedImages = ImageRepository.getSelectedImagesAsBase64()
                     const historyImage = ImageRepository.getSelectedImage()
                     if(historyImage != null) dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_IMAGES, payload : [historyImage] })
                 }
@@ -170,8 +170,8 @@ function Chat() {
                     question : isVisionModelActive ? query : ragContext + query, 
                     chunkProcessorCallback : onStreamedChunkReceived_Callback, 
                     context : ragContext == "" ? currentContext : [], 
-                    // images : selectedImages.length > 0 ? [selectedImages[0]] : []
-                    images : selectedImage != null ? [selectedImage] : []
+                    images : selectedImages.length > 0 ? [...selectedImages] : []
+                    // images : selectedImage != null ? [selectedImage] : []
                 })
                 newContext = finalDatas.newContext
                 inferenceStats = finalDatas.inferenceStats
