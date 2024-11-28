@@ -81,7 +81,8 @@ describe('ChatService', () => {
             answer: { asMarkdown: mockCompletionResponse.response, asHTML: '<p>' + mockCompletionResponse.response + '</p>' },
             sources: [],
             question: 'Test question',
-            date: expect.any(String)
+            date: expect.any(String),
+            images : []
         })
     })
   })

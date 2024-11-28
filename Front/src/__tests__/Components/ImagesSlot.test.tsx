@@ -14,7 +14,6 @@ import PromptService from '../../services/API/PromptService';
 import mockPromptsList from '../../__mocks__/mockPromptsList';
 import mockRunningModelsInfos from '../../__mocks__/mockRunningModelsInfos';
 import AgentService from '../../services/API/AgentService';
-import { ImageRepository } from '../../interfaces/IImage';
 import { userEvent } from '@testing-library/user-event';
 import { mockImagesList } from '../../__mocks__/mockImagesList';
 
@@ -43,9 +42,9 @@ describe('Given I am on the Chat page', () => {
         vi.stubGlobal('speechSynthesis', {
             getVoices: vi.fn().mockReturnValue(mockVoices),
         });
-        vi.spyOn(ImageRepository, 'setSelectedImageId').mockReturnValue()
+        /*vi.spyOn(ImageRepository, 'setSelectedImageId').mockReturnValue()
         vi.spyOn(ImageRepository, 'pushImage').mockReturnValue()
-        vi.spyOn(ImageRepository, 'nImages').mockReturnValue(mockImagesList.length)
+        vi.spyOn(ImageRepository, 'nImages').mockReturnValue(mockImagesList.length)*/
         render(<MockedRouter />)
     });
 
