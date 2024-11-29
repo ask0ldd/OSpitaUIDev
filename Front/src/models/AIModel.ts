@@ -383,7 +383,7 @@ export class AIModel{
             // "system": this.#systemPrompt,
             "prompt": prompt,
             // "context" : [...this.#context],
-            "images" : [...images],
+            "images" : this.#modelName.includes("llama") && this.#modelName.includes("vision") ? [images[0]] : [...images],
         }
         const requestWithOptions = {...baseRequest, "options": this.getOptions()}
         return JSON.stringify(requestWithOptions)
