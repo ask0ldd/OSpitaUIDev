@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-private-class-members */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import visionModelsClues from "../constants/VisionModelsClues";
 import { IConversationElement, IInferenceStats } from "../interfaces/IConversation";
@@ -123,48 +124,34 @@ export class ChatService{
       // the agent receive an amount of scraped datas matching the context size available
 
       let content = ""
-      let decod = ""
+      let decodedValueCopy = ""
       try{
           const reader = await this.activeAgent.askForAStreamedResponse(webDatasSizedForAvailableContext + '\n\n<MYREQUEST>' + question + '</MYREQUEST>', images)
 
           while(true){
               const { value } = await reader.read()
 
-              let decodedValue = new TextDecoder().decode(value)
-              decod = decodedValue
+              const decoder = new TextDecoder()
+              const decodedValue = decoder.decode(value)
+              let reconstructedValue = ""
+              decodedValueCopy = decodedValue
 
-              // deal with the very last datas chunk being unexpectedly split into partial chunks
-              if(decodedValue.includes('"done":true') && !decodedValue.trim().endsWith("}")) {
-                // console.log("endvalue no curly bracket : " + decodedValue)
-                let followingChunk = ""
-                while(true){
-                  console.log("trying to add subsequent value")
-                  followingChunk = new TextDecoder().decode((await reader.read()).value)
-                  if(followingChunk == null) {
-                    // if the chunk can't be reconstructed, a chunk with an empty context is returned
-                    decodedValue = decodedValue.split(',"context"')[0] + ',"context":[]}'
-                    break
-                  }
-                  decodedValue += followingChunk
-                  if(decodedValue.trim().endsWith("}")) break
-                }
-              }
+              // deals with the very last datas chunk being unexpectedly split into partial chunks
+              if(decodedValue.includes('"done":true') && !decodedValue.trim().endsWith("}")) 
+                  reconstructedValue = await this.#reconstructIncompleteEndingChunk(decodedValue, reader, decoder)
 
-              // check if the decoded value isn't malformed -> fix it if it is
-              const reconstructedValue = this.#reconstructMalformedValues(decodedValue)
+              // if the decoded value hasn't been reconstructed previously, check if it is malformed -> if it is, fix it
+              if(reconstructedValue == "") reconstructedValue = this.#reconstructMalformedValues(decodedValue)
 
-              const json = JSON.parse(reconstructedValue)
-
-              if(json.done) {
-                newContext = json.context || []
-                inferenceStats = InferenceStatsFormatingService.extractStats(json)
-                content += json.response
+              const parsedValue = JSON.parse(reconstructedValue)
+              if(parsedValue.done) {
+                newContext = parsedValue.context || []
+                inferenceStats = InferenceStatsFormatingService.extractStats(parsedValue)
+                content += parsedValue.response
                 chunkProcessorCallback({markdown : content, html : await AnswerFormatingService.format(content)})
                 break
-              }
-          
-              if (!json.done) {
-                content += json.response
+              } else {
+                content += parsedValue.response
                 chunkProcessorCallback({markdown : content, html : await AnswerFormatingService.format(content)})
               }
           }
@@ -174,7 +161,7 @@ export class ChatService{
             console.error('Stream aborted.')
           } else {
             console.error('Stream failed : ', error)
-            if(decod) console.error(decod)
+            if(decodedValueCopy) console.error(decodedValueCopy)
           }
           throw error
       }
@@ -184,18 +171,64 @@ export class ChatService{
 
     // write three functions in javascript for a tetris game
     // split one malformed block into multiple ones if needed
+    /*static #reconstructMalformedValues(value: string | null): string {
+      if (!value) return JSON.stringify({ model: '', created_at: '', response: ' ', done: false })
+    
+      try {
+        const chunks = value.split('}\n{').map(chunk => 
+          JSON.parse(chunk.trim().replace(/^(?!{)/, '{').replace(/(?!})$/, '}'))
+        )
+    
+        if (chunks.length === 1) return value.trim();
+    
+        const aggregatedChunk = {
+          ...chunks[chunks.length - 1],
+          response: chunks.map(chunk => chunk.response).join(''),
+          done: chunks.some(chunk => chunk.done)
+        }
+    
+        return JSON.stringify(aggregatedChunk)
+      } catch (error) {
+        console.error(`Can't reconstruct these values: ${value}`)
+        throw error
+      }
+    }*/
+
+    static async #reconstructIncompleteEndingChunk(value : string, reader : ReadableStreamDefaultReader<Uint8Array>, decoder : TextDecoder) : Promise<string>{
+      try{
+        let decodedValue = value
+        let followingChunk = ""
+        while(true){
+          console.log("trying to add subsequent value")
+          followingChunk = decoder.decode((await reader.read()).value)
+          if(followingChunk == null) {
+            // if this last chunk can't be reconstructed, a chunk with an empty context is returned
+            decodedValue = decodedValue.split(',"context"')[0] + ',"context":[]}'
+            break
+          }
+          decodedValue += followingChunk
+          // if finally complete
+          if(decodedValue.endsWith("}")) break
+        }
+        return decodedValue
+      } catch (error) {
+        // this.abortAgentLastRequest()
+        console.error(`Can't reconstruct these values : ` + JSON.stringify(value))
+        throw error
+      }
+    }
+
     static #reconstructMalformedValues(value : string | null) : string{
       try{
         // console.log("untouchedValue : " + value)
         if(value == null) return JSON.stringify({"model":"","created_at":"","response":" ","done":false})
         const splitValues = value.split("}\n{")
         if(splitValues.length == 1) return value.trim()
+        // add curly braces to each extracted element
         const bracedValues = splitValues.map(value => {
-          let trimmedValue = value.trim()
-          if(!trimmedValue.startsWith("{")) trimmedValue = "{" + trimmedValue
-          if(!trimmedValue.endsWith("}")) trimmedValue = trimmedValue + "}"
-          return trimmedValue
-        })
+          const trimmed = value.trim();
+          return `{${trimmed.replace(/^{|}$/g, '')}}`;
+        });
         const reconstructedValue = bracedValues.reduce((acc, value) => acc + JSON.parse(value).response, "")
         // if one of the malformed chunk is the {..., done : true } chunk
         // then the reconstructed chunk becomes a {..., done : true } chunk itself
@@ -203,7 +236,7 @@ export class ChatService{
         const aggregatedChunk = {...JSON.parse(bracedValues[bracedValues.length-1])}
         aggregatedChunk.response = reconstructedValue
         aggregatedChunk.done = isDone
-        console.log("rebuilt : " + JSON.stringify(aggregatedChunk))
+        // console.log("rebuiltValue : " + JSON.stringify(aggregatedChunk))
         return JSON.stringify(aggregatedChunk)
       } catch (error) {
         // this.abortAgentLastRequest()
