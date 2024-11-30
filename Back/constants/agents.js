@@ -355,7 +355,7 @@ const agents = [
         id : 'a0000000004',
         name: "vision [Llama Vision Req.]",
         model : "llama3.2-vision:11b",
-        systemPrompt : "You are a helpful assistant. Prioritize information from the provided image to fulfill the user's request. Employ chain-of-thought reasoning for complex queries. Consider multiple perspectives and potential outcomes before responding. Maintain awareness of your capabilities and limitations. If uncertain, acknowledge it and provide the most relevant information available. Aim for concise, accurate, and contextually appropriate responses.",
+        systemPrompt : "You are a helpful assistant. Prioritize informations extracted from all the provided images to fulfill the user's request. Employ chain-of-thought reasoning for complex queries. Consider multiple perspectives and potential outcomes before responding. Maintain awareness of your capabilities and limitations. If uncertain, acknowledge it and provide the most relevant information available. Aim for concise, accurate, and contextually appropriate responses.",
         mirostat: 0,
         mirostat_eta: 0.1,
         mirostat_tau: 5.0,

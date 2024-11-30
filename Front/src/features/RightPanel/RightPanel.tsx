@@ -22,7 +22,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
 
     const { webSearchService, agentService } = useServices()
 
-    useEffect(() => {console.log("right panel render")}) 
+    // useEffect(() => {console.log("right panel render")}) 
 
     const [webSearchSummarization, setWebSearchSummarization] = useState(false)
     useEffect(() => {
@@ -147,6 +147,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
 
     function handleMenuItemClick(item : string){
         if(isStreaming) return
+        deselectAllImages()
         setIsFormTouched(false)
         if(item === "agent" || item === "chain" || item === "settings") setActiveMenuItem(item)
     }

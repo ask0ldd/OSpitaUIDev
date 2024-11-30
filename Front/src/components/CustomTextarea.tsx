@@ -6,7 +6,7 @@ import useKeyboardListener from "../hooks/CustomTextarea/useKeyboardListener";
 
 const CustomTextarea = forwardRef(({textareaValue, setTextareaValue, currentContext, handlePressEnterKey, activeConversationId} : IProps, ref : ForwardedRef<ImperativeHandle>) => {
 
-    useEffect(() => console.log("textarea render"))
+    // useEffect(() => console.log("textarea render"))
 
     // const [textareaValue, setTextareaValue] = useState("")
     const textareaRef = useRef<HTMLTextAreaElement>(null)

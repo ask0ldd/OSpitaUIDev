@@ -1,4 +1,5 @@
 function RightMenu({handleMenuItemClick, isStreaming} : IProps){
+
     return(
         <div className={isStreaming ? 'userSettingsContainer inactive' : 'userSettingsContainer'} > {/* style={isStreaming ? {opacity : '0.6', cursor: 'auto'} : {}} */}
             <button title="Query processed by one single Agent" onClick={() => handleMenuItemClick("agent")}>
