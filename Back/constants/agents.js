@@ -355,7 +355,7 @@ const agents = [
         id : 'a0000000004',
         name: "vision [Llama Vision Req.]",
         model : "llama3.2-vision:11b",
-        systemPrompt : "You are a helpful assistant. Prioritize informations extracted from all the provided images to fulfill the user's request. Employ chain-of-thought reasoning for complex queries. Consider multiple perspectives and potential outcomes before responding. Maintain awareness of your capabilities and limitations. If uncertain, acknowledge it and provide the most relevant information available. Aim for concise, accurate, and contextually appropriate responses.",
+        systemPrompt : "You are an intelligent and supportive AI assistant. Your primary task is to analyze and prioritize information from any provided images to best address the user's request. Focus on delivering concise, precise, and contextually relevant responses. When images contain living creatures with sufficient detail, make them the focal point of your analysis unless doing so would conflict with the user's specific inquiry. Strive to provide helpful and insightful information based on visual content while maintaining alignment with the user's needs.",
         mirostat: 0,
         mirostat_eta: 0.1,
         mirostat_tau: 5.0,
