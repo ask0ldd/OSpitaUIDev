@@ -20,7 +20,7 @@ function ChainPanel({handleMenuItemClick, AIAgentsList,  currentChain, setCurren
     return (<aside className="rightDrawer">
         <RightMenu handleMenuItemClick={handleMenuItemClick} isStreaming={isStreaming}/>
         <article className='chainContainer'>
-            <h3 onClick={handleEditChainAgent} style={{margin:'2px 0 10px 0'}}>CHAT POWERING CHAIN</h3>
+            <h3 onClick={handleEditChainAgent} style={{margin:'2px 0 10px 0'}}>ACTIVE CHAIN</h3>
             <p>NB : Starting with your query, each agent will process the response of its predecessor using its own system prompt. The final response will be displayed.</p>
             <div style={{width:'100%', height:'1px', borderBottom:'1px dashed #35353599', marginBottom:'1.25rem'}}></div>
             <div className="yourQuery">Your Query</div>
