@@ -257,6 +257,10 @@ export class ChatService{
       return visionModelsClues.some(clue => this.activeAgent.getModelName().toLowerCase().includes(clue))
     }
 
+    static isLlamaVisionModelActive(){
+      return this.activeAgent.getModelName().toLowerCase().includes('llama') && this.activeAgent.getModelName().toLowerCase().includes('vision')
+    }
+
     /*static async askTheActiveAgentForAutoComplete(promptToComplete : string, context:number[] = []) : Promise<{context : number[], response : string}>
     {
         try{

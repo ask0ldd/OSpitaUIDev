@@ -35,9 +35,9 @@ import { useImagesStore } from "../hooks/stores/useImagesStore";
 
 function Chat() {
 
-    useEffect(() => console.log("chat render"))
+    // useEffect(() => console.log("chat render"))
 
-    const { images} = useImagesStore()
+    const { images, getSelectedImages} = useImagesStore()
 
     const { webSearchService } = useServices();
 
@@ -162,9 +162,10 @@ function Chat() {
 
                 let selectedImagesAsBase64 : string[] = []
                 if(isVisionModelActive != false) {
-                    selectedImagesAsBase64 = images.map(image => (image.data.split(',')[1]))
-                    const historyImage = images.length > 0 ? images[0].data : null
-                    if(historyImage != null) dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_IMAGES, payload : [historyImage] })
+                    const selectedImages = getSelectedImages()
+                    selectedImagesAsBase64 = selectedImages.map(image => (image.data.split(',')[1]))
+                    const historyImage = selectedImagesAsBase64.length > 0 ? /*images[0].data*/ selectedImages.map(image => image.data) : null
+                    if(historyImage != null) dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_IMAGES, payload : historyImage })
                 }
 
                 const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(

@@ -2,7 +2,7 @@
 import { Image } from "../../interfaces/IImage";
 import { create } from "zustand";
 
-export const useImagesStore = create<ImagesState>((set) => ({
+export const useImagesStore = create<ImagesState>((set, get) => ({
     images: [],
     selectedImagesIds : new Set(),
     hoveredImage : null,
@@ -24,6 +24,7 @@ export const useImagesStore = create<ImagesState>((set) => ({
     }),
     setHoveredImage : (image : Image | null) => set({ hoveredImage: image }),
     clearHoveredImage  : () => set({ hoveredImage: null }),
+    getSelectedImages : () => get().images.filter((_, index) => get().selectedImagesIds.has(index))
 }));
 
 export interface ImagesState {
@@ -37,4 +38,5 @@ export interface ImagesState {
     clearImages   : () => void
     setHoveredImage : (image  : Image | null ) => void
     clearHoveredImage   : () => void
+    getSelectedImages : () => Image[]
 }

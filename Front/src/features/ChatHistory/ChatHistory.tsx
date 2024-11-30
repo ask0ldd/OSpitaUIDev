@@ -9,7 +9,7 @@ import React from "react"
 
 const ChatHistory = React.memo(({activeConversationState, isStreaming, setTextareaValue, regenerateLastAnswer} : IProps) => {
 
-  useEffect(() => console.log("chat history render"))
+  // useEffect(() => console.log("chat history render"))
 
   const historyContainerRef = useRef(null)
   const autoScrollingObsRef = useRef<MutationObserver>()
