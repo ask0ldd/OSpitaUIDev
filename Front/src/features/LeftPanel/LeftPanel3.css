@@ -90,6 +90,31 @@
       }
     }
 
+    button.confirmDeletion {
+      height: 34px;
+      background: linear-gradient(to bottom, #51e6b9, #95cbcb);
+      border-radius: 4px;
+      margin-top: 0;
+      flex-shrink: 0;
+      flex-grow: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 0 #ffffffaa, inset 0 1px 3px #00000055;
+      transition: all 0.5s ease-out;
+      width: 34px;
+
+      svg {
+        opacity: 1;
+        height: 80%;
+      }
+
+      path {
+        opacity: 1;
+        stroke-width: 10px;
+      }
+    }
+
     .searchFilterContainer {
       display: flex;
       width: 100%;
@@ -214,12 +239,9 @@
         }
 
         &.activeDocument {
-          /*color: #fff;*/
           display: flex;
           justify-content: space-between;
           align-items: center;
-          /*background: #6755be;
-          border: 1px solid #522bab;*/
           padding-left: 0;
           border: 1px solid #aebae0;
 
@@ -246,13 +268,8 @@
         }
 
         &.active {
-          background: /*linear-gradient(
-              to right,
-              #e552f100 0%,
-              rgba(229, 82, 241, 0.16) 75%
-            ),*/ #6755be;
+          background: #6755be;
           color: #fff;
-          /*font-weight: 500;*/
           display: flex;
           justify-content: space-between;
           align-items: center;

@@ -21,6 +21,7 @@ const LeftPanel = React.memo(({isWebSearchActivated, setWebSearchActivated, acti
             <figure style={{cursor:'pointer'}} onClick={() => location.reload()}><span>OSSPITA FOR</span> <img src={ollama}/></figure>
             <ConversationsSlot activeConversationId={activeConversationId} setActiveConversationId={setActiveConversationId} dispatch={dispatch}/>
             <DocumentsSlot key={'ds' + forceLeftPanelRefresh} active={activeSlot == "documents"} setActiveSlot={setActiveSlot} isWebSearchActivated={isWebSearchActivated} setWebSearchActivated={setWebSearchActivated} memoizedSetModalStatus={memoizedSetModalStatus}/>
+            {activeSlot == 'images' && <article style={{marginTop:'0.75rem', textAlign:'left', fontSize:'13px', lineHeight:'130%'}}>Due to a bug in Ollama, only one image can be sent to the llama-vision models. Use minicpm-v if you need to target multiple images at once.</article>}
             <ImagesSlot active={activeSlot == "images"} setActiveSlot={setActiveSlot} isWebSearchActivated={isWebSearchActivated} setWebSearchActivated={setWebSearchActivated}/>
             <PromptsSlot key={'pt' + forceLeftPanelRefresh} selectedPromptNameRef={selectedPromptNameRef} memoizedSetModalStatus={memoizedSetModalStatus}/>
         </aside>

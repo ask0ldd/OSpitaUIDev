@@ -15,6 +15,14 @@ function AnswerRow({isStreaming, index, answer, sources, TTS, onDownload, onCopy
         return sourcesArray.reduce((acc, source) => acc + source.asHTML, '<hr style="opacity:0.3; margin:1.15rem 0 0.5rem 0;"><span style="font-size:14px; font-weight:600; text-decoration:underline; margin-bottom:0.25rem;">Sources :</span>').slice(0, -4)
     }
 
+    function convertImagesArrayToHTML(imagesArray : string[])  : string{
+        if(imagesArray.length == 0) return ''
+        const imagesHTML = imagesArray.reduce((acc, imageSrc) => acc + `<img src="${imageSrc}" style="margin:0.5rem 0 0 0; width:50px; border:1px solid var(--input-border-color);"/>`, '')
+        return `<hr style="opacity:0.3; margin:0.65rem 0 0.5rem 0;">
+                <div style="display:flex; flex-direction:row; column-gap:0.5rem;">${imagesHTML}</div>`
+    }
+
+
     /*function showCOT() {
         (document.querySelector('hidden') as HTMLElement).style.display = 'block';
     }*/
@@ -22,10 +30,10 @@ function AnswerRow({isStreaming, index, answer, sources, TTS, onDownload, onCopy
     return(
         <article className="historyItem answerItem" key={'answer' + index} id={'answer' + index}>
             <figure className={ isStreaming ? "actorFigureAnimation" : ""}>
-                <img className="actorIcon" src={images.length ? images[0] : computerIcon}/>
+                <img className="actorIcon" src={/*images.length ? images[0] : */computerIcon}/>
             </figure>
             {
-                answer.asHTML == '' ? <AnswerWaitingAnim/> : <div className='answerContainer' dangerouslySetInnerHTML={{ __html: (answer.asHTML.toString() + convertSourcesArrayToHTML(sources)) || "" }}></div>
+                answer.asHTML == '' ? <AnswerWaitingAnim/> : <div className='answerContainer' dangerouslySetInnerHTML={{ __html: (answer.asHTML.toString() + convertSourcesArrayToHTML(sources)) + convertImagesArrayToHTML(images) || "" }}></div>
             }
             {   (answer.asHTML && answer.asMarkdown) &&
                 <AnswerButtonsGroup answer={answer} onCopyToClipboard={onCopyToClipboard} onRegenerate={onRegenerate} TTS={TTS}/>
