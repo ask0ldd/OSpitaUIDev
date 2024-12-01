@@ -98,14 +98,14 @@ describe('Given I am on the Chat page', () => {
         await waitFor(() => expect(screen.getByText(/New Conversation/i)).toBeInTheDocument())
     })
 
-    test('Delete conversation button is working', async () => {
+    test('Delete conversation button display a confirmation button', async () => {
         await waitFor(() => expect(screen.getByText(/First Conversation/i)).toBeInTheDocument())
         const newConversationButton = screen.getAllByTitle("new conversation")[0]
         act(() => newConversationButton.click())
         await waitFor(() => expect(screen.getByText(/New Conversation/i)).toBeInTheDocument())
         const deleteConversationButton = screen.getAllByTitle("delete conversation")[0]
         act(() => deleteConversationButton.click())
-        await waitFor(() => expect(screen.queryByText(/New Conversation/i)).not.toBeInTheDocument())
+        await waitFor(() => expect(screen.getByTitle(/confirm deletion/i)).toBeInTheDocument())
     })
 
     test('When all the existing conversations are deleted, a blank conversation is created', async () => {
@@ -113,29 +113,29 @@ describe('Given I am on the Chat page', () => {
         const newConversationButton = screen.getAllByTitle("new conversation")[0]
         act(() => newConversationButton.click())
         await waitFor(() => expect(screen.getByText(/New Conversation/i)).toBeInTheDocument())
-        let deleteConversationButton = screen.getAllByTitle("delete conversation")[0]
-        act(() => deleteConversationButton.click())
-        deleteConversationButton = screen.getAllByTitle("delete conversation")[0]
-        act(() => deleteConversationButton.click())
-        deleteConversationButton = screen.getAllByTitle("delete conversation")[0]
-        act(() => deleteConversationButton.click())
-        deleteConversationButton = screen.getAllByTitle("delete conversation")[0]
-        act(() => deleteConversationButton.click())
-        deleteConversationButton = screen.getAllByTitle("delete conversation")[0]
-        act(() => deleteConversationButton.click())
+        let deleteConversationButton : HTMLButtonElement
+        let confirmDeletionButton : HTMLButtonElement
+
+        let i = 0
+        while(i < 5){
+            deleteConversationButton = screen.getAllByTitle("delete conversation")[0] as HTMLButtonElement
+            act(() => deleteConversationButton.click())
+            confirmDeletionButton = screen.getByTitle(/confirm deletion/i)
+            act(() => confirmDeletionButton.click())
+            i++
+        }
+
         await waitFor(() => expect(screen.queryByText(/New Conversation/i)).not.toBeInTheDocument())
     })
 
     test('Switching conversation', async () => {
         await waitFor(() => expect(screen.getByText(/First Conversation/i)).toBeInTheDocument())
         const conversationsList = screen.getByText("CONVERSATIONS").parentElement?.children[1]
-        expect(conversationsList?.children[0].className.includes("active")).toBeTruthy()
+        expect(conversationsList?.children[0].children[0].className.includes("active")).toBeTruthy()
         expect(conversationsList?.children[1].className.includes("active")).toBeFalsy()
         act(() => (conversationsList?.children[1] as HTMLElement).click())
         await waitFor(() => expect(conversationsList?.children[0].className.includes("active")).toBeFalsy())
-        expect(conversationsList?.children[1].className.includes("active")).toBeTruthy()
+        expect(conversationsList?.children[1].children[0].className.includes("active")).toBeTruthy()
     })
-
-
 
 })
