@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChatService } from "../services/ChatService";
 import ChatHistory from "../features/ChatHistory/ChatHistory";
 import '../style/Chat.css'
@@ -24,7 +24,6 @@ import { FormUploadFile } from "../features/Modal/FormUploadFile";
 import DocService from "../services/API/DocService";
 import DocProcessorService from "../services/DocProcessorService";
 import IRAGChunkResponse from "../interfaces/responses/IRAGChunkResponse";
-import useCustomTextareaManager from "../hooks/CustomTextarea/useCustomTextareaManager";
 import AIAgentChain from "../models/AIAgentChain";
 import AnswerFormatingService from "../services/AnswerFormatingService";
 import InferenceStatsFormatingService from "../services/InferenceStatsFormatingService";
@@ -32,12 +31,17 @@ import { FormSelectChainAgent } from "../features/Modal/FormSelectChainAgent";
 import { useServices } from "../hooks/useServices";
 import useRightMenu from "../hooks/useRightMenu";
 import { useImagesStore } from "../hooks/stores/useImagesStore";
+import { useMainTextAreaStore } from "../hooks/stores/useMainTextAreaStore";
+import useKeyboardListener from "../hooks/useKeyboardListener";
+import { useScrollbar } from "../hooks/useScrollbar";
 
 function Chat() {
 
-    // useEffect(() => console.log("chat render"))
+    useEffect(() => console.log("chat render"))
 
-    const { images, getSelectedImages} = useImagesStore()
+    useScrollbar()
+
+    const { getSelectedImages } = useImagesStore()
 
     const { webSearchService } = useServices();
 
@@ -48,7 +52,7 @@ function Chat() {
     // Active Conversation Management
     // Manages the state and context of the current active conversation
     // Used for displaying chat history and handling conversation selection
-    const { activeConversationId, setActiveConversationId, activeConversationState, dispatch, activeConversationStateRef } = useActiveConversationReducer({name : "First Conversation", history : [], lastAgentUsed  : "", lastModelUsed : ""});
+    const { activeConversationId, setActiveConversationId, dispatch, activeConversationStateRef } = useActiveConversationReducer({name : "First Conversation", history : [], lastAgentUsed  : "", lastModelUsed : ""});
 
     // Auto-scroll Reference
     // Ref used to enable auto-scrolling feature during response streaming
@@ -59,7 +63,8 @@ function Chat() {
     const [forceLeftPanelRefresh, setForceLeftPanelRefresh] = useState(0);
 
     // Main textarea management
-    const {textareaValue, setTextareaValue, customTextareaRef, textareaValueRef} = useCustomTextareaManager()
+    const { setTextareaValue, textareaRef } = useMainTextAreaStore()
+    useKeyboardListener(textareaRef, handlePressEnterKey, activeConversationId.value, activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context || [])
 
     // Modal management
     // Handles modal visibility and content switching
@@ -73,15 +78,6 @@ function Chat() {
     const [isFollowUpQuestionsClosed, setIsFollowUpQuestionsClosed] = useState<boolean>(false)
 
     const {activeMenuItem, setActiveMenuItem, activeMenuItemRef} = useRightMenu()
-
-    const htmlRef = useRef(document.documentElement)
-    useEffect(() => {
-        // Set scrollbar behavior for better UX
-        if (htmlRef.current && htmlRef.current.style.overflowY != "scroll") {
-            htmlRef.current.style.overflow = "-moz-scrollbars-vertical";
-            htmlRef.current.style.overflowY = "scroll";
-        }
-    }, [])
 
     // Effect hook for handling conversation switches
     // Aborts ongoing streaming, resets UI state, and loads the selected conversation
@@ -107,8 +103,8 @@ function Chat() {
     ***/
 
     useEffect(() => {
-        if(activeConversationState.history[activeConversationState.history.length-1]?.answer.asMarkdown == "") scrollToBottom();
-    }, [activeConversationState]);
+        if(activeConversationStateRef.current.history[activeConversationStateRef.current.history.length-1]?.answer.asMarkdown == "") scrollToBottom();
+    }, [activeConversationStateRef.current]);
 
     /**
      * Request a streamed response from the active chatService agent
@@ -188,7 +184,7 @@ function Chat() {
                 payload: {newContext : newContext || [], inferenceStats} 
             })
             // Clear textarea if user hasn't modified it during streaming
-            if(textareaValueRef.current == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
+            if((textareaRef.current as HTMLTextAreaElement).value == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
             // TODO: Implement proper persistence instead of this temporary solution
             ConversationsRepository.updateConversationById(activeConversationId.value, activeConversationStateRef.current)
         }
@@ -225,7 +221,7 @@ function Chat() {
             })
             const response = await AIAgentChain.process(query) || (() => { throw new Error("The chain failed to produce a response.") })()
             dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, payload : {html : await AnswerFormatingService.format(response.response), markdown : response.response}})
-            if(textareaValueRef.current == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
+            if((textareaRef.current as HTMLTextAreaElement).value == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
             const stats = InferenceStatsFormatingService.extractStats(response)
             dispatch({ 
                 type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS, 
@@ -259,17 +255,21 @@ function Chat() {
     }
 
     function scrollToBottom() {
-        window.scrollTo(0, document.body.scrollHeight);
+        window.scrollTo(0, document.body.scrollHeight)
     }
 
-    function regenerateLastAnswer() {
+    // so it updates at the end of the stream, not each time a token is rendered
+    // since it is passed as a prop to the answer component
+    const regenerateLastAnswer = useCallback(() => {
         if(isStreamingRef.current) return
         const retrievedQuestion = activeConversationStateRef.current.history[activeConversationStateRef.current.history.length-1].question
         ConversationsRepository.updateConversationHistoryById(activeConversationId.value, activeConversationStateRef.current.history.slice(0, -1))
         dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
-        if(activeMenuItem == "chain") return sendRequestThroughActiveChain(retrievedQuestion)
+        if(activeMenuItem === "chain") return sendRequestThroughActiveChain(retrievedQuestion)
         askActiveAgent_Streaming(retrievedQuestion)
-    }
+    }, [
+        isStreamingRef.current
+    ])
 
     function nanosecondsToSeconds(nanoseconds : number) {
         return nanoseconds / 1e9;
@@ -294,10 +294,6 @@ function Chat() {
         ChatService.abortAgentLastRequest()
         if(isWebSearchActivatedRef.current) webSearchService.abortLastRequest()
         AIAgentChain.abortProcess()
-    }
-
-    function handleCustomTextareaFocus() {
-        customTextareaRef.current?.focusTextarea()
     }
 
     function handleSearchWebClick(e: React.MouseEvent<HTMLDivElement>) {
@@ -339,16 +335,8 @@ function Chat() {
             </div>
 
             <div className="stickyBottomContainer">
-
-                {<CustomTextarea ref={customTextareaRef} 
-                    setTextareaValue={setTextareaValue} 
-                    textareaValue={textareaValue} 
-                    currentContext={activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context || []} 
-                    handlePressEnterKey={handlePressEnterKey} activeConversationId={activeConversationId.value} />}
-
-                {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={activeConversationState.history[activeConversationState.history.length - 1]}
-                    setTextareaValue={setTextareaValue} 
-                    focusTextarea={handleCustomTextareaFocus} 
+                <CustomTextarea/>
+                {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]}
                     isStreaming={isStreaming} 
                     selfClose={setIsFollowUpQuestionsClosed} isFollowUpQuestionsClosed={isFollowUpQuestionsClosed}/>}
                 
@@ -375,8 +363,8 @@ function Chat() {
                             <svg style={{width:'22px', flexShrink:0}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/></svg>
                         </button> : 
                         <>
-                            {activeMenuItem == "agent" && <button className="sendButton purpleShadow" onClick={() => askActiveAgent_Streaming(textareaValue)}>Send</button>}
-                            {activeMenuItem == "chain" && <button className="sendButton purpleShadow" onClick={() => sendRequestThroughActiveChain(textareaValue)}>Send&nbsp;<span style={{fontWeight:'400'}}>(to Chain)</span></button>}
+                            {activeMenuItem == "agent" && <button className="sendButton purpleShadow" onClick={() => askActiveAgent_Streaming((textareaRef.current as HTMLTextAreaElement).value)}>Send</button>}
+                            {activeMenuItem == "chain" && <button className="sendButton purpleShadow" onClick={() => sendRequestThroughActiveChain((textareaRef.current as HTMLTextAreaElement).value)}>Send&nbsp;<span style={{fontWeight:'400'}}>(to Chain)</span></button>}
                         </>
                     }
                 </div>
