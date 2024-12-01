@@ -13,6 +13,11 @@ export function useFetchDocsList(){
         _setDocsList(docsList)
     }
 
+    function deselectAllDocs(){
+        docsListRef.current = docsList.map(doc => ({...doc, selected : false}))
+        _setDocsList(docsList.map(doc => ({...doc, selected : false})))
+    }
+
     // won't be triggered each time the component is rerendered
     const fetchDocsList = useCallback(async () => {
         try {
@@ -36,5 +41,5 @@ export function useFetchDocsList(){
         setRefreshTrigger(prev => prev + 1);
     };*/
 
-    return { docsList, setDocsList, docsListRef };
+    return { docsList, setDocsList, docsListRef, deselectAllDocs };
 }

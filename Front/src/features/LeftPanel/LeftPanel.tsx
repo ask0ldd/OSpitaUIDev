@@ -10,7 +10,7 @@ import { TAction } from '../../hooks/useActiveConversationReducer'
 import ImagesSlot from './ImagesSlot'
 
 // export default function LeftPanel({activeConversation, setActiveConversation, setModalStatus, selectedPromptRef} : IProps){
-const LeftPanel = React.memo(({isWebSearchActivated, setWebSearchActivated, activeConversationId, activeConversationStateRef, setActiveConversationId, dispatch, memoizedSetModalStatus, selectedPromptNameRef, forceLeftPanelRefresh} : IProps) => {
+const LeftPanel = React.memo(({isWebSearchActivated, setWebSearchActivated, activeConversationId, setActiveConversationId, dispatch, memoizedSetModalStatus, selectedPromptNameRef, forceLeftPanelRefresh} : IProps) => {
 
     // useEffect(() => {console.log("left panel render")})
 

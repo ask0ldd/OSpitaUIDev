@@ -13,7 +13,7 @@ export default function DocumentsSlot({isWebSearchActivated, setWebSearchActivat
 
     const itemsPerPage = 4
 
-    const {docsListRef, setDocsList} = useFetchDocsList()
+    const {docsListRef, setDocsList, deselectAllDocs} = useFetchDocsList()
 
     const { handlePageChange, activePage, resetActivePage } = usePagination(itemsPerPage, () => getFilteredDocs().length)
 
@@ -79,6 +79,13 @@ export default function DocumentsSlot({isWebSearchActivated, setWebSearchActivat
     function handleOpenUploadFileFormClick() : void {
         memoizedSetModalStatus({visibility : true, contentId : "formUploadFile"})
     }
+
+    useEffect(() => {
+        if(active == false) {
+            ChatService.clearRAGTargets()
+            deselectAllDocs()
+        }
+    }, [active])
 
     if(active == false) return(
         <article className="closedDocumentsSlot" style={{marginTop:'0.75rem', cursor:'pointer'}} onClick={() => setActiveSlot("documents")}>

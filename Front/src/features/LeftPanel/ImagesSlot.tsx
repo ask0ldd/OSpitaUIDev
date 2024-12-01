@@ -124,7 +124,7 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
               Selected images
           </div>
           <button title="paste a screenshot from the clipboard" className="white" style={{marginLeft:'auto'}} onClick={handlePasteFromClipboardClick}>
-            <svg style={{transform:'translate(-1px, 1px)'}} width="17" height="17" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg style={{transform:'translate(-1px, 0px)'}} width="17" height="17" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path fillRule="evenodd" clipRule="evenodd" d="M6 3C6 2.44772 6.44772 2 7 2H15C15.5523 2 16 2.44772 16 3V9C16 10.6569 14.6569 12 13 12H7C6.44772 12 6 11.5523 6 11V3ZM7 0C5.34315 0 4 1.34315 4 3V11C4 12.6569 5.34315 14 7 14H13C15.7614 14 18 11.7614 18 9V3C18 1.34315 16.6569 0 15 0H7ZM0 5V13C0 15.7614 2.23858 18 5 18H11V16H5C3.34315 16 2 14.6569 2 13V5H0Z" fill="#252525"/>
             </svg>
           </button>
