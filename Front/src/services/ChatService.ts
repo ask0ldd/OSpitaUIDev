@@ -134,13 +134,16 @@ export class ChatService{
               const { value } = await reader.read()
               decodedValue = textDecoder.decode(value)
               decodedValueSave = decodedValue
+              let reconstructedValue = ""
 
-              // deal with the very last datas chunk being unexpectedly split into partial chunks
-              if(decodedValue.includes('"done":true') && !decodedValue.trim().endsWith("}")) 
-                  decodedValue = await this.#malformedEndingValueReconstructor(decodedValue, reader, textDecoder)
-
-              // check if the decoded value isn't malformed -> fix it if it is
-              const reconstructedValue = this.#malformedValueReconstructor(decodedValue)
+              // is last chunk
+              if(decodedValue.includes('"done":true')) {
+                // check if split into multiple chunks -> concat them
+                reconstructedValue = !decodedValue.trim().endsWith("}") ? await this.#malformedEndingValueReconstructor(decodedValue, reader, textDecoder) : decodedValue
+              } else {
+                // check if the decoded value isn't malformed -> fix it
+                reconstructedValue = this.#malformedValueReconstructorOptimized(decodedValue)
+              }
 
               const json = JSON.parse(reconstructedValue)
 
