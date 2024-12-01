@@ -132,6 +132,7 @@ const ChatHistory = React.memo(({activeConversationState, isStreaming, setTextar
   if(JSON.stringify(prevProps.activeConversationState.history) != JSON.stringify(nextProps.activeConversationState.history)) return false
   // refresh when isStreaming is equal to true and props changes
   if(prevProps.isStreaming == true) return false
+  if(prevProps.regenerateLastAnswer != nextProps.regenerateLastAnswer) return false
   // refresh when isStreaming changes
   return prevProps.isStreaming === nextProps.isStreaming
 })
