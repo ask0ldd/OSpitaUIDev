@@ -10,7 +10,7 @@ import React from "react";
 
 const CustomTextarea = React.memo(() => {
 
-    useEffect(() => console.log("textarea render"))
+    // useEffect(() => console.log("textarea render"))
     
     const { textareaValue, setTextareaValue, textareaRef } = useMainTextAreaStore()
 

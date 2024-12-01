@@ -175,7 +175,7 @@ export class ChatService{
     }
 
     // split one malformed block into multiple ones if needed
-    static #malformedValueReconstructor(value : string | null) : string{
+    /*static #malformedValueReconstructor(value : string | null) : string{
       try{
         // console.log("untouchedValue : " + value)
         if(value == null) return JSON.stringify({"model":"","created_at":"","response":" ","done":false})
@@ -201,7 +201,7 @@ export class ChatService{
         console.error(`Can't reconstruct these values : ` + JSON.stringify(value))
         throw error
       }
-    }
+    }*/
 
     /* memo : decodedValue structure : {"model":"qwen2.5:3b","created_at":"2024-09-29T15:14:02.9781312Z","response":" also","done":false} */
     static #malformedValueReconstructorOptimized(value : string | null) : string {
@@ -211,7 +211,7 @@ export class ChatService{
         const matches = value.match(allResponsesRegex)
         if(matches == null) return JSON.stringify({"model":"","created_at":"","response":" ","done":false})
         const aggregatedResponse = matches.join("")
-        console.log(aggregatedResponse)
+        // console.log(aggregatedResponse)
         const baseResponse = value.includes(`"done":true`) ? JSON.stringify({"model":"","created_at":"","response":" ","done":true}) : JSON.stringify({"model":"","created_at":"","response":" ","done":false})
         return baseResponse.replace(`"response":" "`, `"response":"${aggregatedResponse}"`)
       } catch (error) {

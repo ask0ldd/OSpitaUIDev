@@ -37,7 +37,7 @@ import { useScrollbar } from "../hooks/useScrollbar";
 
 function Chat() {
 
-    useEffect(() => console.log("chat render"))
+    // useEffect(() => console.log("chat render"))
 
     useScrollbar()
 
