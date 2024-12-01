@@ -5,17 +5,18 @@ import '../style/FollowUpQuestions.css'
 import { ChatService } from '../services/ChatService'
 import { IConversationElement } from '../interfaces/IConversation'
 import React from 'react'
+import { useMainTextAreaStore } from '../hooks/stores/useMainTextAreaStore'
 
-// function FollowUpQuestions({historyElement, setTextareaValue, focusTextarea, isStreaming, selfClose} : IProps){
-
-const FollowUpQuestions = React.memo(({historyElement, setTextareaValue, focusTextarea, isStreaming, selfClose, isFollowUpQuestionsClosed} : IProps) => {
+const FollowUpQuestions = React.memo(({historyElement, isStreaming, selfClose, isFollowUpQuestionsClosed} : IProps) => {
 
     // useEffect(() => {console.log("fup questions render")})
 
     const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([])
 
+    const { textareaRef, setTextareaValue} = useMainTextAreaStore()
+
     function handleFollowUpQuestionClick(text : string){
-        focusTextarea()
+        textareaRef.current?.focus()
         setTextareaValue(text)
     }
 
@@ -36,22 +37,6 @@ const FollowUpQuestions = React.memo(({historyElement, setTextareaValue, focusTe
             generateFollowUpQuestions(historyElement.question)
         }
     }, [historyElement?.context])
-
-    // generate three follow up questions after an answer has been streamed
-    /*async function generateFollowUpQuestions(question : string, iter : number = 0){
-        const prompt = "Use the following question to generate three related follow up questions, with a maximum 50 words each, that would lead your reader to discover great and related knowledge : \n\n" + question + `\n\nFormat those three questions as an array of strings such as : ["question1", "question2", "question3"]. Don't add any commentary or any annotation. Just output a simple and unique array.`
-        let response = []
-        // ChatService.abortAgentLastRequest()
-        try{
-        const threeQuestions = await ChatService.askForFollowUpQuestions(prompt, historyElement.context || [])
-            response = JSON.parse(threeQuestions)
-        }catch(error){
-            console.error(error)
-            if(iter + 1 > 4) return setFollowUpQuestions([])
-            generateFollowUpQuestions(question, iter + 1)
-        }
-        if(response?.length == 3) setFollowUpQuestions(response)
-    }*/
 
     async function generateFollowUpQuestions(question: string, iter: number = 0): Promise<void> {
 
@@ -115,8 +100,6 @@ export default FollowUpQuestions;
 
 interface IProps{
     historyElement : IConversationElement
-    setTextareaValue : (text : string) => void
-    focusTextarea : () => void
     isStreaming : boolean
     selfClose : (bool : boolean) => void
     isFollowUpQuestionsClosed : boolean

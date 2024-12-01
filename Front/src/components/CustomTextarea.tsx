@@ -1,69 +1,33 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ForwardedRef, forwardRef, useEffect, useImperativeHandle, useRef} from "react";
+import { useEffect } from "react";
 import '../style/CustomTextarea.css'
-import useKeyboardListener from "../hooks/CustomTextarea/useKeyboardListener";
+// import useKeyboardListener from "../hooks/CustomTextarea/useKeyboardListener";
+import { useMainTextAreaStore } from "../hooks/stores/useMainTextAreaStore";
+import React from "react";
 
-const CustomTextarea = forwardRef(({textareaValue, setTextareaValue, currentContext, handlePressEnterKey, activeConversationId} : IProps, ref : ForwardedRef<ImperativeHandle>) => {
+// const CustomTextarea = forwardRef(({textareaValue, setTextareaValue, currentContext, handlePressEnterKey, activeConversationId, isStreaming} : IProps, ref : ForwardedRef<ImperativeHandle>) => {
 
-    // useEffect(() => console.log("textarea render"))
+const CustomTextarea = React.memo(() => {
 
-    // const [textareaValue, setTextareaValue] = useState("")
-    const textareaRef = useRef<HTMLTextAreaElement>(null)
-    // const suggestionDivRef = useRef<HTMLDivElement>(null)
-    // const [suggestion, _setSuggestion] = useState("")
-    // const suggestionRef = useRef("")
-    const autoCompletion = useRef(false)
+    useEffect(() => console.log("textarea render"))
+    
+    const { textareaValue, setTextareaValue, textareaRef } = useMainTextAreaStore()
 
-    /*function setSuggestion(text : string) {
-        suggestionRef.current = text
-        _setSuggestion(text)
-    }*/
-
-    useKeyboardListener(textareaRef, handlePressEnterKey, activeConversationId, currentContext)
+    // useKeyboardListener(textareaRef, handlePressEnterKey, activeConversationId, currentContext)
 
     useEffect(() => {
         if(textareaValue == "" && textareaRef.current) textareaRef.current.style.height = '100px'
     }, [textareaValue])
 
-    // exposing the textarea focus method to the parent component
-    useImperativeHandle(ref, () => ({
-        focusTextarea: () => {
-            textareaRef.current?.focus()
-        },
-    }))
-
-    // the three fn below should integrate a custom completion hook
-    /*async function askAutoComplete(sentence : string) : Promise<void>{
-        const response = await ChatService.askTheActiveAgentForAutoComplete(sentence, currentContext || [])
-        setSuggestion(response.response)
-    }*/
-
-    /*function applyAutoCompleteOnTabPress(event : KeyboardEvent) : void {
-        if(document.activeElement?.id == "mainTextArea" && event.key === 'Tab') {
-            event.preventDefault()
-            setTextareaValue(textareaValue + suggestionRef.current)
-            if(textareaRef.current) (textareaRef.current as HTMLTextAreaElement).value = textareaRef.current?.value + suggestionRef.current
-            setSuggestion("")
-        }
-    }*/
-
-    /*function updateSuggestionPosition(textarea : HTMLTextAreaElement) : void {
-        const coordinates = getLastCharCoordinates(textarea)
-        if(suggestionDivRef.current) {
-            suggestionDivRef.current.style.left = coordinates.x+8+`px`
-            suggestionDivRef.current.style.top = coordinates.y+`px`
-        }
-    }*/
-
     function handleInput(text : string) : void{
         setTextareaValue(text)
         if(textareaRef.current) autoGrow(textareaRef.current)
-        if(autoCompletion.current){
+        /*if(autoCompletion.current){
             // askAutoComplete(text)
             const textarea = textareaRef.current as HTMLTextAreaElement
             // updateSuggestionPosition(textarea)
-        }
+        }*/
     }
 
     // the textarea grows automatically when new lines are inputted
@@ -75,8 +39,7 @@ const CustomTextarea = forwardRef(({textareaValue, setTextareaValue, currentCont
     return(
         <>
             <div className="textAreaContainer">
-                <textarea /*placeholder="Ask anything..."*/ ref={textareaRef} id="mainTextArea" spellCheck="false" onInput={(e) => handleInput((e.target as HTMLTextAreaElement).value)} value={textareaValue}></textarea>
-                {/*<div ref={suggestionDivRef} id="suggestions">{suggestion}</div>*/}
+                <textarea ref={textareaRef} id="mainTextArea" spellCheck="false" onInput={(e) => handleInput((e.target as HTMLTextAreaElement).value)} value={textareaValue}></textarea>
             </div>
         </>
     )
@@ -84,17 +47,9 @@ const CustomTextarea = forwardRef(({textareaValue, setTextareaValue, currentCont
 
 export default CustomTextarea
 
-interface IProps{
-    textareaValue : string
-    setTextareaValue : (text : string) => void
-    currentContext : number[]
-    handlePressEnterKey : (query : string) => Promise<void>
-    activeConversationId : number
-}
-
-export interface ImperativeHandle {
+/*export interface ImperativeHandle {
     focusTextarea: () => void
-}
+}*/
 
 
 /*function getLastCharCoordinates(textarea: HTMLTextAreaElement) : { x: number, y: number } {
@@ -145,4 +100,27 @@ export interface ImperativeHandle {
     document.body.removeChild(mirror)
     
     return coordinates;
+}*/
+
+// the three fn below should integrate a custom completion hook
+    /*async function askAutoComplete(sentence : string) : Promise<void>{
+        const response = await ChatService.askTheActiveAgentForAutoComplete(sentence, currentContext || [])
+        setSuggestion(response.response)
+    }*/
+
+    /*function applyAutoCompleteOnTabPress(event : KeyboardEvent) : void {
+        if(document.activeElement?.id == "mainTextArea" && event.key === 'Tab') {
+            event.preventDefault()
+            setTextareaValue(textareaValue + suggestionRef.current)
+            if(textareaRef.current) (textareaRef.current as HTMLTextAreaElement).value = textareaRef.current?.value + suggestionRef.current
+            setSuggestion("")
+        }
+    }*/
+
+    /*function updateSuggestionPosition(textarea : HTMLTextAreaElement) : void {
+        const coordinates = getLastCharCoordinates(textarea)
+        if(suggestionDivRef.current) {
+            suggestionDivRef.current.style.left = coordinates.x+8+`px`
+            suggestionDivRef.current.style.top = coordinates.y+`px`
+        }
 }*/
