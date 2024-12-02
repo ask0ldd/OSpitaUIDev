@@ -245,8 +245,9 @@ export class ChatService{
 
       if(aggregatedChunks.includes(`"done":true`)){
         const splitChunks = aggregatedChunks.split("}\n{")
-        const endAggregateChunk = splitChunks[splitChunks.length - 1]
-        return endAggregateChunk.replace(`"response":" "`, `"response":"${allReponsesValues.join("")}"`)
+        const endAggregateChunk = "{" + splitChunks[splitChunks.length - 1]
+        console.log(endAggregateChunk.replace(`"response":"`, `"response":"${allReponsesValues.join("")}`))
+        return endAggregateChunk.replace(`"response":"`, `"response":"${allReponsesValues.join("")}`)
       }else{
         const baseAggregateChunk = JSON.stringify({"model":"","created_at":"","response":" ","done":false})
         return baseAggregateChunk.replace(`"response":" "`, `"response":"${allReponsesValues.join("")}"`)
