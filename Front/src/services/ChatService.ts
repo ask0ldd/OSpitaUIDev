@@ -134,16 +134,15 @@ export class ChatService{
               const { value } = await reader.read()
               decodedValue = textDecoder.decode(value)
               decodedValueSave = decodedValue
-              let reconstructedValue = ""
 
-              // is last chunk
-              if(decodedValue.includes('"done":true')) {
-                // check if split into multiple chunks -> concat them
-                reconstructedValue = !decodedValue.trim().endsWith("}") ? await this.#malformedEndingValueReconstructor(decodedValue, reader, textDecoder) : decodedValue
-              } else {
-                // check if the decoded value isn't malformed -> fix it
-                reconstructedValue = this.#malformedValueReconstructorOptimized(decodedValue)
-              }
+              /*// deal with the very last datas chunk being unexpectedly split into partial chunks
+              if(decodedValue.includes('"done":true') && !decodedValue.trim().endsWith("}")) 
+                  decodedValue = await this.#malformedEndingValueReconstructor(decodedValue, reader, textDecoder)
+
+              // check if the decoded value isn't malformed -> fix it if it is
+              const reconstructedValue = this.#malformedValueReconstructor(decodedValue)*/
+
+              const reconstructedValue = await this.rebuildMalformedChunksOptimized(decodedValue, reader, textDecoder)
 
               const json = JSON.parse(reconstructedValue)
 
@@ -175,18 +174,21 @@ export class ChatService{
     }
 
     // split one malformed block into multiple ones if needed
-    /*static #malformedValueReconstructor(value : string | null) : string{
+    static #malformedValueReconstructor(value : string | null) : string{
       try{
         // console.log("untouchedValue : " + value)
         if(value == null) return JSON.stringify({"model":"","created_at":"","response":" ","done":false})
+        // try splitting the chunk into multiple ones
         const splitValues = value.split("}\n{")
         if(splitValues.length == 1) return value.trim()
+        // close all split chunks on both ends if needed
         const bracedValues = splitValues.map(value => {
           let trimmedValue = value.trim()
           if(!trimmedValue.startsWith("{")) trimmedValue = "{" + trimmedValue
           if(!trimmedValue.endsWith("}")) trimmedValue = trimmedValue + "}"
           return trimmedValue
         })
+        // parse all split chunks and aggregate the response value
         const reconstructedValue = bracedValues.reduce((acc, value) => acc + JSON.parse(value).response, "")
         // if one of the malformed chunk is the {..., done : true } chunk
         // then the reconstructed chunk becomes a {..., done : true } chunk itself
@@ -194,48 +196,61 @@ export class ChatService{
         const aggregatedChunk = {...JSON.parse(bracedValues[bracedValues.length-1])}
         aggregatedChunk.response = reconstructedValue
         aggregatedChunk.done = isDone
-        console.log("rebuilt : " + JSON.stringify(aggregatedChunk))
+        // console.log("rebuilt : " + JSON.stringify(aggregatedChunk))
         return JSON.stringify(aggregatedChunk)
       } catch (error) {
         // this.abortAgentLastRequest()
         console.error(`Can't reconstruct these values : ` + JSON.stringify(value))
         throw error
       }
-    }*/
-
-    /* memo : decodedValue structure : {"model":"qwen2.5:3b","created_at":"2024-09-29T15:14:02.9781312Z","response":" also","done":false} */
-    static #malformedValueReconstructorOptimized(value : string | null) : string {
-      try{
-        if(value == null) return JSON.stringify({"model":"","created_at":"","response":" ","done":false})
-        const allResponsesRegex = /(?<="response":")[^"]*(?=","done")/g
-        const matches = value.match(allResponsesRegex)
-        if(matches == null) return JSON.stringify({"model":"","created_at":"","response":" ","done":false})
-        const aggregatedResponse = matches.join("")
-        // console.log(aggregatedResponse)
-        const baseResponse = value.includes(`"done":true`) ? JSON.stringify({"model":"","created_at":"","response":" ","done":true}) : JSON.stringify({"model":"","created_at":"","response":" ","done":false})
-        return baseResponse.replace(`"response":" "`, `"response":"${aggregatedResponse}"`)
-      } catch (error) {
-        console.error(`Can't reconstruct these values : ` + JSON.stringify(value))
-        throw error
-      }
     }
 
+    /* memo : decodedValue structure : {"model":"qwen2.5:3b","created_at":"2024-09-29T15:14:02.9781312Z","response":" also","done":false} */
     // deal with the very last datas chunk being unexpectedly split into partial chunks
     static async #malformedEndingValueReconstructor(value : string, reader : ReadableStreamDefaultReader<Uint8Array>, decoder : TextDecoder) : Promise<string>{
       let nextChunk = ""
       let decodedValue = value
       while(true){
         console.log("trying to add subsequent value")
+        // try retrieving the next partial chunk to see if it is enough to rebuild a complete chunk
         nextChunk = decoder.decode((await reader.read()).value)
         if(nextChunk == null) {
-          // if the chunk can't be reconstructed, a chunk with an empty context is returned
+          // if the chunk can't be reconstructed despite the stream coming to and end
+          // -> a chunk with an empty context is returned
           decodedValue = decodedValue.split(',"context"')[0] + ',"context":[]}'
           break
         }
         decodedValue += nextChunk
+        // if with this addition the chunk is now complete, break the loop
         if(decodedValue.trim().endsWith("}")) break
       }
       return decodedValue
+    }
+
+    static async rebuildMalformedChunksOptimized(value : string, reader : ReadableStreamDefaultReader<Uint8Array>, decoder : TextDecoder) : Promise<string>
+    {
+      // retrieve as many chunks as needed for the string to reach a closing bracket
+      let aggregatedChunks = value.trim()
+      while(!aggregatedChunks.endsWith("}")){
+        aggregatedChunks += decoder.decode((await reader.read()).value)
+        aggregatedChunks = aggregatedChunks.trim()
+      }
+
+      // aggregate the response values of all the chunks
+      const allResponsesRegex = /(?<="response":")[^"]*(?=","done")/g
+      const allReponsesValues = value.match(allResponsesRegex)
+      if(allReponsesValues == null) return JSON.stringify({"model":"","created_at":"","response":" ","done":false})
+      // if only one reponse value then single chunk
+      if(allReponsesValues.length == 1) return aggregatedChunks
+
+      if(aggregatedChunks.includes(`"done":true`)){
+        const splitChunks = aggregatedChunks.split("}\n{")
+        const endAggregateChunk = splitChunks[splitChunks.length - 1]
+        return endAggregateChunk.replace(`"response":" "`, `"response":"${allReponsesValues.join("")}"`)
+      }else{
+        const baseAggregateChunk = JSON.stringify({"model":"","created_at":"","response":" ","done":false})
+        return baseAggregateChunk.replace(`"response":" "`, `"response":"${allReponsesValues.join("")}"`)
+      }
     }
 
     static abortAgentLastRequest(){
