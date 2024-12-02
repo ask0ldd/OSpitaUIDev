@@ -5,7 +5,7 @@ import DocService from '../../services/API/DocService'
 import DocProcessorService from '../../services/DocProcessorService'
 import './FormUploadFile.css'
 import upload from '../../assets/uploadbutton3.png'
-import pdfToText from "react-pdftotext";
+import PDFService from '../../services/PDFService'
 
 export function FormUploadFile({memoizedSetModalStatus, setForceLeftPanelRefresh} : IProps){
 
@@ -58,43 +58,45 @@ export function FormUploadFile({memoizedSetModalStatus, setForceLeftPanelRefresh
         reader.addEventListener("abort", (e) => handleEvent(e as ProgressEvent<FileReader>, filename, filesize))
     }
 
-    // !!! add check file format
     async function handleFileSelect(e : React.ChangeEvent<HTMLInputElement>){
-        if (!e.target.files || e.target.files.length === 0) return
-        const file = e.target.files[0]
+        try{
+            if (!e.target.files || e.target.files.length === 0) return
+            const file = e.target.files[0]
 
-        const allowTypes = ["text/plain", "text/markdown", "application/pdf"]
-        if (!allowTypes.includes(file.type)) return // !!! should display error message
+            const allowTypes = ["text/plain", "text/markdown", "application/pdf"]
+            if (!allowTypes.includes(file.type)) throw new Error("Unsupported file type.")
 
-        setProcessedFile({name : file.name, size : file.size })
+            setProcessedFile({name : file.name, size : file.size })
 
-        switch (file.type) {
-            case "application/pdf":
-                pdfToText(file)
-                    .then(async (pdfAsText) => await processFile({ filename: file.name, content: pdfAsText, filesize: file.size }))
-                    .catch((error) => console.error("Failed to extract text from pdf"));
-                break;
-        
-            case "text/plain":
-            case "text/markdown":
-                { 
-                    const reader = new FileReader();
-                    addFileReaderListeners(reader, file.name, file.size);
-                    reader.readAsText(file); // Or use readAsArrayBuffer(file) for binary files
-                    const events = ["loadstart", "load", "loadend", "progress", "error", "abort"];
-                    events.forEach(eventType => {
-                        reader.removeEventListener(eventType, (e) => handleEvent(e as ProgressEvent<FileReader>, file.name, file.size));
-                    });
-                    break; 
-                }
-        
-            default:
-                // Handle any other file types or add a default behavior
-                console.error("Unsupported file type");
-                break;
+            switch (file.type) {
+                case "application/pdf":
+                    new PDFService().convertToText(file)
+                        .then(async (pdfAsText) => await processFile({ filename: file.name, content: pdfAsText, filesize: file.size }))
+                        .catch((error) => {throw error});
+                    break;
+            
+                case "text/plain":
+                case "text/markdown":
+                    { 
+                        const reader = new FileReader();
+                        addFileReaderListeners(reader, file.name, file.size);
+                        reader.readAsText(file); // Or use readAsArrayBuffer(file) for binary files
+                        const events = ["loadstart", "load", "loadend", "progress", "error", "abort"];
+                        events.forEach(eventType => {
+                            reader.removeEventListener(eventType, (e) => handleEvent(e as ProgressEvent<FileReader>, file.name, file.size));
+                        });
+                        break; 
+                    }
+            
+                default:
+                    // Handle any other file types or add a default behavior
+                    console.error("Unsupported file type.");
+                    break;
+            }
+        }catch(e){
+            console.error(e)
+            // !!! should open an error modale or display a message within the current modale
         }
-
-        // setProcessedFile(null)
     }
 
     function handleUploadContainerClick(e : React.MouseEvent){
