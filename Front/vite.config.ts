@@ -14,11 +14,11 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['react-pdf', 'react-pdftotext']
+    include: ['react-pdf']
   },
   build: {
     commonjsOptions: {
-      include: [/react-pdf/, /node_modules/, /react-pdftotext/]
+      include: [/react-pdf/, /node_modules/]
     }
   },
   server: {
