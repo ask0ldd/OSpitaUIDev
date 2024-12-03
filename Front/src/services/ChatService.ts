@@ -23,7 +23,7 @@ export class ChatService{
       repeat_penalty: 1.1,
       temperature: 0.1,
       seed: 0,
-      stop: "AI assistant:",
+      stop: ["AI assistant:"],
       tfs_z: 1,
       num_predict: 1024,
       top_k: 40,
@@ -135,14 +135,14 @@ export class ChatService{
               decodedValue = textDecoder.decode(value)
               decodedValueSave = decodedValue
 
-              /*// deal with the very last datas chunk being unexpectedly split into partial chunks
+              // deal with the very last datas chunk being unexpectedly split into partial chunks
               if(decodedValue.includes('"done":true') && !decodedValue.trim().endsWith("}")) 
                   decodedValue = await this.#malformedEndingValueReconstructor(decodedValue, reader, textDecoder)
 
               // check if the decoded value isn't malformed -> fix it if it is
-              const reconstructedValue = this.#malformedValueReconstructor(decodedValue)*/
+              const reconstructedValue = this.#malformedValueReconstructor(decodedValue)
 
-              const reconstructedValue = await this.rebuildMalformedChunksOptimized(decodedValue, reader, textDecoder)
+              // const reconstructedValue = await this.rebuildMalformedChunksOptimized(decodedValue, reader, textDecoder)
 
               const json = JSON.parse(reconstructedValue)
 
@@ -156,7 +156,7 @@ export class ChatService{
           
               if (!json.done) {
                 content += json.response
-                /*if(content.length % 50 < 10)*/ chunkProcessorCallback({markdown : content, html : await AnswerFormatingService.format(content)})
+                chunkProcessorCallback({markdown : content, html : await AnswerFormatingService.format(content)})
               }
           }
           this.abortAgentLastRequest()
@@ -243,14 +243,17 @@ export class ChatService{
       // if only one reponse value then single chunk
       if(allReponsesValues.length == 1) return aggregatedChunks
 
+      // aggregated chunks contains the final chunk, extract it and fill it with all the preceding chunks response values aggregated
       if(aggregatedChunks.includes(`"done":true`)){
         const splitChunks = aggregatedChunks.split("}\n{")
         const endAggregateChunk = "{" + splitChunks[splitChunks.length - 1]
-        console.log(endAggregateChunk.replace(`"response":"`, `"response":"${allReponsesValues.join("")}`))
-        return endAggregateChunk.replace(`"response":"`, `"response":"${allReponsesValues.join("")}`)
+        const lastChunkResponseRegex = /(?<="response":)"[^"]*"(?=,"done")/g
+        // return endAggregateChunk.replace(`"response":"`, `"response":"${allReponsesValues.join("")}`)
+        return endAggregateChunk.replace(lastChunkResponseRegex, JSON.stringify(allReponsesValues.join("")))
       }else{
+        // if only intermediate chunks, create a new generic chunk and add all the chunks reponse values aggregated to it
         const baseAggregateChunk = JSON.stringify({"model":"","created_at":"","response":" ","done":false})
-        return baseAggregateChunk.replace(`"response":" "`, `"response":"${allReponsesValues.join("")}"`)
+        return baseAggregateChunk.replace(`"response":" "`, `"response":${JSON.stringify(allReponsesValues.join(""))}`)
       }
     }
 
