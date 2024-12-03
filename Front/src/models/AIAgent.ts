@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-unused-private-class-members */
+import IAIAgentPartialParams from "../interfaces/params/IAIAgentPartialParams.js"
 import { IAIModelParams } from "../interfaces/params/IAIModelParams.js"
 import { ICompletionResponse } from "../interfaces/responses/ICompletionResponse.js"
 import { ProgressTracker } from "./AIAgentChain.js"
@@ -10,8 +11,9 @@ export class AIAgent extends AIModel implements Observer {
 
     #id : string
     #name : string
-    #type : 'system' | 'user_created'
-    #favorite : boolean
+    #type : 'system' | 'user_created' = "user_created"
+    #favorite : boolean = false
+    #targetFilesNames : string[] = []
     #webSearchEconomy: boolean = false
     #observers : (AIAgent | ProgressTracker)[] = []
 
@@ -29,7 +31,7 @@ export class AIAgent extends AIModel implements Observer {
         repeat_last_n = 64, 
         repeat_penalty = 1.1, 
         seed = 0,
-        stop = "AI assistant:", 
+        stop = ["\n", "user:", "AI assistant:"], 
         tfs_z = 1, 
         num_predict = 1024,
         top_k = 40,
@@ -37,7 +39,23 @@ export class AIAgent extends AIModel implements Observer {
         type = "user_created",
         favorite = false,
         webSearchEconomy = false,
-    } : IAIModelParams & { id : string, name : string, type : "system" | "user_created", favorite : boolean, webSearchEconomy? : boolean })
+        min_p = 0.0,
+        num_keep = 5,
+        typical_p = 0.7,
+        presence_penalty = 1.5,
+        frequency_penalty = 1.0,
+        penalize_newline = true,
+        numa = false,
+        num_batch = 2,
+        num_gpu = 1,
+        main_gpu = 0,
+        low_vram = false,
+        vocab_only = false,
+        use_mmap = true,
+        use_mlock = false,
+        num_thread = 8,
+        targetFilesNames = [],
+    } : IAIModelParams & IAIAgentPartialParams)
     {
         super({
             modelName, 
@@ -56,22 +74,33 @@ export class AIAgent extends AIModel implements Observer {
             num_predict,
             top_k,
             top_p,
+            min_p,
+            num_keep,
+            typical_p,
+            presence_penalty,
+            frequency_penalty,
+            penalize_newline,
+            numa,
+            num_batch,
+            num_gpu,
+            main_gpu,
+            low_vram,
+            vocab_only,
+            use_mmap,
+            use_mlock,
+            num_thread,
         })
         this.#id = id
         this.#name = name
         this.#type = type
         this.#favorite = favorite
+        this.#targetFilesNames = targetFilesNames
         this.#webSearchEconomy = webSearchEconomy
         return this
     }
 
     getId() : string {
         return this.#id
-    }
-
-    setName(name : string) : AIAgent {
-        this.#name = name
-        return this
     }
 
     getName() : string{
@@ -82,13 +111,26 @@ export class AIAgent extends AIModel implements Observer {
         return this.#webSearchEconomy
     }
 
-    setWebSearchEconomy(webSearchEconomy: boolean) {
-        this.#webSearchEconomy = webSearchEconomy
+    getType() : 'system' | 'user_created' {
+        return this.#type
+    }
+
+    getFavorite() : boolean {
+        return this.#favorite
+    }
+
+    getTargetFilesNames() : string[]{
+        return this.#targetFilesNames
+    }
+
+    setName(name : string) : AIAgent {
+        this.#name = name
         return this
     }
 
-    getType() : 'system' | 'user_created' {
-        return this.#type
+    setWebSearchEconomy(webSearchEconomy: boolean) {
+        this.#webSearchEconomy = webSearchEconomy
+        return this
     }
 
     setType(type : string) {
@@ -96,12 +138,13 @@ export class AIAgent extends AIModel implements Observer {
         this.#type = type
     }
 
-    getFavorite() : boolean {
-        return this.#favorite
-    }
-
     setFavorite(favorite : boolean){
         this.#favorite = favorite
+    }
+
+    setTargetFilesNames(filesnames : string[]) : AIAgent{
+        this.#targetFilesNames = filesnames
+        return this
     }
 
     asString(){
@@ -109,7 +152,6 @@ export class AIAgent extends AIModel implements Observer {
             {
                 id : this.getId(),
                 name : this.#name,
-                model: this.getModelName(),
                 modelName: this.getModelName(),
                 systemPrompt: this.getSystemPrompt(),
                 num_ctx: this.getContextSize(),
@@ -129,6 +171,30 @@ export class AIAgent extends AIModel implements Observer {
                 favorite: this.getFavorite()
             }
         )
+    }
+
+    toObject(){
+        return({
+            id : this.getId(),
+            name : this.#name,
+            modelName: this.getModelName(),
+            systemPrompt: this.getSystemPrompt(),
+            num_ctx: this.getContextSize(),
+            temperature: this.getTemperature(),
+            num_predict: this.getNumPredict(),
+            mirostat: this.getMirostat(),
+            mirostat_eta: this.getMirostatEta(),
+            mirostat_tau: this.getMirostatTau(),
+            repeat_last_n: this.getRepeatLastN(),
+            repeat_penalty: this.getRepeatPenalty(),
+            seed: this.getSeed(),
+            stop: this.getStop(),
+            tfs_z: this.getTfsZ(),
+            top_k: this.getTopK(),
+            top_p: this.getTopP(),
+            type: this.getType(),
+            favorite: this.getFavorite()
+        })
     }
     
     clone() : AIAgent{
@@ -151,7 +217,22 @@ export class AIAgent extends AIModel implements Observer {
             top_k: this.getTopK(),
             top_p: this.getTopP(),
             type: this.getType(),
-            favorite: this.getFavorite()
+            favorite: this.getFavorite(),
+            min_p: this.getMinP(),
+            num_keep: this.getNumKeep(),
+            typical_p: this.getTypicalP(),
+            presence_penalty: this.getPresencePenalty(),
+            frequency_penalty: this.getFrequencyPenalty(),
+            penalize_newline: this.getPenalizeNewline(),
+            numa: this.getNuma(),
+            num_batch: this.getNumBatch(),
+            num_gpu: this.getNumGpu(),
+            main_gpu: this.getMainGpu(),
+            low_vram: this.getLowVram(),
+            vocab_only: this.getVocabOnly(),
+            use_mmap: this.getUseMmap(),
+            use_mlock: this.getUseMlock(),
+            num_thread: this.getNumThread(),
         })
     }
 
@@ -186,10 +267,10 @@ export class AIAgent extends AIModel implements Observer {
     }
 }
 
-export interface IAIAgentParams{
+/*export interface IAIAgentParams{
     name : string
     model : AIModel
-}
+}*/
 
 /*
 Agent Attributes

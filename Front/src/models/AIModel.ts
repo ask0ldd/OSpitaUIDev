@@ -16,25 +16,43 @@ import visionModelsClues from "../constants/VisionModelsClues"
  */
 export class AIModel{
 
-    #modelName : string
-    #systemPrompt : string
-    #context : number[]
-    #num_ctx : number
-    #temperature : number
-    #num_predict : number
+    #modelName = "llama3.1:8b"
+    #systemPrompt = "You are an helpful assistant."
+    #context : number[] = []
+    #num_ctx = 2048
+    #temperature = 0.8
+    #num_predict = 1024
     #abortController = new AbortController()
     #signal = this.#abortController.signal
-    #mirostat : number
-    #mirostat_eta : number
-    #mirostat_tau : number
-    #repeat_last_n : number
-    #repeat_penalty : number
-    #seed : number
-    #stop : string
-    #tfs_z : number
-    #top_k : number
-    #top_p : number
-    #status : "standard" | "base" | "favorite"
+    #mirostat = 0
+    #mirostat_eta = 0.1
+    #mirostat_tau = 5.0
+    #repeat_last_n = 64
+    #repeat_penalty = 1.1
+    #seed = 0
+    #stop = ["\n", "user:", "AI assistant:"] // "AI assistant:"
+    #tfs_z = 1
+    #top_k = 40
+    #top_p = 0.9
+    #status : "standard" | "base" | "favorite" = "standard"
+
+    #min_p = 0.0
+    #num_keep = 5
+    #typical_p = 0.7
+    #presence_penalty = 1.5
+    #frequency_penalty = 1.0
+    #penalize_newline = true
+    #numa = false
+    #num_batch = 2
+    #num_gpu = 1
+    #main_gpu = 0
+    #low_vram = false
+    #vocab_only = false
+    #use_mmap = true
+    #use_mlock = false
+    #num_thread = 8
+
+
     
     // add keep alive!!!!!
     // add format : json
@@ -51,12 +69,27 @@ export class AIModel{
         repeat_last_n = 64, 
         repeat_penalty = 1.1, 
         seed = 0,
-        stop = "AI assistant:", 
+        stop = ["\n", "user:", "AI assistant:"], 
         tfs_z = 1, 
         num_predict = 1024,
         top_k = 40,
         top_p = 0.9,
         status = "standard",
+        min_p = 0.0,
+        num_keep = 5,
+        typical_p = 0.7,
+        presence_penalty = 1.5,
+        frequency_penalty = 1.0,
+        penalize_newline = true,
+        numa = false,
+        num_batch = 2,
+        num_gpu = 1,
+        main_gpu = 0,
+        low_vram = false,
+        vocab_only = false,
+        use_mmap = true,
+        use_mlock = false,
+        num_thread = 8,
     } : IAIModelParams){
         this.#modelName = modelName
         this.#systemPrompt = systemPrompt
@@ -75,6 +108,21 @@ export class AIModel{
         this.#top_k = top_k
         this.#top_p = top_p
         this.#status = status
+        this.#min_p = min_p
+        this.#num_keep = num_keep
+        this.#typical_p = typical_p
+        this.#presence_penalty = presence_penalty
+        this.#frequency_penalty = frequency_penalty
+        this.#penalize_newline = penalize_newline
+        this.#numa = numa
+        this.#num_batch = num_batch
+        this.#num_gpu = num_gpu
+        this.#main_gpu = main_gpu
+        this.#low_vram = low_vram
+        this.#vocab_only = vocab_only
+        this.#use_mmap = use_mmap
+        this.#use_mlock = use_mlock
+        this.#num_thread = num_thread
     }
 
     /**
@@ -197,7 +245,7 @@ export class AIModel{
         }
     }
 
-    async tokenize(sequence : string) : Promise<number[]> {
+    /*async tokenize(sequence : string) : Promise<number[]> {
         try {
             const response = await fetch("/ollama/api/tokenize", {
                 method: "POST",
@@ -223,6 +271,75 @@ export class AIModel{
             }
             throw new Error("An unknown error occurred.");
         }
+    }*/
+
+    /**
+     * @private
+     * @function #buildRequest
+     * @param {string} prompt - The prompt for the AI model.
+     * @returns {string} The request body for the AI model.
+     * @description Builds the request body for the AI model with the given prompt and other parameters.
+     */
+    #buildRequest({prompt, stream} : {prompt : string, stream : boolean}) : string {
+        const baseRequest : IBaseOllamaRequest = {
+            "model": this.#modelName,
+            "stream": stream,
+            "system": this.#systemPrompt,
+            "prompt": prompt,
+            "context" : [...this.#context],
+        }
+        const requestWithOptions = {...baseRequest, 
+            "options": this.getPartialOptions()
+        }
+        return JSON.stringify(requestWithOptions)
+    }
+
+    #buildVisionRequest({prompt, images, stream} : {prompt : string, images : string[], stream : boolean}) : string {
+        const baseRequest : IBaseVisionOllamaRequest = {
+            "model": this.#modelName,
+            "stream": stream,
+            // "system": this.#systemPrompt,
+            "prompt": prompt,
+            // "context" : [...this.#context],
+            "images" : this.#modelName.includes("llama") && this.#modelName.includes("vision") ? [images[0]] : [...images],
+        }
+        const requestWithOptions = {...baseRequest, "options": this.getPartialOptions()}
+        return JSON.stringify(requestWithOptions)
+    }
+
+    /**
+     * @private
+     * @function #buildEmbeddingRequest
+     * @param {any} sequence - The sequence for which to generate embeddings.
+     * @returns {string} The request body for generating embeddings.
+     * @description Builds the request body for generating embeddings for the given sequence.
+     */
+    #buildEmbeddingRequest (sequence : unknown) : string {
+        return JSON.stringify({
+            "model": this.#modelName, /*"nomic-embed-text" "mxbai-embed-large"*/
+            "prompt": sequence,
+        })
+    }
+
+    /*#buildTokenizeRequest (sequence : unknown) : string {
+        console.log(this.#modelName)
+        return JSON.stringify({
+            "model": this.#modelName,
+            "prompt": sequence,
+        })
+    }*/
+
+    // !!! should instead pass the controller to the conversation?!!! so that model can be easily switched
+    abortLastRequest(){
+        if(this.#abortController) this.#abortController.abort("Signal aborted.")
+        // need to create a new abort controller and a new signal
+        // or subsequent request will be aborted from the get go
+        this.generateNewAbortControllerAndSignal()
+    }
+
+    generateNewAbortControllerAndSignal(){
+        this.#abortController = new AbortController()
+        this.#signal = this.#abortController.signal
     }
 
     /**
@@ -327,7 +444,7 @@ export class AIModel{
         return this;
     }
     
-    setStop(value: "AI assistant:") {
+    setStop(value: ["AI assistant:"]) {
         this.#stop = value;
         return this;
     }
@@ -350,81 +467,82 @@ export class AIModel{
     setStatus(value: "standard" | "base" | "favorite") {
         this.#status = value;
         return this;
-    }    
-
-    /**
-     * @private
-     * @function #buildRequest
-     * @param {string} prompt - The prompt for the AI model.
-     * @returns {string} The request body for the AI model.
-     * @description Builds the request body for the AI model with the given prompt and other parameters.
-     */
-    #buildRequest({prompt, stream} : {prompt : string, stream : boolean}) : string {
-        const baseRequest : IBaseOllamaRequest = {
-            "model": this.#modelName,
-            "stream": stream,
-            "system": this.#systemPrompt,
-            "prompt": prompt,
-            "context" : [...this.#context],
-        }
-        const requestWithOptions = {...baseRequest, 
-            "options": this.getOptions() /*{ 
-                "num_ctx": this.#num_ctx,
-                "temperature" : this.#temperature, 
-                "num_predict" : this.#num_predict 
-        }*/}
-        return JSON.stringify(requestWithOptions)
     }
 
-    #buildVisionRequest({prompt, images, stream} : {prompt : string, images : string[], stream : boolean}) : string {
-        const baseRequest : IBaseVisionOllamaRequest = {
-            "model": this.#modelName,
-            "stream": stream,
-            // "system": this.#systemPrompt,
-            "prompt": prompt,
-            // "context" : [...this.#context],
-            "images" : this.#modelName.includes("llama") && this.#modelName.includes("vision") ? [images[0]] : [...images],
-        }
-        const requestWithOptions = {...baseRequest, "options": this.getOptions()}
-        return JSON.stringify(requestWithOptions)
+    setMinP(value: number): AIModel {
+        this.#min_p = value;
+        return this;
     }
-
-    /**
-     * @private
-     * @function #buildEmbeddingRequest
-     * @param {any} sequence - The sequence for which to generate embeddings.
-     * @returns {string} The request body for generating embeddings.
-     * @description Builds the request body for generating embeddings for the given sequence.
-     */
-    #buildEmbeddingRequest (sequence : unknown) : string {
-        return JSON.stringify({
-            "model": /*"nomic-embed-text" "mxbai-embed-large"*/ this.#modelName,
-            "prompt": sequence,
-            /*"stream": false,*/
-        })
+    
+    setNumKeep(value: number): AIModel {
+        this.#num_keep = value;
+        return this;
     }
-
-    #buildTokenizeRequest (sequence : unknown) : string {
-        console.log(this.#modelName)
-        return JSON.stringify({
-            "model": /*"mxbai-embed-large"*/ /*"nomic-embed-text"*/ this.#modelName,
-            "prompt": sequence,
-            /*"stream": false,*/
-        })
+    
+    setTypicalP(value: number): AIModel {
+        this.#typical_p = value;
+        return this;
     }
-
-    // !!! should instead pass the controller to the conversation?!!! so that model can be easily switched
-    abortLastRequest(){
-        if(this.#abortController) this.#abortController.abort("Signal aborted.")
-        // need to create a new abort controller and a new signal
-        // or subsequent request will be aborted from the get go
-        this.generateNewAbortControllerAndSignal()
+    
+    setPresencePenalty(value: number): AIModel {
+        this.#presence_penalty = value;
+        return this;
     }
-
-    generateNewAbortControllerAndSignal(){
-        this.#abortController = new AbortController()
-        this.#signal = this.#abortController.signal
+    
+    setFrequencyPenalty(value: number): AIModel {
+        this.#frequency_penalty = value;
+        return this;
     }
+    
+    setPenalizeNewline(value: boolean): AIModel {
+        this.#penalize_newline = value;
+        return this;
+    }
+    
+    setNuma(value: boolean): AIModel {
+        this.#numa = value;
+        return this;
+    }
+    
+    setNumBatch(value: number): AIModel {
+        this.#num_batch = value;
+        return this;
+    }
+    
+    setNumGpu(value: number): AIModel {
+        this.#num_gpu = value;
+        return this;
+    }
+    
+    setMainGpu(value: number): AIModel {
+        this.#main_gpu = value;
+        return this;
+    }
+    
+    setLowVram(value: boolean): AIModel {
+        this.#low_vram = value;
+        return this;
+    }
+    
+    setVocabOnly(value: boolean): AIModel {
+        this.#vocab_only = value;
+        return this;
+    }
+    
+    setUseMmap(value: boolean): AIModel {
+        this.#use_mmap = value;
+        return this;
+    }
+    
+    setUseMlock(value: boolean): AIModel {
+        this.#use_mlock = value;
+        return this;
+    }
+    
+    setNumThread(value: number): AIModel {
+        this.#num_thread = value;
+        return this;
+    }   
 
     getSystemPrompt() : string{
         return this.#systemPrompt
@@ -470,7 +588,7 @@ export class AIModel{
         return this.#seed;
     }
     
-    getStop(): string {
+    getStop(): string[] {
         return this.#stop;
     }
     
@@ -498,9 +616,69 @@ export class AIModel{
         return this.#signal;
     }
 
+    getMinP(): number {
+        return this.#min_p;
+    }
+
+    getNumKeep(): number {
+        return this.#num_keep;
+    }
+
+    getTypicalP(): number {
+        return this.#typical_p;
+    }
+
+    getPresencePenalty(): number {
+        return this.#presence_penalty;
+    }
+
+    getFrequencyPenalty(): number {
+        return this.#frequency_penalty;
+    }
+
+    getPenalizeNewline(): boolean {
+        return this.#penalize_newline;
+    }
+
+    getNuma(): boolean {
+        return this.#numa;
+    }
+
+    getNumBatch(): number {
+        return this.#num_batch;
+    }
+
+    getNumGpu(): number {
+        return this.#num_gpu;
+    }
+
+    getMainGpu(): number {
+        return this.#main_gpu;
+    }
+
+    getLowVram(): boolean {
+        return this.#low_vram;
+    }
+
+    getVocabOnly(): boolean {
+        return this.#vocab_only;
+    }
+
+    getUseMmap(): boolean {
+        return this.#use_mmap;
+    }
+
+    getUseMlock(): boolean {
+        return this.#use_mlock;
+    }
+
+    getNumThread(): number {
+        return this.#num_thread;
+    }
+
     asString(){
         return JSON.stringify({
-            model: this.#modelName,
+            modelName: this.#modelName,
             systemPrompt: this.#systemPrompt,
             context: this.#context,
             num_ctx: this.#num_ctx,
@@ -516,7 +694,39 @@ export class AIModel{
             tfs_z: this.#tfs_z,
             top_k: this.#top_k,
             top_p: this.#top_p,
-            status: this.#status
+            status: this.#status,
+            min_p: this.#min_p,
+            num_keep: this.#num_keep,
+            typical_p: this.#typical_p,
+            presence_penalty: this.#presence_penalty,
+            frequency_penalty: this.#frequency_penalty,
+            penalize_newline: this.#penalize_newline,
+            numa: this.#numa,
+            num_batch: this.#num_batch,
+            num_gpu: this.#num_gpu,
+            main_gpu: this.#main_gpu,
+            low_vram: this.#low_vram,
+            vocab_only: this.#vocab_only,
+            use_mmap: this.#use_mmap,
+            use_mlock: this.#use_mlock,
+            num_thread: this.#num_thread,
+        })
+    }
+
+    getPartialOptions(){
+        return ({
+            num_ctx: this.#num_ctx,
+            temperature: this.#temperature,
+            num_predict: this.#num_predict,
+            mirostat: this.#mirostat,
+            mirostat_eta: this.#mirostat_eta,
+            mirostat_tau: this.#mirostat_tau,
+            repeat_last_n: this.#repeat_last_n,
+            repeat_penalty: this.#repeat_penalty,
+            seed: this.#seed,
+            tfs_z: this.#tfs_z,
+            top_k: this.#top_k,
+            top_p: this.#top_p,
         })
     }
 
@@ -534,6 +744,21 @@ export class AIModel{
             tfs_z: this.#tfs_z,
             top_k: this.#top_k,
             top_p: this.#top_p,
+            min_p: this.#min_p,
+            num_keep: this.#num_keep,
+            typical_p: this.#typical_p,
+            presence_penalty: this.#presence_penalty,
+            frequency_penalty: this.#frequency_penalty,
+            penalize_newline: this.#penalize_newline,
+            numa: this.#numa,
+            num_batch: this.#num_batch,
+            num_gpu: this.#num_gpu,
+            main_gpu: this.#main_gpu,
+            low_vram: this.#low_vram,
+            vocab_only: this.#vocab_only,
+            use_mmap: this.#use_mmap,
+            use_mlock: this.#use_mlock,
+            num_thread: this.#num_thread,
         })
     }
 }

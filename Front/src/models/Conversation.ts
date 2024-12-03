@@ -44,6 +44,7 @@ export class Conversation{
             context : [],
             sources : [],
             date : new Date().toISOString(),
+            images : []
         })
     }
 

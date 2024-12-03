@@ -11,9 +11,24 @@ export interface IAIModelParams{
     repeat_last_n?: number
     repeat_penalty?: number
     seed?: number
-    stop?: string,
     tfs_z?: number
     top_k?: number
     top_p?: number
     status?: "standard" | "base" | "favorite"
+    num_keep?: number
+    min_p?: number
+    typical_p?: number
+    presence_penalty?: number
+    frequency_penalty?: number
+    penalize_newline?: boolean
+    stop?: string[],
+    numa?: boolean
+    num_batch?: number
+    num_gpu?: number
+    main_gpu?: number
+    low_vram?: boolean
+    vocab_only?: boolean
+    use_mmap?: boolean
+    use_mlock?: boolean
+    num_thread?: number
 }
