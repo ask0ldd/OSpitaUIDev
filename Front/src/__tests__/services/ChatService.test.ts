@@ -33,7 +33,7 @@ const mockActiveAgent : AIAgent = new AIAgent({id : 'a0000000001',
     repeat_penalty: 1.1,
     temperature: 0.1,
     seed: 0,
-    stop: "AI assistant:",
+    stop: ["AI assistant:"],
     tfs_z: 1,
     num_predict: 1024,
     top_k: 40,
@@ -129,15 +129,32 @@ describe('ChatService', () => {
     })
   })
 
-  /*
-
-  describe('reconstructMalformedValues', () => {
-    it('should reconstruct malformed JSON values', () => {
-      const malformedValue = '{"response":"Part 1","done":false}\n{"response":"Part 2","done":true}';
-      const result = ChatService['reconstructMalformedValues'](malformedValue)
-      const parsed = JSON.parse(result)
-      expect(parsed.response).toBe('Part 1Part 2')
-      expect(parsed.done).toBe(true)
+  describe('ChatService Reconstructor', () => {
+    const mockStream = new ReadableStream({
+      start(controller) {
+        // controller.enqueue(new Uint8Array([72, 101, 108, 108, 111])); // "Hello" in UTF-8
+        controller.enqueue(new Uint8Array([125])) // } aka closing bracket in UTF-8
+        controller.close()
+      }
     })
-  })*/
+
+    const reader = mockStream.getReader()
+    const decoder = new TextDecoder('utf-8')
+
+    it('should reformat middle concatenated chunks', async () => {
+      expect(await ChatService.rebuildMalformedChunksOptimized(`{"model":"","created_at":"","response":"aaaa ","done":false}\n{"model":"","created_at":"","response":"bbbb","done":false}`, reader, decoder)).toEqual(JSON.stringify({"model":"","created_at":"","response":"aaaa bbbb","done":false}))
+    })
+
+    it('should reformat middle concatenated chunks with \n### in it', async () => {
+      expect(await ChatService.rebuildMalformedChunksOptimized(`{"model":"","created_at":"","response":"aaaa \n","done":false}\n{"model":"","created_at":"","response":"###bbbb","done":false}`, reader, decoder)).toEqual(JSON.stringify({"model":"","created_at":"","response":"aaaa \n###bbbb","done":false}))
+    })
+
+    it('should reformat ending concatenated chunks', async () => {
+      expect(await ChatService.rebuildMalformedChunksOptimized(`{"model":"","created_at":"","response":"aaaa ","done":false}\n{"model":"","created_at":"","response":"bbbb","done":true`, reader, decoder)).toEqual(JSON.stringify({"model":"","created_at":"","response":"aaaa bbbb","done":true}))
+    })
+
+    it('should reformat ending concatenated chunks with split context', async () => {
+      expect(await ChatService.rebuildMalformedChunksOptimized(`{"model":"","created_at":"","response":"aaaa ","done":false}\n{"model":"","created_at":"","response":"bbbb","done":true`, reader, decoder)).toEqual(JSON.stringify({"model":"","created_at":"","response":"aaaa bbbb","done":true}))
+    })
+  })
 })

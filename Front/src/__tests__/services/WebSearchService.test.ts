@@ -17,8 +17,8 @@ const mockFetch = vi.fn()
 global.fetch = mockFetch
 
 const mockScrapedPages : IScrapedPage[] = [
-    {datas : "datas1", source : "source1"},
-    {datas : "datas2", source : "source2"},
+    {datas : "datas1", source : "source1", mostRecentDate : "2024/06/06"},
+    {datas : "datas2", source : "source2", mostRecentDate : "2024/06/06"},
 ]
 
 const mockCompletionResponse : ICompletionResponse = {
@@ -146,7 +146,7 @@ describe('WebSearchService', () => {
                 signal : new AbortController().signal,
             })
 
-            expect(result).toEqual(mockScrapedPages.map(page => new ScrapedPage(page.datas, page.source)))
+            expect(result).toEqual(mockScrapedPages.map(page => new ScrapedPage(page.datas, page.source, page.mostRecentDate)))
         })
 
         it('scrape endpoint doesnt send an array back', async () => {
@@ -249,7 +249,7 @@ describe('WebSearchService', () => {
                 signal: new AbortController().signal,
             })
 
-            expect(result).toEqual(mockScrapedPages.map(page => new ScrapedPage("summarizedData", page.source)))
+            expect(result).toEqual(mockScrapedPages.map(page => new ScrapedPage("summarizedData", page.source, page.mostRecentDate)))
         })
     })
 
