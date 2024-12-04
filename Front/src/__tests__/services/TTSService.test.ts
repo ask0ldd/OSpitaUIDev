@@ -2,6 +2,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TTSService } from '../../services/TTSService';
 
+global.SpeechSynthesisUtterance = vi.fn().mockImplementation(() => {
+  return {
+      text: '',
+      lang: '',
+      pitch: 1,
+      rate: 1,
+      volume: 1,
+      onend: null,
+      onerror: null,
+      speak: vi.fn(),
+  };
+});
+
 describe('TTSService', () => {
   let ttsService: TTSService;
   let mockSynth: any;
@@ -26,29 +39,29 @@ describe('TTSService', () => {
     ttsService = new TTSService();
   });
 
-  /*it('should populate and sort voices on construction', () => {
+  it('should populate and sort voices on construction', () => {
     expect(ttsService.voices).toEqual([
       { name: 'Voice A' },
       { name: 'Voice B' },
       { name: 'Voice C' },
     ]);
-  });*/
+  });
 
- /* it('should speak the given text', () => {
+  /*it('should speak the given text', () => {
     const text = 'Hello, world!';
     ttsService.speak(text);
 
     expect(mockSynth.speak).toHaveBeenCalledTimes(1);
-    expect(mockSynth.speak.mock.calls[0][0]).toBeInstanceOf(SpeechSynthesisUtterance);
+    // expect(mockSynth.speak.mock.calls[0][0]).toBeInstanceOf(global.SpeechSynthesisUtterance);
     expect(mockSynth.speak.mock.calls[0][0].text).toBe(text);
-  });
+  });*/
 
   it('should cancel speaking if already speaking', () => {
     mockSynth.speaking = true;
     ttsService.speak('Test');
 
     expect(mockSynth.cancel).toHaveBeenCalledTimes(1);
-  });*/
+  });
 
   it('should not speak if text is empty', () => {
     ttsService.speak('');

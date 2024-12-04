@@ -18,7 +18,7 @@ export class TTSService{
     }
 
     constructor(){
-        this.voices = this.populateVoiceList()
+        if(window.speechSynthesis) this.voices = this.populateVoiceList()
     }
 
     /* c8 ignore start */
