@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { render, screen, waitFor, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -21,6 +22,7 @@ const MockedRouter = () => (
 describe('Given I am on the Configuration page', () => {
 
     beforeEach(() => {
+
         vi.spyOn(OllamaService, 'getModelList').mockResolvedValue(mockModelsList)
         vi.spyOn(AgentService.prototype, 'updateAgentsConfig').mockResolvedValueOnce()
         vi.spyOn(AgentService.prototype, 'getAll').mockResolvedValue(mockAgentsList)
