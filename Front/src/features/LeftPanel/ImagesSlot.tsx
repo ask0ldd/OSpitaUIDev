@@ -104,7 +104,7 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
   return(
     <article className="imagesSlot" style={{marginTop:'0.75rem', zIndex : 100}}>
         <h3>
-          IMAGES{!isVisionModelActive && <span className='nPages' style={{color:"#870839bb", fontWeight:'500'}}>Select a Llama Vision Agent</span>}
+          IMAGES{!isVisionModelActive && <span className='nPages' style={{color:"#870839bb", fontWeight:'500'}}>Select a Vision Agent</span>}
         </h3>
         <input ref={fileInputRef} onChange={handleFileSelect} type="file" data-testid="imageFileInput" style={{display: 'none'}}/>
         <div className="imagesContainer">

@@ -12,7 +12,7 @@ const defaultOptions = {
     locale: 'en-us',
     region: 'wt-wt',
     offset: 0,
-    marketRegion: 'us'
+    marketRegion: 'en-US'
 };
 const SEARCH_REGEX = /DDG\.pageLayout\.load\('d',(\[.+\])\);DDG\.duckbar\.load\('images'/;
 const IMAGES_REGEX = /;DDG\.duckbar\.load\('images', ({"ads":.+"vqd":{".+":"\d-\d+-\d+"}})\);DDG\.duckbar\.load\('news/;
@@ -41,6 +41,7 @@ async function search(query, options, needleOptions) {
         dl: 'en',
         ct: 'US',
         // ss_mkt: options.marketRegion,
+        // bing_market: options.marketRegion,
         df: options.time,
         vqd,
         ...(options.safeSearch !== util_1.SafeSearchType.STRICT ? { ex: String(options.safeSearch) } : {}),
