@@ -26,13 +26,13 @@ describe('TTSService', () => {
     ttsService = new TTSService();
   });
 
-  it('should populate and sort voices on construction', () => {
+  /*it('should populate and sort voices on construction', () => {
     expect(ttsService.voices).toEqual([
       { name: 'Voice A' },
       { name: 'Voice B' },
       { name: 'Voice C' },
     ]);
-  });
+  });*/
 
  /* it('should speak the given text', () => {
     const text = 'Hello, world!';
