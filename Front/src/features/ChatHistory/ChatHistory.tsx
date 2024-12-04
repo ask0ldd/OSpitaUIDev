@@ -4,8 +4,8 @@ import QuestionRow from "./QuestionRow"
 import '../../style/ChatHistory.css'
 import { useEffect, useRef } from "react"
 import { IConversation } from "../../interfaces/IConversation"
-import { useTTS } from "../../hooks/useTTS.ts"
 import React from "react"
+import { useServices } from "../../hooks/useServices.ts"
 
 const ChatHistory = React.memo(({activeConversationState, isStreaming, setTextareaValue, regenerateLastAnswer} : IProps) => {
 
@@ -14,7 +14,9 @@ const ChatHistory = React.memo(({activeConversationState, isStreaming, setTextar
   const historyContainerRef = useRef(null)
   const autoScrollingObsRef = useRef<MutationObserver>()
 
-  const TTS = useTTS()
+  // const TTS = useTTS()
+
+  const {ttsService} = useServices()
 
   // setting up an observer that keep scrolling to the bottom of the chat window
   // when some new streamed text is added to the conversation
@@ -100,8 +102,8 @@ const ChatHistory = React.memo(({activeConversationState, isStreaming, setTextar
             <article key={'historyItem'+index}>
               <QuestionRow key={'questionRow' + index} question={item.question} onModify={handleModifyQuestion} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
               {(index == (array.length -1)) ? 
-              <AnswerRow isStreaming={isStreaming} TTS={TTS} key={'answerRow' + index} answer={item.answer} onRegenerate={regenerateLastAnswer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources} images={item.images}/>
-              : <AnswerRow isStreaming={isStreaming} TTS={TTS} key={'answerRow' + index} answer={item.answer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources} images={item.images}/>}
+              <AnswerRow isStreaming={isStreaming} TTS={ttsService} key={'answerRow' + index} answer={item.answer} onRegenerate={regenerateLastAnswer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources} images={item.images}/>
+              : <AnswerRow isStreaming={isStreaming} TTS={ttsService} key={'answerRow' + index} answer={item.answer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources} images={item.images}/>}
             </article>
           ))
         }

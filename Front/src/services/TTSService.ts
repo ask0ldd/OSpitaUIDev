@@ -18,12 +18,11 @@ export class TTSService{
     }
 
     constructor(){
-        // this.voices = this.populateVoiceList()
+        this.voices = this.populateVoiceList()
     }
 
     /* c8 ignore start */
     speak(text : string) {
-        this.voices = this.populateVoiceList()
         if (this.synth.speaking) {
             this.synth.cancel()
             console.error("speechSynthesis.speaking")
