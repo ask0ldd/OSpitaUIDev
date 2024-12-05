@@ -6,6 +6,7 @@ import DocProcessorService from '../../services/DocProcessorService'
 import './FormUploadFile.css'
 import upload from '../../assets/uploadbutton3.png'
 import PDFService from '../../services/PDFService'
+import XLSXService from '../../services/XLSXService'
 
 export function FormUploadFile({memoizedSetModalStatus, setForceLeftPanelRefresh} : IProps){
 
@@ -63,7 +64,7 @@ export function FormUploadFile({memoizedSetModalStatus, setForceLeftPanelRefresh
             if (!e.target.files || e.target.files.length === 0) return
             const file = e.target.files[0]
 
-            const allowTypes = ["text/plain", "text/markdown", "application/pdf"]
+            const allowTypes = ["text/plain", "text/markdown", "application/pdf", /*"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",*/]
             if (!allowTypes.includes(file.type)) throw new Error("Unsupported file type.")
 
             setProcessedFile({name : file.name, size : file.size })
@@ -86,6 +87,27 @@ export function FormUploadFile({memoizedSetModalStatus, setForceLeftPanelRefresh
                             reader.removeEventListener(eventType, (e) => handleEvent(e as ProgressEvent<FileReader>, file.name, file.size));
                         });
                         break; 
+                    }
+                
+                case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" :
+                case "application/msexcel" :
+                case "application/x-msexcel" :
+                case "application/x-ms-excel" :
+                case "application/x-excel" :
+                case "application/x-dos_ms_excel" :
+                case "application/xls" :
+                case "application/x-xls" :
+                    {
+                        const reader = new FileReader()
+                        reader.onloadend = function(event : ProgressEvent<FileReader>) {
+                            const data = new Uint8Array(event.target?.result as ArrayBuffer)
+                            const sheet = new XLSXService().parseToString(data)
+                            processFile({filename : file.name, content : sheet, filesize : file.size})
+                            console.log(sheet)
+                        }
+                        reader.onloadstart = () => setProgress(1)
+                        reader.readAsArrayBuffer(file);
+                        break;
                     }
             
                 default:
