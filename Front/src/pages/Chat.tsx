@@ -87,11 +87,6 @@ function Chat() {
         // Reset UI state
         setIsStreaming(false)
         setTextareaValue("")
-        // Load and set the selected conversation
-        dispatch({ 
-            type: ActionType.SET_CONVERSATION, 
-            payload: ConversationsRepository.getConversation(activeConversationId.value) 
-        })
     }, [activeConversationId])
 
     const lastRAGResultsRef = useRef<IRAGChunkResponse[] | null>(null)

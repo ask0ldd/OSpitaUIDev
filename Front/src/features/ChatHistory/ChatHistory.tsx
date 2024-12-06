@@ -91,14 +91,14 @@ const ChatHistory = React.memo(({activeConversationState, isStreaming, setTextar
 
   return (
     <section ref={historyContainerRef} className="chatHistorySection">
-        {activeConversationState.history.length == 0 && 
+        {activeConversationState.history?.length == 0 && 
           <div style={{padding: '2rem 0', background:'#f7f9fd', display:"flex", flexDirection:"column", justifyContent: "center"}}>
             <span>Warning : Due to some Ollama limitations, switching model during a conversation will flush the context.</span>
             <span style={{marginTop:'0.75rem'}}>Agents can be switched with no consequences as long as each of them use the same model.</span>
           </div>
         }
         {
-          activeConversationState.history.map((item, index, array) => (
+          activeConversationState.history?.map((item, index, array) => (
             <article key={'historyItem'+index}>
               <QuestionRow key={'questionRow' + index} question={item.question} onModify={handleModifyQuestion} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
               {(index == (array.length -1)) ? 
@@ -107,7 +107,7 @@ const ChatHistory = React.memo(({activeConversationState, isStreaming, setTextar
             </article>
           ))
         }
-        {activeConversationState.history.length > 0 && <div className="modelDateContainer">{activeConversationState.lastModelUsed} / {formatToUSDateTime(activeConversationState.history[activeConversationState.history.length-1].date)}</div>}
+        {activeConversationState.history?.length > 0 && <div className="modelDateContainer">{activeConversationState.lastModelUsed} / {formatToUSDateTime(activeConversationState.history[activeConversationState.history.length-1].date)}</div>}
     </section>
   )
 

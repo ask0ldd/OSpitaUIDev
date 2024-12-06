@@ -117,7 +117,7 @@ export function useActiveConversationReducer({name, history, lastAgentUsed, last
         }
     }
 
-    const [activeConversationState, dispatch] = useReducer(conversationReducer, {name : name, history : history, lastAgentUsed  : lastAgentUsed, lastModelUsed : lastModelUsed})
+    const [activeConversationState, dispatch] = useReducer(conversationReducer, {name : name, history : history, lastAgentUsed : lastAgentUsed, lastModelUsed : lastModelUsed})
 
     return {activeConversationState, dispatch, activeConversationStateRef, activeConversationId, setActiveConversationId}
 }

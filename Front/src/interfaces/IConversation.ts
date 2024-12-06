@@ -1,4 +1,5 @@
 export interface IConversation {
+    /*id : number*/
     name : string
     history : IConversationElement[]
     lastAgentUsed : string 
@@ -33,4 +34,8 @@ export interface IConversationAnswer{
 export interface ISource{
     asMarkdown : string
     asHTML : string
+}
+
+export interface IConversationWithId extends IConversation {
+    $loki: number
 }
