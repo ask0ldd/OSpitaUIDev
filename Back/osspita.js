@@ -3,6 +3,7 @@ const agents = require('./constants/agents.js')
 const { savePrompt, getPromptById, getPromptByName, getAllPrompts, updatePromptById, updatePromptByName, deletePromptById } = require('./controllers/prompt.controller.js')
 const { saveAgent, updateAgentByName, updateAgentById, getAgentById, getAgentByName, getAllAgents, deleteAgentByName, updateAgentsConfig } = require('./controllers/agent.controller.js')
 const { getAllDocs, getDocsChunksBySimilarity, saveEmbeddings, deleteDocumentEmbeddings } = require('./controllers/doc.controller.js')
+const { saveConversation, getAllConversations, getConversationById, deleteConversationById } = require('./controllers/conversation.controller.js')
 const { getScrapedDatas } = require('./controllers/scraping.controller.js')
 // const { getTTSaudio } = require('./controllers/tts.controller.js')
 const express = require('express')
@@ -25,6 +26,10 @@ function databaseInit() {
     }
     if (db.getCollection("docs") === null) {
         db.addCollection("docs")
+    }
+    db.removeCollection("conversations")
+    if (db.getCollection("conversations") === null) {
+      db.addCollection("conversations")
     }
     if(db.getCollection("prompts").find().length == 0) prompts.forEach(prompt => db.getCollection("prompts").insert(prompt))
     if(db.getCollection("agents").find().length == 0) agents.forEach(agent => db.getCollection("agents").insert(agent))
@@ -85,6 +90,11 @@ app.get('/docs', getAllDocs(vdb))
 app.post('/docs/bySimilarity', getDocsChunksBySimilarity(vdb))
 app.delete('/doc/byName/:name', deleteDocumentEmbeddings(vdb))
 
+// conversations
+app.post('/conversation', saveConversation(db))
+app.get('/conversations', getAllConversations(db))
+app.get('/conversation/byId/:id', getConversationById(db))
+app.delete('/conversation/byId/:id', deleteConversationById(db))
 // app.post('/tts/generate', getTTSaudio)
 
 function removeCollections(){
