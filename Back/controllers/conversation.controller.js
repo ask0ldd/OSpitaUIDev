@@ -5,7 +5,12 @@ const saveConversation = (db) => async (req, res) => {
           return res.status(500).json({ error: 'conversations collection does not exist in the database.' })
         }
 
-        await conversationsCollection.insertOne({...req.body.conversation})
+        var conversation = await conversationsCollection.insert({
+            name : req.body.name,
+            history : req.body.history,
+            lastAgentUsed : req.body.lastAgentUsed,
+            lastModelUsed : req.body.lastModelUsed,
+        })
         db.saveDatabase((err) => {
             if (err) {
                 console.error("Error saving database:", err)
@@ -15,7 +20,7 @@ const saveConversation = (db) => async (req, res) => {
             }
         })
 
-        res.status(201).send('conversation saved successfully')
+        res.status(201).json(conversation)//.send('conversation saved successfully')
 
     } catch (error) {
         console.error(error)
@@ -78,12 +83,11 @@ const updateConversationById = (db) => async (req, res) => {
 const getConversationById = (db) => async (req, res) => {
     const conversationId = req.params.id
     if (!conversationId) return res.status(400).json({ error: 'conversation ID is required' })
-
     try {
-        const conversation = await db.getCollection('conversation').findOne({ _id: conversationId })
+        const conversation = await db.getCollection('conversations').get(conversationId)
         if (!conversation) return res.status(404).json({ error: 'The requested conversation was not found' })
-
-        return res.status(200).json(conversation)
+        console.log(JSON.stringify(conversation))
+        return res.status(200).json({...conversation})
 
     } catch (error) {
         console.error('Error fetching conversation:', error)
@@ -94,7 +98,7 @@ const getConversationById = (db) => async (req, res) => {
 const getAllConversations = (db) => async (req, res) => {
     try {
         console.log("Fetching conversation.")
-        const conversation = db.getCollection("conversation").find()
+        const conversation = db.getCollection("conversations").find().reverse()
 
         return res.setHeader("Access-Control-Allow-Origin", "*").status(200).json(conversation)
         
@@ -111,7 +115,7 @@ const deleteConversationById = (db) => async (req, res) => {
   }
 
   try {
-      const collection = db.getCollection('conversation')
+      const collection = db.getCollection('conversations')
       const conversation = await collection.findOne({ _id: conversationId })
 
       if (!conversation) {
