@@ -162,7 +162,7 @@ const getPromptById = (db) => async (req, res) => {
     if (!promptId) return res.status(400).json({ error: 'Prompt ID is required' })
 
     try {
-        const prompt = await db.getCollection('prompts').findOne({ _id: promptId })
+        const prompt = await db.getCollection('prompts').get(promptId)
         if (!prompt) return res.status(404).json({ error: 'The requested prompt was not found' })
 
         return res.status(200).json(prompt)

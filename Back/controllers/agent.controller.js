@@ -52,7 +52,7 @@ const getAgentById = (db) => async (req, res) => {
     if (!agentId) return res.status(400).json({ error: 'Agent ID is required' })
 
     try {
-        const agent = await db.getCollection('agents').findOne({ _id: agentId })
+        const agent = await db.getCollection('agents').get(agentId)
         if(!agent) return res.status(404).json({ error: 'The requested agent was not found' })
         /*let prompt = await db.getCollection('prompts').findOne({ id: agent.systemPromptId })
         if(!prompt) prompt = ""*/
