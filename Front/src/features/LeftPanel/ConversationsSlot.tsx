@@ -1,32 +1,55 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useState } from "react"
-import { IConversation } from "../../interfaces/IConversation"
+import { useEffect, useRef, useState } from "react"
+import { IConversationWithId } from "../../interfaces/IConversation"
 import { ConversationsRepository } from "../../repositories/ConversationsRepository"
 import { ChatService } from "../../services/ChatService"
 import { ActionType, TAction } from "../../hooks/useActiveConversationReducer"
 import { useServices } from "../../hooks/useServices.ts"
 import DefaultSlotButtonsGroup from "./DefaultSlotButtonsGroup.tsx"
+import ConversationService from "../../services/API/ConversationService.ts"
 
 export function ConversationsSlot({activeConversationId, setActiveConversationId, dispatch} : IProps){
     
-    const [conversationsListState, setConversationsListState] = useState<IConversation[]>(ConversationsRepository.getConversations()) 
+    const [conversationsListState, setConversationsListState] = useState<IConversationWithId[]>([]) 
     const [activePage, setActivePage] = useState<number>(0)
     const [targetForDeletionId, setTargetForDeletionId] = useState<number>(-1)
 
     const { webSearchService } = useServices()
 
-    // conversation list polling every 3s
-    useEffect(() => {
-        setConversationsListState(ConversationsRepository.getConversations())
+    const hasBeenInit = useRef(false)
 
-        const intervalId = setInterval(() => {
-            setConversationsListState(ConversationsRepository.getConversations())
+    useEffect(() => {
+        const fetchConversations = async () => {
+            if (!hasBeenInit.current) {
+                let conversations = await ConversationService.getAll()
+                if (!conversations?.length && !hasBeenInit.current) {
+                    hasBeenInit.current = true
+                    await ConversationService.save({
+                        name: "Base Conversation",
+                        history: [],
+                        lastAgentUsed: "",
+                        lastModelUsed: "",
+                    });
+                    conversations = await ConversationService.getAll()
+                }
+                if(conversations?.length && conversations.length > 0) {
+                    dispatch({type : ActionType.SET_CONVERSATION, payload : conversations[0]})
+                    setActiveConversationId({value : conversations[0].$loki})
+                }
+                // console.log(JSON.stringify(conversations))
+                setConversationsListState(conversations || [])
+            }
+        };
+        fetchConversations()
+
+        /*const intervalId = setInterval(async () => {
+            const conversations = await ConversationService.getAll()
+            setConversationsListState(conversations || [])
         }, 3000)
-    
-        // clean up
+
         return () => {
             clearInterval(intervalId)
-        }
+        };*/
     }, [])
 
     // move to previous page if no conversation left on the current page after deletion
@@ -41,18 +64,29 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
     //
     ***/
 
-    function handleNewConversation() : void{
-        ConversationsRepository.pushNewConversation("New Conversation", [], "", "")
-        setConversationsListState([...ConversationsRepository.getConversations()])
+    async function handleNewConversation() : Promise<void>{
+        // ConversationsRepository.pushNewConversation("New Conversation", [], "", "")
+        const newConversation = await ConversationService.save({
+            name: "New Conversation",
+            history: [],
+            lastAgentUsed: "",
+            lastModelUsed: "",
+        })
+        setConversationsListState(await ConversationService.getAll() || [])
         setActivePage(0)
-        setActiveConversationId({value : 0})
+        if(newConversation?.$loki) setActiveConversationId({value : newConversation.$loki})
         setTargetForDeletionId(-1)
     }
 
-    function handleSetActiveConversation(id : number) : void{
+    async function handleSetActiveConversation(id : number) : Promise<void>{
         ChatService.abortAgentLastRequest()
-        setActiveConversationId({value : id})
-        setTargetForDeletionId(-1)
+        const conversation = await ConversationService.getById(id)
+        if(conversation != null) {
+            console.log(JSON.stringify(conversation))
+            dispatch({type : ActionType.SET_CONVERSATION, payload : conversation})
+            setActiveConversationId({value : id})
+            setTargetForDeletionId(-1)
+        }
         // no need to set streaming to false or update the conversation 
         // cause handled by an effect reacting to the active conversation id changing
     }
@@ -61,7 +95,7 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
         setTargetForDeletionId(id)
     }
 
-    function handleDeleteConversation(id : number) : void{
+    async function handleDeleteConversation(id : number) : Promise<void>{
         // if the conversation is the active one, abort the streaming process in case it is currently active
         if(id == activeConversationId) {
             ChatService.abortAgentLastRequest()
@@ -78,7 +112,7 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
         // when deleting the very first conversation and the next one is taking its spot
         if(id == 0 && ConversationsRepository.getConversations().length > 1) setActiveConversationId({value : 1})
         ConversationsRepository.deleteConversation(id)
-        setConversationsListState([...ConversationsRepository.getConversations()])
+        setConversationsListState(await ConversationService.getAll() || [])
         setActiveConversationId({value : id > 0 ? id - 1 : 0})
         refreshActivePageList()
         setTargetForDeletionId(-1)
@@ -104,8 +138,8 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
                 </h3>
                 <ul style={{minHeight : '118px'}}>
                     {getFilteredConversations().map((conversation, id) => 
-                        activePage*3+id != activeConversationId ?
-                        <li title={conversation.lastModelUsed || "no model assigned yet"} onClick={() => handleSetActiveConversation(activePage*3+id)} key={"conversation" + activePage*3+id} role="button">
+                        conversation.$loki != activeConversationId ?
+                        <li title={conversation.lastModelUsed || "no model assigned yet"} onClick={() => handleSetActiveConversation(conversation.$loki/*activePage*3+id*/)} key={"conversation" + activePage*3+id} role="button">
                             {conversation.history[0]?.question.substring(0, 45) || conversation.name}
                             <svg className="arrow" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg">
                                 <path fill="none" d="M1 1L5.29289 5.29289C5.68342 5.68342 5.68342 6.31658 5.29289 6.70711L1 11" stroke="#6D48C1" strokeWidth="2" strokeLinecap="round"/>
@@ -120,7 +154,7 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
                                     </svg>
                                 </button>
                             </li>
-                            {id == targetForDeletionId && <button title="confirm deletion" className="confirmDeletion" onClick={() => handleDeleteConversation(activePage*3+id)}>
+                            {id == targetForDeletionId && <button title="confirm deletion" className="confirmDeletion" onClick={() => handleDeleteConversation(conversation.$loki/*activePage*3+id*/)}>
                                 <svg style={{transform:'translateY(-1px)'}} viewBox='0 0 100 100'>
                                     <path fill="none" stroke="#ffffff" d='M 25 50 L 43 68 L 80 32'/>
                                 </svg>

@@ -116,13 +116,13 @@ const deleteConversationById = (db) => async (req, res) => {
 
   try {
       const collection = db.getCollection('conversations')
-      const conversation = await collection.findOne({ _id: conversationId })
+      const conversation = await collection.get(conversationId)
 
       if (!conversation) {
           return res.status(404).json({ error: 'The requested conversation was not found' })
       }
 
-      await collection.findAndRemove({ _id: conversationId })
+      await collection.findAndRemove(conversation)
 
       db.saveDatabase((err) => {
           if (err) {
