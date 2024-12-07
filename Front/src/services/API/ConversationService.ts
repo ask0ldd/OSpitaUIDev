@@ -20,7 +20,7 @@ export default class ConversationService{
         try{
             const reponse = await fetch('/backend/conversation/byId/' + conversationId, {
                 method : 'PUT',
-                body : JSON.stringify({id : conversationId, ...conversation}),
+                body : JSON.stringify({...conversation}),
                 headers:{ 'Content-Type' : 'application/json' }
             })
             if(!reponse.ok) throw new Error('Error updating the conversation')
@@ -29,7 +29,7 @@ export default class ConversationService{
         }
     }
 
-    static async getById(conversationId : number) : Promise<IConversation | undefined>{
+    static async getById(conversationId : number) : Promise<IConversationWithId | undefined>{
         try {
             const response = await fetch("/backend/conversation/byId/" + conversationId, {
                 method: "GET",
