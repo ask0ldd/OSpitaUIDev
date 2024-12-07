@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react"
 import { ChatService } from "../../services/ChatService";
 import ImagePreview from "./ImagePreview.tsx";
 import {useImagesStore } from "../../hooks/stores/useImagesStore.ts";
+import ImageService from "../../services/API/ImageService.ts";
 
 function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchActivated} : IProps){
 
@@ -32,6 +33,12 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
       
       reader.readAsDataURL(file);
     }
+
+    // send a formdata with the image to the backend
+    const formData = new FormData()
+    formData.append('image', e.target.files[0], file.name)
+    const response = await ImageService.upload(formData)
+    if(response != null) console.log(response.filename)
 
     e.target.value = ""
   }
