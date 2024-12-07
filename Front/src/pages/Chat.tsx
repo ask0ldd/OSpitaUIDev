@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChatService } from "../services/ChatService";
 import ChatHistory from "../features/ChatHistory/ChatHistory";
 import '../style/Chat.css'
-import { ConversationsRepository } from "../repositories/ConversationsRepository";
 import FollowUpQuestions from "../components/FollowUpQuestions";
 import CustomTextarea from "../components/CustomTextarea";
 import { ActionType, useActiveConversationReducer } from "../hooks/useActiveConversationReducer";
@@ -34,6 +33,7 @@ import { useImagesStore } from "../hooks/stores/useImagesStore";
 import { useMainTextAreaStore } from "../hooks/stores/useMainTextAreaStore";
 import useKeyboardListener from "../hooks/useKeyboardListener";
 import { useScrollbar } from "../hooks/useScrollbar";
+import ConversationService from "../services/API/ConversationService";
 
 function Chat() {
 
@@ -180,8 +180,8 @@ function Chat() {
             })
             // Clear textarea if user hasn't modified it during streaming
             if((textareaRef.current as HTMLTextAreaElement).value == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
-            // TODO: Implement proper persistence instead of this temporary solution
-            ConversationsRepository.updateConversationById(activeConversationId.value, activeConversationStateRef.current)
+            // console.log(JSON.stringify(activeConversationStateRef.current))
+            await ConversationService.updateById(activeConversationId.value, activeConversationStateRef.current)
         }
         catch (error : unknown) {
             dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
@@ -215,21 +215,25 @@ function Chat() {
                 modelUsed : AIAgentChain.getLastAgent().getModelName()}
             })
             const response = await AIAgentChain.process(query) || (() => { throw new Error("The chain failed to produce a response.") })()
-            dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, payload : {html : await AnswerFormatingService.format(response.response), markdown : response.response}})
+            const answerAsHTML = await AnswerFormatingService.format(response.response)
+            dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, payload : {html : answerAsHTML, markdown : response.response}})
             if((textareaRef.current as HTMLTextAreaElement).value == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
             const stats = InferenceStatsFormatingService.extractStats(response)
             dispatch({ 
                 type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS, 
                 payload: {newContext : [], inferenceStats: stats} 
             })
-            ConversationsRepository.updateConversationById(activeConversationId.value, activeConversationStateRef.current)
-            setIsStreaming(false)
+            // activeConversationStateRef.current is not directly used to update the DB since this value may not be updated due to the async nature of : dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER...
+            const activeConv = {...activeConversationStateRef.current}
+            activeConv.history[activeConv.history.length-1].answer = {asHTML : answerAsHTML, asMarkdown : response.response}
+            await ConversationService.updateById(activeConversationId.value, activeConv)
             return
         }catch (error : unknown) {
             dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
             AIAgentChain.abortProcess()
             console.error(error)
             showErrorModal("Stream failed : " + error)
+        }finally{
             setIsStreaming(false)
         }
     }
@@ -258,7 +262,7 @@ function Chat() {
     const regenerateLastAnswer = useCallback(() => {
         if(isStreamingRef.current) return
         const retrievedQuestion = activeConversationStateRef.current.history[activeConversationStateRef.current.history.length-1].question
-        ConversationsRepository.updateConversationHistoryById(activeConversationId.value, activeConversationStateRef.current.history.slice(0, -1))
+        // ConversationsRepository.updateConversationHistoryById(activeConversationId.value, activeConversationStateRef.current.history.slice(0, -1))
         dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
         if(activeMenuItem === "chain") return sendRequestThroughActiveChain(retrievedQuestion)
         askActiveAgent_Streaming(retrievedQuestion)
