@@ -3,10 +3,13 @@ const agents = require('./constants/agents.js')
 const { savePrompt, getPromptById, getPromptByName, getAllPrompts, updatePromptById, updatePromptByName, deletePromptById } = require('./controllers/prompt.controller.js')
 const { saveAgent, updateAgentByName, updateAgentById, getAgentById, getAgentByName, getAllAgents, deleteAgentByName, updateAgentsConfig } = require('./controllers/agent.controller.js')
 const { getAllDocs, getDocsChunksBySimilarity, saveEmbeddings, deleteDocumentEmbeddings } = require('./controllers/doc.controller.js')
-const { saveConversation, getAllConversations, getConversationById, deleteConversationById } = require('./controllers/conversation.controller.js')
+const { saveConversation, getAllConversations, getConversationById, deleteConversationById, updateConversationById } = require('./controllers/conversation.controller.js')
 const { getScrapedDatas } = require('./controllers/scraping.controller.js')
+const { uploadImage } = require('./controllers/image.controller.js')
 // const { getTTSaudio } = require('./controllers/tts.controller.js')
 const express = require('express')
+const multer = require('multer')
+const path = require('path')
 const cors = require('cors')
 const loki = require("lokijs")
 const LokiFSAdapter = require("lokijs/src/loki-fs-structured-adapter")
@@ -27,7 +30,7 @@ function databaseInit() {
     if (db.getCollection("docs") === null) {
         db.addCollection("docs")
     }
-    db.removeCollection("conversations")
+    // db.removeCollection("conversations")
     if (db.getCollection("conversations") === null) {
       db.addCollection("conversations")
     }
@@ -94,12 +97,32 @@ app.delete('/doc/byName/:name', deleteDocumentEmbeddings(vdb))
 app.post('/conversation', saveConversation(db))
 app.get('/conversations', getAllConversations(db))
 app.get('/conversation/byId/:id', getConversationById(db))
+app.put('/conversation/byId/:id', updateConversationById(db))
 app.delete('/conversation/byId/:id', deleteConversationById(db))
 // app.post('/tts/generate', getTTSaudio)
+
+// images
+const upload = initImageStorage()
+app.post('/upload', upload.single('image'), uploadImage(db))
+app.use('/images', express.static('images'))
 
 function removeCollections(){
   const collectionNames = db.listCollections().map(col => col.name)
   collectionNames.forEach(name => {
     db.removeCollection(name)
   })
+}
+
+function initImageStorage(){
+  // images
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'images/')
+    },
+    filename: (req, file, cb) => {
+      cb(null, Date.now() + path.extname(file.originalname))
+    }
+  })
+  // Create upload middleware
+  return multer({ storage: storage })
 }

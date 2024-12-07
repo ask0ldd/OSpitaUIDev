@@ -41,11 +41,11 @@ const updateConversationById = (db) => async (req, res) => {
           return res.status(500).json({ error: 'conversations collection does not exist in the database.' })
         }
     
-        const conversationToUpdate = await conversationsCollection.findOne({ _id: req.params.id })
+        const conversationToUpdate = await conversationsCollection.get(req.params.id)
     
         if (conversationToUpdate) {
           // Update existing agent
-          Object.assign(conversationToUpdate, req.body.conversation)
+          Object.assign(conversationToUpdate, {...req.body})
           await conversationsCollection.update(conversationToUpdate)
     
           // applying the previous actions to the database
@@ -58,7 +58,7 @@ const updateConversationById = (db) => async (req, res) => {
             }
           })
     
-          console.log(`Updated agent: ${JSON.stringify(conversationToUpdate)}`)
+          // console.log(`Updated agent: ${JSON.stringify(conversationToUpdate)}`)
 
           return res.json({ message: 'Agent updated successfully', conversation: conversationToUpdate })
 
@@ -86,7 +86,7 @@ const getConversationById = (db) => async (req, res) => {
     try {
         const conversation = await db.getCollection('conversations').get(conversationId)
         if (!conversation) return res.status(404).json({ error: 'The requested conversation was not found' })
-        console.log(JSON.stringify(conversation))
+        // console.log(JSON.stringify(conversation))
         return res.status(200).json({...conversation})
 
     } catch (error) {
@@ -122,7 +122,7 @@ const deleteConversationById = (db) => async (req, res) => {
           return res.status(404).json({ error: 'The requested conversation was not found' })
       }
 
-      await collection.findAndRemove(conversation)
+      await collection.remove(conversation)
 
       db.saveDatabase((err) => {
           if (err) {
