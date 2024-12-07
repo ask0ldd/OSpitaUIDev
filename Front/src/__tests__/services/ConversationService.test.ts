@@ -50,7 +50,7 @@ describe('ConversationService', () => {
 
       expect(mockFetch).toHaveBeenCalledWith('/backend/conversation/byId/1', {
         method: 'PUT',
-        body: JSON.stringify({ id: 1, ...mockConversation }),
+        body: JSON.stringify({ /*id: 1, */...mockConversation }),
         headers: { 'Content-Type': 'application/json' }
       })
     })

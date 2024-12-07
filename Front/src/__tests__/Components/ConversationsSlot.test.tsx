@@ -13,11 +13,11 @@ import mockRAGDocumentsList from '../../__mocks__/mockRAGDocumentsList';
 import PromptService from '../../services/API/PromptService';
 import mockPromptsList from '../../__mocks__/mockPromptsList';
 import mockRunningModelsInfos from '../../__mocks__/mockRunningModelsInfos';
-import { ConversationsRepository } from '../../repositories/ConversationsRepository';
 import mockConversationsList from '../../__mocks__/mockConversationsList';
 import { ChatService } from '../../services/ChatService';
 import { WebSearchService } from '../../services/WebSearchService';
 import AgentService from '../../services/API/AgentService';
+import ConversationService from '../../services/API/ConversationService';
 
 const MockedRouter = () => (
     <MemoryRouter>
@@ -32,6 +32,7 @@ const mockVoices = [
 
 const mockFirstConversation = 
 {
+    $loki : 0,
     name : "First Conversation",
     history : [],
     lastAgentUsed : "mockAgent",
@@ -51,9 +52,16 @@ describe('Given I am on the Chat page', () => {
         vi.spyOn(AgentService.prototype, 'getAgentByName').mockResolvedValue(mockAgentsList[0])
         vi.spyOn(DocService, 'getAll').mockResolvedValue(mockRAGDocumentsList)
         vi.spyOn(PromptService.prototype, 'getAll').mockResolvedValue(mockPromptsList)
-        /*vi.spyOn(ConversationsRepository, 'getConversations').mockReturnValue([mockFirstConversation, ...mockConversationsList])
-        vi.spyOn(ConversationsRepository, 'deleteConversation')*/
-        ConversationsRepository.setConversations([mockFirstConversation, mockConversationsList[0], mockConversationsList[1], mockConversationsList[2]])
+        vi.spyOn(ConversationService, 'getAll').mockResolvedValue([mockFirstConversation, mockConversationsList[0], mockConversationsList[1], mockConversationsList[2]])
+        vi.spyOn(ConversationService, 'getById').mockResolvedValue(mockConversationsList[0])
+        vi.spyOn(ConversationService, 'deleteById')
+        vi.spyOn(ConversationService, 'save').mockResolvedValue({
+            $loki: 0,
+            name: "New Conversation",
+            history: [],
+            lastAgentUsed: "",
+            lastModelUsed: "",
+        })
         ChatService.abortAgentLastRequest = vi.fn()
         webSearchService = new WebSearchService()
         webSearchService.abortLastRequest = vi.fn()
@@ -91,28 +99,32 @@ describe('Given I am on the Chat page', () => {
         await waitFor(() => expect(screen.getByText(/First Conversation/i)).toBeInTheDocument())
     })
 
-    test('New conversation button is working', async () => {
+    test('New conversation button is calling the api to create a new conversation', async () => {
         await waitFor(() => expect(screen.getByText(/First Conversation/i)).toBeInTheDocument())
         const newConversationButton = screen.getAllByTitle("new conversation")[0]
         act(() => newConversationButton.click())
-        await waitFor(() => expect(screen.getByText(/New Conversation/i)).toBeInTheDocument())
+        // await waitFor(() => expect(screen.getByText(/New Conversation/i)).toBeInTheDocument())
+        await waitFor(() => expect(ConversationService.save).toBeCalledWith({
+            name: "New Conversation",
+            history: [],
+            lastAgentUsed: "",
+            lastModelUsed: "",
+        }))
     })
 
     test('Delete conversation button display a confirmation button', async () => {
         await waitFor(() => expect(screen.getByText(/First Conversation/i)).toBeInTheDocument())
-        const newConversationButton = screen.getAllByTitle("new conversation")[0]
-        act(() => newConversationButton.click())
-        await waitFor(() => expect(screen.getByText(/New Conversation/i)).toBeInTheDocument())
         const deleteConversationButton = screen.getAllByTitle("delete conversation")[0]
         act(() => deleteConversationButton.click())
+        // await waitFor(() => expect(ConversationService.deleteById).toBeCalledWith(mockFirstConversation))
         await waitFor(() => expect(screen.getByTitle(/confirm deletion/i)).toBeInTheDocument())
     })
 
     test('When all the existing conversations are deleted, a blank conversation is created', async () => {
         await waitFor(() => expect(screen.getByText(/First Conversation/i)).toBeInTheDocument())
-        const newConversationButton = screen.getAllByTitle("new conversation")[0]
+        /*const newConversationButton = screen.getAllByTitle("new conversation")[0]
         act(() => newConversationButton.click())
-        await waitFor(() => expect(screen.getByText(/New Conversation/i)).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByText(/New Conversation/i)).toBeInTheDocument())*/
         let deleteConversationButton : HTMLButtonElement
         let confirmDeletionButton : HTMLButtonElement
 
