@@ -1,6 +1,7 @@
-const dds = require('duck-duck-scrape');
+// const dds = require('duck-duck-scrape');
 const scraper = require('../services/scraper.service.js');
-const DDF = require('../services/duckduckfix.service.js');
+// const DDF = require('../deprecated/duckduckfix.service.js');
+const { search } = require('../services/googleSearch.service.js');
 
 // Scrape 3 web pages related to a provided search query
 const getScrapedDatas = (db) => async (req, res) => {
@@ -11,9 +12,10 @@ const getScrapedDatas = (db) => async (req, res) => {
       console.log("searchQuery : " + searchRequest)
 
       // do the search
-      const searchResults = (await DDF.search(searchRequest, {
+      /*const searchResults = (await DDF.search(searchRequest, {
           safeSearch: dds.SafeSearchType.STRICT
-      })).results
+      })).results*/
+      const searchResults = await search(searchRequest)
 
       // exclude results coming out of youtube
       const filteredSearchResults = searchResults.filter((result) => !(result.url).includes('youtube'))
