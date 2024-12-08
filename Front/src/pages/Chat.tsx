@@ -34,6 +34,8 @@ import { useMainTextAreaStore } from "../hooks/stores/useMainTextAreaStore";
 import useKeyboardListener from "../hooks/useKeyboardListener";
 import { useScrollbar } from "../hooks/useScrollbar";
 import ConversationService from "../services/API/ConversationService";
+import ScrapedPage from "../models/ScrapedPage";
+import Snackbar from "../components/Snackbar";
 
 function Chat() {
 
@@ -42,8 +44,7 @@ function Chat() {
     useScrollbar()
 
     const { getSelectedImages } = useImagesStore()
-
-    const { webSearchService } = useServices();
+    const { webSearchService, imageService } = useServices();
 
     const { AIAgentsList, triggerAIAgentsListRefresh } = useFetchAgentsList()
     
@@ -91,6 +92,23 @@ function Chat() {
 
     const lastRAGResultsRef = useRef<IRAGChunkResponse[] | null>(null)
 
+    
+    const [activeMode, setActiveMode] = useState<"agent" | "chain" | "web" | "rag">("agent")
+    useEffect(() => {
+        if(activeMenuItemRef.current == "agent" && !isWebSearchActivated) {
+            setActiveMode("agent")
+            return
+        }
+        if(isWebSearchActivated && activeMenuItemRef.current == "agent") {
+            setActiveMode("web")
+            return
+        }
+        if(activeMenuItemRef.current == "chain") {
+            setActiveMode("chain")
+            return
+        }
+    }, [activeMenuItemRef.current, isWebSearchActivated])
+
     /***
     //
     // LLM Requests
@@ -123,13 +141,14 @@ function Chat() {
             })
             let newContext = []
             let inferenceStats : IInferenceStats
+            let scrapedPages : ScrapedPage[] = []
 
             // Handle web search if activated, otherwise use internal knowledge
             if (isWebSearchActivatedRef.current == true) {
                 // web search unavailable when a vision model is active
                 if(ChatService.isAVisionModelActive()) throw new Error("Web search not available when a vision model is selected.")
                 console.log("***Web Search***")
-                const scrapedPages = await webSearchService.scrapeRelatedDatas({query, maxPages : 3}) || (() => { throw new Error("No results found for your query") })()
+                scrapedPages = await webSearchService.scrapeRelatedDatas({query, maxPages : 3}) || (() => { throw new Error("No results found for your query") })()
                 console.log("***LLM Loading***")
                 // format YYYY/MM/DD
                 const currentDate = "Current date : " + new Date().getFullYear() + "/" + (new Date().getMonth() + 1) + "/" + new Date().getDate() + ". "
@@ -151,11 +170,16 @@ function Chat() {
                 // If any document is selected, extract the relevant datas for RAG
                 const ragContext = ChatService.getRAGTargetsFilenames().length > 0 ? await buildRAGContext(query) : ""
 
-                let selectedImagesAsBase64 : string[] = []
+                const selectedImagesAsBase64 : string[] = []
                 if(isVisionModelActive != false) {
                     const selectedImages = getSelectedImages()
-                    selectedImagesAsBase64 = selectedImages.map(image => (image.data.split(',')[1]))
-                    const historyImage = selectedImagesAsBase64.length > 0 ? /*images[0].data*/ selectedImages.map(image => image.data) : null
+                    // selectedImagesAsBase64 = selectedImages.map(image => (image.data.split(',')[1]))
+                    for(const image of selectedImages){
+                        console.log(image.filename)
+                        const imageAsB64 = await imageService.getImageAsBase64(image.filename)
+                        if(imageAsB64 != null) selectedImagesAsBase64.push(imageAsB64.split(',')[1])
+                    }
+                    const historyImage = selectedImagesAsBase64.length > 0 ? /*images[0].data*/ selectedImages.map(image => image.filename) : null
                     if(historyImage != null) dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_IMAGES, payload : historyImage })
                 }
 
@@ -180,8 +204,10 @@ function Chat() {
             })
             // Clear textarea if user hasn't modified it during streaming
             if((textareaRef.current as HTMLTextAreaElement).value == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
-            // console.log(JSON.stringify(activeConversationStateRef.current))
-            await ConversationService.updateById(activeConversationId.value, activeConversationStateRef.current)
+            // activeConversationStateRef.current is not directly used to update the DB since this value may not be updated due to the async nature of : dispatch({ type: ActionType.UPDATE_SOURCES...
+            const activeConv = {...activeConversationStateRef.current}
+            if(scrapedPages.length > 0) activeConv.history[activeConv.history.length-1].sources = scrapedPages.map(page => ({asHTML : page.sourceAsHTMLSpan(), asMarkdown : page.source}))
+            await ConversationService.updateById(activeConversationId.value, activeConv)
         }
         catch (error : unknown) {
             dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
@@ -306,7 +332,6 @@ function Chat() {
 
     return (
     <div id="globalContainer" className="globalContainer">
-
         {/* key={"lp-" + forceLeftPanelRefresh} */}
         <LeftPanel 
             forceLeftPanelRefresh={forceLeftPanelRefresh} 
@@ -319,7 +344,8 @@ function Chat() {
             memoizedSetModalStatus={memoizedSetModalStatus} 
             selectedPromptNameRef={selectedPromptNameRef}/>
         
-        <main>
+        <main style={{position:'relative'}}>
+            <Snackbar mode={activeMode}/>
 
             <LoadedModelInfosBar hasStreamingEnded={!isStreaming}/>
 
@@ -386,7 +412,6 @@ function Chat() {
                 } [modalContentId]}
             </Modal>
         }
-
     </div>
     )
 }

@@ -16,29 +16,26 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
     const { webSearchService } = useServices()
 
     const hasBeenInit = useRef(false)
-
     useEffect(() => {
         const fetchConversations = async () => {
-            if (!hasBeenInit.current) {
-                let conversations = await ConversationService.getAll()
-                if (!conversations?.length && !hasBeenInit.current) {
-                    hasBeenInit.current = true
-                    await ConversationService.save({
-                        name: "Base Conversation",
-                        history: [],
-                        lastAgentUsed: "",
-                        lastModelUsed: "",
-                    });
-                    conversations = await ConversationService.getAll()
-                }
-                if(conversations?.length && conversations.length > 0) {
-                    dispatch({type : ActionType.SET_CONVERSATION, payload : conversations[0]})
-                    setActiveConversationId({value : conversations[0].$loki})
-                }
-                setConversationsListState(conversations || [])
+            let conversations = await ConversationService.getAll()
+            if (!conversations?.length && !hasBeenInit.current) {
+                hasBeenInit.current = true
+                await ConversationService.save({
+                    name: "Base Conversation",
+                    history: [],
+                    lastAgentUsed: "",
+                    lastModelUsed: "",
+                });
+                conversations = await ConversationService.getAll()
             }
-        };
-        fetchConversations()
+            if(conversations?.length && conversations.length > 0) {
+                dispatch({type : ActionType.SET_CONVERSATION, payload : conversations[0]})
+                setActiveConversationId({value : conversations[0].$loki})
+            }
+            setConversationsListState(conversations || [])
+        }
+        if (!hasBeenInit.current) fetchConversations()
     }, [])
 
     async function refreshConversations(){

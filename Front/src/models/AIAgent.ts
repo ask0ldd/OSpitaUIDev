@@ -153,6 +153,7 @@ export class AIAgent extends AIModel implements Observer {
                 id : this.getId(),
                 name : this.#name,
                 modelName: this.getModelName(),
+                model: this.getModelName(),
                 systemPrompt: this.getSystemPrompt(),
                 num_ctx: this.getContextSize(),
                 temperature: this.getTemperature(),
