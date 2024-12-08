@@ -86,7 +86,7 @@ const getConversationById = (db) => async (req, res) => {
     try {
         const conversation = await db.getCollection('conversations').get(conversationId)
         if (!conversation) return res.status(404).json({ error: 'The requested conversation was not found' })
-        // console.log(JSON.stringify(conversation))
+        console.log(JSON.stringify(conversation))
         return res.status(200).json({...conversation})
 
     } catch (error) {

@@ -6,3 +6,4 @@ sandbox.*.*
 *.wav
 images/*.*
 !images/.gitkeep
+deprecated

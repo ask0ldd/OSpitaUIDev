@@ -5,7 +5,7 @@ const { saveAgent, updateAgentByName, updateAgentById, getAgentById, getAgentByN
 const { getAllDocs, getDocsChunksBySimilarity, saveEmbeddings, deleteDocumentEmbeddings } = require('./controllers/doc.controller.js')
 const { saveConversation, getAllConversations, getConversationById, deleteConversationById, updateConversationById } = require('./controllers/conversation.controller.js')
 const { getScrapedDatas } = require('./controllers/scraping.controller.js')
-const { uploadImage } = require('./controllers/image.controller.js')
+const { uploadImage, getAllImages, deleteImageById } = require('./controllers/image.controller.js')
 // const { getTTSaudio } = require('./controllers/tts.controller.js')
 const express = require('express')
 const multer = require('multer')
@@ -29,6 +29,9 @@ function databaseInit() {
     }
     if (db.getCollection("docs") === null) {
         db.addCollection("docs")
+    }
+    if (db.getCollection("images") === null) {
+      db.addCollection("images")
     }
     // db.removeCollection("conversations")
     if (db.getCollection("conversations") === null) {
@@ -104,7 +107,10 @@ app.delete('/conversation/byId/:id', deleteConversationById(db))
 // images
 const upload = initImageStorage()
 app.post('/upload', upload.single('image'), uploadImage(db))
+app.get('/images', getAllImages(db))
+// app.get('/image/byFilename/:filename', getImageByFilename(db))
 app.use('/images', express.static('images'))
+app.delete('/image/byId/:id', deleteImageById(db))
 
 function removeCollections(){
   const collectionNames = db.listCollections().map(col => col.name)

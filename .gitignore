@@ -8,14 +8,12 @@ pnpm-debug.log*
 lerna-debug.log*
 
 front/node_modules
-back/node_modules
 front/dist
-back/dist
 front/dist-ssr
-back/dist-ssr
 *.local
-back/images/*.*
-!/back/images/.gitkeep
+back/node_modules
+back/dist
+back/dist-ssr
 
 # Editor directories and files
 .vscode/*
@@ -36,4 +34,8 @@ front/tofix
 front/coverage
 
 trailer.mp4
+
+back/images/*.*
+!/back/images/.gitkeep
+back/deprecated
 

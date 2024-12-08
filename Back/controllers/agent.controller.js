@@ -6,7 +6,7 @@ const saveAgent = (db) => async (req, res) => {
   
       const agentsCollection = db.getCollection('agents')
       const promptsCollection = db.getCollection('prompts')
-      if (!agentsCollection) {
+      if (!agentsCollection || !promptsCollection) {
         throw new Error('The agents collection does not exist in the database.')
       }
   
@@ -82,6 +82,8 @@ const getAgentByName = (db) => async (req, res) => {
 const updateAgentByName = (db) => async (req, res) => {
     try {
       console.log("Attempting to update/create agent")
+
+      console.log(JSON.stringify(req.body))
   
       // Validate request body
       validateAgentInputs(req.body)
@@ -204,6 +206,10 @@ const deleteAgentByName = (db) => async (req, res) => {
 
   try {
       const collection = db.getCollection('agents')
+      if (!collection) {
+        throw new Error('The agents collection does not exist in the database.')
+      }
+
       const agent = await collection.findOne({ name: agentName })
 
       if (!agent) {
