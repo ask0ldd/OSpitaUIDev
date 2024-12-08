@@ -3,15 +3,31 @@ import { useEffect, useRef, useState } from "react"
 import { ChatService } from "../../services/ChatService";
 import ImagePreview from "./ImagePreview.tsx";
 import {useImagesStore } from "../../hooks/stores/useImagesStore.ts";
-import ImageService from "../../services/API/ImageService.ts";
+import { useServices } from "../../hooks/useServices.ts";
 
 function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchActivated} : IProps){
 
-  const {images, hoveredImage, selectedImagesIds, deselectAllImages, deleteSelectedImages, toggleImageWithId, pushImage, setHoveredImage } = useImagesStore()
+  const {images, setImages, hoveredImage, selectedImagesIds, deselectAllImages, getSelectedImages, /*deleteSelectedImages, */toggleImageWithId, pushImage, setHoveredImage } = useImagesStore()
+
+  const {imageService} = useServices()
 
   const [isVisionModelActive, setIsVisionModelActive] = useState<boolean>(true)
 
   const fileInputRef = useRef<HTMLInputElement | null>(null) 
+
+  const hasBeenInit = useRef(false)
+  useEffect(()=>{
+    const fetchImages = async () => {
+      const images = await imageService.getAll()
+      setImages(images ?? [])
+    }
+    if(!hasBeenInit.current) fetchImages()
+  }, [])
+
+  async function refreshImages(){
+    const images = await imageService.getAll()
+    setImages(images ?? [])
+  }
 
   async function handleFileSelect(e : React.ChangeEvent<HTMLInputElement>){
     if (!e.target.files || e.target.files.length === 0) return
@@ -20,25 +36,26 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
     const allowTypes = ["image/jpeg", "image/png"]
     if (!allowTypes.includes(file.type)) return console.log("The provided file is not a JPEG or a PNG.")
 
-    if (file) {
+    /*if (file) {
       const reader = new FileReader();
       
       reader.onload = function(e : ProgressEvent<FileReader>) {
         const dataURL = e.target?.result as string
         if(dataURL != null) {
           const newId = images.length
-          pushImage({id : newId, filename : file.name, data : dataURL})
+          // pushImage({id : newId, filename : file.name, data : dataURL})
         }
       };
       
       reader.readAsDataURL(file);
-    }
+    }*/
 
     // send a formdata with the image to the backend
     const formData = new FormData()
     formData.append('image', e.target.files[0], file.name)
-    const response = await ImageService.upload(formData)
-    if(response != null) console.log(response.filename)
+    const response = await imageService.upload(formData)
+    // if(response != null) console.log(response.filename)
+    if(response != null) pushImage(response)
 
     e.target.value = ""
   }
@@ -59,10 +76,15 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
     fileInputRef.current?.click()
   }
 
-  function handleDeleteSelectedImgClick(e : React.MouseEvent){
+  async function handleDeleteSelectedImgClick(e : React.MouseEvent){
     e.preventDefault()
     e.stopPropagation()
-    deleteSelectedImages()
+    // deleteSelectedImages()
+    const images = getSelectedImages()
+    for(const image of images){
+      await imageService.deleteById(image.$loki)
+    }
+    await refreshImages()
   }
 
   function handleMouseOverPicture(id : number){
@@ -70,7 +92,7 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
   }
 
   async function handlePasteFromClipboardClick(){
-    try {
+    /*try {
       const clipboardItems = await navigator.clipboard.read();
       for (const clipboardItem of clipboardItems) {
         const imageType = clipboardItem.types.find(type => type.startsWith('image/'));
@@ -79,13 +101,13 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
           const dataUrl = await blobToBase64(blob)
           const newId = images.length
           const img = {id : newId, filename : 'screenshot'+ newId, data : dataUrl}
-          pushImage(img)
+          // pushImage(img)
           break;
         }
       }
     } catch (err) {
       console.error("Failed to read the clipboard content:", err);
-    }
+    }*/
   }
 
   useEffect(() => {
@@ -116,7 +138,7 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
         <input ref={fileInputRef} onChange={handleFileSelect} type="file" data-testid="imageFileInput" style={{display: 'none'}}/>
         <div className="imagesContainer">
           {
-            images?.map((image, index) => (<img onClick={() => handleImgClick(index)} onMouseEnter={() => handleMouseOverPicture(index)} onMouseOut={() => setHoveredImage(null)} className={selectedImagesIds.has(index) ? 'active purpleShadow' : ''} style={{width:'48px'}} src={image.data} key={'img'+index} alt={image.filename}/>))
+            images?.map((image, index) => (<img onClick={() => handleImgClick(index)} onMouseEnter={() => handleMouseOverPicture(index)} onMouseOut={() => setHoveredImage(null)} className={selectedImagesIds.has(index) ? 'active purpleShadow' : ''} style={{width:'48px'}} src={'backend/images/' + image.filename} key={'img'+index} alt={image.filename}/>))
 
           }
           {
@@ -139,7 +161,7 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
               <svg width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="#fff" d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/></svg>
           </button>
       </div>
-      {hoveredImage && <ImagePreview imageSrc={hoveredImage.data}/>}
+      {hoveredImage && <ImagePreview imageSrc={'backend/images/' + hoveredImage.filename}/>}
     </article>
   )
 

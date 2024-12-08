@@ -363,8 +363,16 @@ table {
     text-decoration: underline;
   }
 
+  span.source {
+    display: inline-block;
+    max-width: calc(100vw - 1000px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   span.source a {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 400;
     text-decoration: none;
   }
@@ -413,6 +421,15 @@ table {
 
 .answerContainer + .textBlock {
   margin: 0 0 1rem 0;
+}
+
+article.answerItem:has(.source) {
+  margin: 0;
+}
+
+article.historyItem:has(.source) {
+  margin: 0;
+  padding-bottom: 0.65rem;
 }
 
 /* emojis styling */
