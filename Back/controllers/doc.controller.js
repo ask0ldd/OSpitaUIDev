@@ -39,12 +39,8 @@ const saveEmbeddings = (vdb) => async (req, res) => {
       res.status(201).send('Embeddings saved successfully.')
 
   } catch (error) {
-          console.error(error)
-      if (error.status) {
-          res.status(error.status).send(error.message)
-      } else {
-          res.status(500).send('An error occurred while attempting to save the embeddings : ' + error)
-      }
+      console.error(error)
+      res.status(500).send('An error occurred while attempting to save the embeddings : ' + error)
   }
 }
 
