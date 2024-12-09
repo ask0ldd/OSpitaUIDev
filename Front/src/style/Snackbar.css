@@ -1,0 +1,32 @@
+.snackbar {
+  background: #00b7ff;
+  box-shadow: 0px 8px 32px #00000033, 0px 4px 8px #00b7ff33;
+  display: flex;
+  padding: 0 2rem;
+  height: 50px;
+  font-weight: 500;
+  color: #fff;
+  top: 2px;
+  transform: translate(-50%, 10px);
+  left: 50%;
+  z-index: 10;
+  border-radius: 6px;
+  width: 300px;
+  animation: snackAppears 0.5s ease-in-out forwards;
+  border: 2px solid hsl(197, 100%, 60%);
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  position: fixed;
+}
+
+@keyframes snackAppears {
+  0% {
+    opacity: 0.2;
+    transform: translate(-50%, -50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 10px);
+  }
+}

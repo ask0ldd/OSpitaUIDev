@@ -345,7 +345,6 @@ function Chat() {
             selectedPromptNameRef={selectedPromptNameRef}/>
         
         <main style={{position:'relative'}}>
-            <Snackbar mode={activeMode}/>
 
             <LoadedModelInfosBar hasStreamingEnded={!isStreaming}/>
 
@@ -412,6 +411,7 @@ function Chat() {
                 } [modalContentId]}
             </Modal>
         }
+        <Snackbar mode={activeMode}/>
     </div>
     )
 }
