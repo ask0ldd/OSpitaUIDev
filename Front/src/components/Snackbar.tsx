@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import '../style/Snackbar.css'
+import { TRightMenuOptions } from '../interfaces/TRightMenuOptions'
 
-export default function Snackbar({mode} : {mode: "agent" | "chain" | "web" | "rag"}){
+export default function Snackbar({mode} : {mode: TRightMenuOptions | "web" | "rag"}){
 
     const [isVisible, setIsVisible] = useState(false)
 
@@ -22,6 +23,8 @@ export default function Snackbar({mode} : {mode: "agent" | "chain" | "web" | "ra
                 'chain' : <>Agent Chaining Mode Active</>,
                 'web' : <>Web Search Mode Active</>,
                 'rag' : <>RAG Mode Active</>,
+                'roleplay' : <>Roleplay Mode Active</>,
+                'settings': <></>
             } [mode]}
         </div>
     )

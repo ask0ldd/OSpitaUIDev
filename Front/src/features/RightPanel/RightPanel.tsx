@@ -12,6 +12,9 @@ import RightMenu from './RightMenu'
 import ChainPanel from './ChainPanel'
 import { useServices } from '../../hooks/useServices'
 import { useImagesStore } from '../../hooks/stores/useImagesStore.ts'
+import AICharacter from '../../models/AICharacter.ts'
+import RoleplayPanel from './RoleplayPanel.tsx'
+import { TRightMenuOptions } from '../../interfaces/TRightMenuOptions.ts'
 
 const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreaming, activeMenuItem, setActiveMenuItem} : IProps) => {
 
@@ -30,7 +33,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
     },
     [webSearchSummarization])
 
-    const currentAgent = useRef<AIAgent>(ChatService.getActiveAgent())
+    const currentAgent = useRef<AIAgent | AICharacter>(ChatService.getActiveAgent())
     const [currentChain, setCurrentChain] = useState<{selectId : string, agentName : string}[]>([])
 
     const [formValues, setFormValues] = useState<IFormStructure>(agentToFormDatas(currentAgent.current))
@@ -61,7 +64,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
     const [showSavingSuccessfulBtn, setShowSavingSuccessfulBtn] = useState<boolean>(false)
     const timeoutRef = useRef<null | NodeJS.Timeout>(null)
 
-    function agentToFormDatas(agent : AIAgent){
+    function agentToFormDatas(agent : AIAgent | AICharacter){
         return {
             agentName: agent.getName(),
             modelName: agent.getModelName(),
@@ -149,7 +152,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
         if(isStreaming) return
         deselectAllImages()
         setIsFormTouched(false)
-        if(item === "agent" || item === "chain" || item === "settings") setActiveMenuItem(item)
+        if(item === "agent" || item === "chain" || item === "settings" || item === "roleplay") setActiveMenuItem(item)
     }
 
     // save button animation
@@ -183,6 +186,8 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
     </aside>)
 
     if(activeMenuItem == "chain") return(<ChainPanel handleMenuItemClick={handleMenuItemClick} AIAgentsList={AIAgentsList} currentChain={currentChain} setCurrentChain={setCurrentChain} isStreaming={isStreaming} memoizedSetModalStatus={memoizedSetModalStatus}/>)
+
+    if(activeMenuItem == "roleplay") return(<RoleplayPanel handleMenuItemClick={handleMenuItemClick} isStreaming={isStreaming}/>)
 
     return(
         <aside className="rightDrawer">
@@ -324,6 +329,6 @@ interface IProps{
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
     AIAgentsList: AIAgent[]
     isStreaming : boolean
-    activeMenuItem : "agent" | "chain" | "settings"
-    setActiveMenuItem : (menuItem: "agent"|"settings"|"chain") => void
+    activeMenuItem : TRightMenuOptions
+    setActiveMenuItem : (menuItem: TRightMenuOptions) => void
 }

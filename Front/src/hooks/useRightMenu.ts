@@ -1,10 +1,11 @@
 import { useState, useRef } from "react"
+import { TRightMenuOptions } from "../interfaces/TRightMenuOptions"
 
 function useRightMenu() {
 
-    const [activeMenuItem, _setActiveMenuItem] = useState<"agent"|"settings"|"chain">("agent")
-    const activeMenuItemRef = useRef<"agent"|"settings"|"chain">("agent")
-    function setActiveMenuItem(menuItem: "agent"|"settings"|"chain") {
+    const [activeMenuItem, _setActiveMenuItem] = useState<TRightMenuOptions>("agent")
+    const activeMenuItemRef = useRef<TRightMenuOptions>("agent")
+    function setActiveMenuItem(menuItem: TRightMenuOptions) {
         _setActiveMenuItem(menuItem)
         activeMenuItemRef.current = menuItem
     }
