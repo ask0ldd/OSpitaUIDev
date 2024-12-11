@@ -4,6 +4,7 @@ import visionModelsClues from "../constants/VisionModelsClues";
 import { IConversationElement, IInferenceStats } from "../interfaces/IConversation";
 import IScrapedPage from "../interfaces/IScrapedPage";
 import { AIAgent } from "../models/AIAgent";
+import AICharacter from "../models/AICharacter";
 import ScrapedPage from "../models/ScrapedPage";
 import AnswerFormatingService from "./AnswerFormatingService";
 import InferenceStatsFormatingService from "./InferenceStatsFormatingService";
@@ -11,7 +12,7 @@ export class ChatService{
 
     static #targetedRAGDocs : string[] = []
 
-    static activeAgent : AIAgent = new AIAgent({id : 'a0000000001',
+    static activeAgent : AIAgent | AICharacter = new AIAgent({id : 'a0000000001',
       name: "baseAssistant",
       modelName : "mistral-nemo:latest",
       systemPrompt : "You are an helpful assistant",
@@ -262,11 +263,11 @@ export class ChatService{
       if(this.stillInUseAgent != null) this.stillInUseAgent.abortLastRequest() 
     }
 
-    static setActiveAgent(agent : AIAgent){
+    static setActiveAgent(agent : AIAgent | AICharacter){
       this.activeAgent = agent
     }
 
-    static setCurrentlyUsedAgent(agent : AIAgent){
+    static setCurrentlyUsedAgent(agent : AIAgent | AICharacter){
       if(agent != null) this.stillInUseAgent = agent
     }
 
@@ -274,7 +275,7 @@ export class ChatService{
       return this.activeAgent?.getName() || ""
     }
 
-    static getActiveAgent() : AIAgent{
+    static getActiveAgent() : AIAgent | AICharacter{
       return this.activeAgent
     }
 

@@ -3,11 +3,14 @@ import IAICharacterPartialParams from "../interfaces/params/IAICharacterPartialP
 import { IAIModelParams } from "../interfaces/params/IAIModelParams"
 import { AIModel } from "./AIModel"
 
-class AICharacter extends AIModel{
-    private mbti = ""
-    private appearance = ""
-    private background = ""
-
+class AICharacter extends AIModel implements IAICharacterPartialParams {
+    name = ""
+    coreIdentity = ""
+    mbti = ""
+    appearance = ""
+    background = ""
+    socialCircle = ""
+    formativeExperiences = ""
 
     constructor({ 
         modelName = "llama3.1:8b", 
@@ -42,9 +45,13 @@ class AICharacter extends AIModel{
         use_mmap = true,
         use_mlock = false,
         num_thread = 8,
+        name = "",
         mbti = "",
         appearance = "",
         background = "",
+        socialCircle = "",
+        formativeExperiences = "",
+        coreIdentity = "",
     } : IAIModelParams & IAICharacterPartialParams){
         super({
             modelName, 
@@ -83,10 +90,17 @@ class AICharacter extends AIModel{
         this.mbti = mbti
         this.background = background
         this.appearance = appearance
+        this.socialCircle = socialCircle
+        this.formativeExperiences = formativeExperiences
+        this.coreIdentity = coreIdentity
+        this.name = name
     }
 
     getMbtiCharacteristics(){
+    }
 
+    getName() : string{
+        return this.name;
     }
 
 }

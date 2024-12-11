@@ -36,6 +36,7 @@ import { useScrollbar } from "../hooks/useScrollbar";
 import ConversationService from "../services/API/ConversationService";
 import ScrapedPage from "../models/ScrapedPage";
 import Snackbar from "../components/Snackbar";
+import { TRightMenuOptions } from "../interfaces/TRightMenuOptions";
 
 function Chat() {
 
@@ -93,7 +94,7 @@ function Chat() {
     const lastRAGResultsRef = useRef<IRAGChunkResponse[] | null>(null)
 
     
-    const [activeMode, setActiveMode] = useState<"agent" | "chain" | "web" | "rag">("agent")
+    const [activeMode, setActiveMode] = useState<TRightMenuOptions | "web" | "rag">("agent")
     useEffect(() => {
         if(activeMenuItemRef.current == "agent" && !isWebSearchActivated) {
             setActiveMode("agent")
@@ -105,6 +106,10 @@ function Chat() {
         }
         if(activeMenuItemRef.current == "chain") {
             setActiveMode("chain")
+            return
+        }
+        if(activeMenuItemRef.current == "roleplay") {
+            setActiveMode("roleplay")
             return
         }
     }, [activeMenuItemRef.current, isWebSearchActivated])
