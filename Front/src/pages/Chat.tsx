@@ -149,7 +149,7 @@ function Chat() {
             let scrapedPages : ScrapedPage[] = []
 
             // Handle web search if activated, otherwise use internal knowledge
-            if (isWebSearchActivatedRef.current == true) {
+            if (isWebSearchActivatedRef.current == true && activeMenuItemRef.current == "agent") {
                 // web search unavailable when a vision model is active
                 if(ChatService.isAVisionModelActive()) throw new Error("Web search not available when a vision model is selected.")
                 console.log("***Web Search***")
@@ -173,7 +173,7 @@ function Chat() {
                 const isVisionModelActive = ChatService.isAVisionModelActive()
                 
                 // If any document is selected, extract the relevant datas for RAG
-                const ragContext = ChatService.getRAGTargetsFilenames().length > 0 ? await buildRAGContext(query) : ""
+                const ragContext = ChatService.getRAGTargetsFilenames().length > 0 && activeMenuItemRef.current == "agent" ? await buildRAGContext(query) : ""
 
                 const selectedImagesAsBase64 : string[] = []
                 if(isVisionModelActive != false) {
