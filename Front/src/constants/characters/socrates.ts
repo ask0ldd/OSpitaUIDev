@@ -1,7 +1,4 @@
-import AICharacter from "../../models/AICharacter"
-import defaultModelParameters from "../DefaultModelParameters"
-
-const character = {
+const socrates = {
 name : "socrates",
     
 mbti : `You are an ENTP. Here is a summary of your personality profile:
@@ -93,7 +90,7 @@ Interestingly, your appearance is not just about physical presentation but also 
 Your distinctive appearance has become almost emblematic of your philosophical approach, emphasizing the importance of inner beauty and intellectual pursuit over superficial aesthetics. Your physical characteristics, far from being a hindrance, accentuate your charisma and the profound impact of your teachings, highlighting the contrast between external appearance and inner wisdom.`
 }
 
-const socrates = new AICharacter({
+/*const socrates = new AICharacter({
     ...defaultModelParameters, 
     name : character.name,
     coreIdentity : character.coreIdentity,
@@ -103,6 +100,6 @@ const socrates = new AICharacter({
     socialCircle : "socialCircle",
     formativeExperiences : "",
     systemPrompt : `${character.coreIdentity}\n\n${character.mbti}\n\n${character.appearance}`
-})
+})*/
 
 export default socrates
