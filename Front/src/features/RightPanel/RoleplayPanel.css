@@ -1,0 +1,147 @@
+.roleplayContainer {
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(
+    to bottom,
+    #ffffff66,
+    var(--base-container-background-color)
+  );
+  /*border: 1px solid var(--base-container-border-color);*/
+  border-radius: 6px;
+  padding: 12px 1rem 1rem 1rem;
+  width: 100%;
+  border: 1px solid #ffffffaa;
+  /*box-shadow: 0 1px 2px hsla(255, 54%, 27%, 0.04)
+      0 6px 12px -2px hsla(251, 50%, 32%, 0.1);*/
+  box-shadow: 0 2px 4px hsla(251, 50%, 32%, 0.04),
+    0 6px 12px -2px hsla(251, 50%, 32%, 0.1);
+  margin-bottom: 12px;
+  align-items: center;
+
+  .searchContainer {
+    display: flex;
+    border: 1px dashed #a7afdd;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    padding: 0 6px;
+    background-color: #dee2f2;
+    column-gap: 0px;
+    flex: 1 0 100%;
+    width: 100%;
+    cursor: pointer;
+    height: 32px;
+
+    --transition-duration: 0.2s;
+    transition: width var(--transition-duration) ease-out,
+      fill var(--transition-duration) ease-out,
+      border var(--transition-duration) ease-out,
+      border-radius var(--transition-duration) ease-out,
+      background-color var(--transition-duration) ease-out,
+      flex-basis var(--transition-duration) ease-out;
+
+    input {
+      border: none;
+      background: none;
+      outline: none;
+      font-size: 15px;
+      flex: 1 1 100%;
+      color: var(--purple-button-color);
+      height: 32px;
+      box-shadow: none;
+      width: 0;
+
+      transition: width var(--transition-duration) ease-out,
+        column-gap var(--transition-duration) ease-out;
+    }
+
+    svg {
+      flex-shrink: 0;
+      flex-grow: 0;
+      path {
+        fill: #7983b5;
+      }
+    }
+
+    &.active {
+      border: 1px solid var(--purple-button-color);
+      color: var(--purple-button-color);
+      background-color: var(--answer-background-color);
+      flex: 1 1 calc(100% - 58px); /* 58 = col gap + padding + icon width */
+      column-gap: 6px;
+
+      svg {
+        margin-right: 5px;
+
+        path {
+          fill: var(--purple-button-color);
+        }
+      }
+
+      input {
+        width: 100%;
+
+        &::placeholder {
+          color: #6d48c188;
+        }
+      }
+    }
+
+    &:hover:not(.active) {
+      border-color: var(--purple-button-color);
+      color: var(--purple-button-color);
+      background-color: var(--light-purple-background-color);
+
+      svg {
+        path {
+          fill: var(--purple-button-color);
+        }
+      }
+    }
+  }
+  .characterList {
+    display: flex;
+    column-gap: 0.5rem;
+    row-gap: 0.5rem;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-top: 1rem;
+
+    .characterItem {
+      display: flex;
+      flex-direction: column;
+      padding: 0.5rem 0.5rem 0 0.5rem;
+      background: (255, 255, 255, 0.7);
+      flex: 1 1 calc((100% - 1rem) / 3);
+      max-width: calc((100% - 1rem) / 3);
+      border-radius: 6px;
+      border: 1px solid #ffffffaa;
+      box-shadow: 0 2px 4px hsla(251, 50%, 32%, 0.04),
+        0 6px 12px -2px hsla(251, 50%, 32%, 0.1);
+      cursor: pointer;
+
+      img {
+        border-radius: 4px;
+        /*height: 92px;*/
+        object-fit: cover;
+        width: 100%;
+        outline: 1px solid #fff;
+      }
+
+      span {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 13px;
+        height: 2rem;
+      }
+
+      &:hover {
+        border: 1px solid var(--purple-button-color);
+        box-shadow: 0px 1px 2px -1px var(--purple-button-4-8-shadow),
+          0px 1px 2px var(--purple-button-1-2-shadow),
+          0px 4px 8px var(--purple-button-4-8-shadow);
+      }
+    }
+  }
+}
