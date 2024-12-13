@@ -1,15 +1,18 @@
 import { useState } from "react"
 import RightMenu from "./RightMenu"
 import './RoleplayPanel.css'
-import socratesPortrait from '../../assets/characters/socrates.jpg'
 import { ChatService } from "../../services/ChatService"
-import defaultModelParameters from "../../constants/DefaultModelParameters"
 import AICharacter from "../../models/AICharacter"
-import socrates from "../../constants/characters/socrates"
+import baseDirective from "../../constants/characters/baseDirective"
+import defaultCharacterModelParameters from "../../constants/characters/DefaultCharacterModelParameters"
+import useFetchCharactersList from "../../hooks/useFetchCharactersList"
 
 function RoleplayPanel({handleMenuItemClick, isStreaming} : IProps){
 
     const [searchTerm, setSearchTerm] = useState<string>("")
+    const [activeItemIndex, setActiveItemIndex] = useState(0)
+
+    const charactersList = useFetchCharactersList()
 
     function handleEmptySearchTermClick(){
         setSearchTerm("")
@@ -19,19 +22,20 @@ function RoleplayPanel({handleMenuItemClick, isStreaming} : IProps){
         setSearchTerm(() => ((event.target as HTMLInputElement).value))
     }
 
-    function handleClickCharacterItem(){
-        const socratesCharacter = new AICharacter({
-            ...defaultModelParameters, 
-            name : socrates.name,
-            coreIdentity : socrates.coreIdentity,
-            mbti : socrates.mbti,
-            appearance : socrates.appearance,
+    function handleClickCharacterItem(index : number){
+        const activeCharacter = new AICharacter({
+            ...defaultCharacterModelParameters, 
+            name : charactersList[index].name,
+            coreIdentity : charactersList[index].coreIdentity,
+            mbti : charactersList[index].mbti,
+            appearance : charactersList[index].appearance,
             background : "",
             socialCircle : "socialCircle",
             formativeExperiences : "",
-            systemPrompt : `${socrates.coreIdentity}\n\n${socrates.mbti}\n\n${socrates.appearance}`
+            systemPrompt : `${baseDirective}\n\n${charactersList[index].coreIdentity}\n\n${charactersList[index].mbti}\n\n${charactersList[index].appearance}`
         })
-        ChatService.setActiveAgent(socratesCharacter)
+        ChatService.setActiveAgent(activeCharacter)
+        setActiveItemIndex(index)
     }
 
     return(<aside className="rightDrawer">
@@ -49,20 +53,15 @@ function RoleplayPanel({handleMenuItemClick, isStreaming} : IProps){
                     </svg>
                 }
             </div>
+            <p style={{fontSize:'13px'}}>choose model / context legnth</p>
             <hr/>
             <div className="characterList">
-                <article className="characterItem" onClick={handleClickCharacterItem}>
-                    <img src={socratesPortrait}/>
-                    <span>Socrates</span>
+            {charactersList.map((character, index) => (
+                <article key={"character"+index} className={activeItemIndex == index ? "characterItem active" : "characterItem"} onClick={() => handleClickCharacterItem(index)}>
+                    <img src={'backend/images/characters/' + character.portrait}/>
+                    <span>{character.name}</span>
                 </article>
-                <article className="characterItem">
-                    <img src={socratesPortrait}/>
-                    <span>Socrates</span>
-                </article>
-                <article className="characterItem">
-                    <img src={socratesPortrait}/>
-                    <span>Socrates</span>
-                </article>
+            ))}
             </div>
         </article>
     </aside>)
