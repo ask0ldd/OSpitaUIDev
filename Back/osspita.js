@@ -1,10 +1,12 @@
 const prompts = require('./constants/prompts.js')
 const agents = require('./constants/agents.js')
+const characters = require('./constants/characters/characters.js')
 const { savePrompt, getPromptById, getPromptByName, getAllPrompts, updatePromptById, updatePromptByName, deletePromptById } = require('./controllers/prompt.controller.js')
 const { saveAgent, updateAgentByName, updateAgentById, getAgentById, getAgentByName, getAllAgents, deleteAgentByName, updateAgentsConfig } = require('./controllers/agent.controller.js')
 const { getAllDocs, getDocsChunksBySimilarity, saveEmbeddings, deleteDocumentEmbeddings } = require('./controllers/doc.controller.js')
 const { saveConversation, getAllConversations, getConversationById, deleteConversationById, updateConversationById } = require('./controllers/conversation.controller.js')
 const { getScrapedDatas } = require('./controllers/scraping.controller.js')
+const { getAllCharacters } = require('./controllers/character.controller.js')
 const { uploadImage, getAllImages, deleteImageById } = require('./controllers/image.controller.js')
 // const { getTTSaudio } = require('./controllers/tts.controller.js')
 const express = require('express')
@@ -37,8 +39,13 @@ function databaseInit() {
     if (db.getCollection("conversations") === null) {
       db.addCollection("conversations")
     }
+    db.removeCollection("characters")
+    if (db.getCollection("characters") === null) {
+      db.addCollection("characters")
+    }
     if(db.getCollection("prompts").find().length == 0) prompts.forEach(prompt => db.getCollection("prompts").insert(prompt))
     if(db.getCollection("agents").find().length == 0) agents.forEach(agent => db.getCollection("agents").insert(agent))
+    if(db.getCollection("characters").find().length == 0) characters.forEach(character => db.getCollection("characters").insert(character))
     // myCollection.on('insert', function(input) { input.id = input.$loki; })
 }
 
@@ -103,6 +110,9 @@ app.get('/conversation/byId/:id', getConversationById(db))
 app.put('/conversation/byId/:id', updateConversationById(db))
 app.delete('/conversation/byId/:id', deleteConversationById(db))
 // app.post('/tts/generate', getTTSaudio)
+
+// characters
+app.get('/characters', getAllCharacters(db))
 
 // images
 const upload = initImageStorage()
