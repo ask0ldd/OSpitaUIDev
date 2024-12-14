@@ -6,6 +6,7 @@ import AICharacter from "../../models/AICharacter"
 import baseDirective from "../../constants/characters/baseDirective"
 import defaultCharacterModelParameters from "../../constants/characters/DefaultCharacterModelParameters"
 import useFetchCharactersList from "../../hooks/useFetchCharactersList"
+import AgentService from "../../services/API/AgentService"
 
 function RoleplayPanel({handleMenuItemClick, isStreaming} : IProps){
 
@@ -22,9 +23,12 @@ function RoleplayPanel({handleMenuItemClick, isStreaming} : IProps){
         setSearchTerm(() => ((event.target as HTMLInputElement).value))
     }
 
-    function handleClickCharacterItem(index : number){
+    async function handleClickCharacterItem(index : number){
+        const agentService = new AgentService()
+        const helpfulAssistantAgent = await agentService.getAgentByName('helpfulAssistant')
         const activeCharacter = new AICharacter({
             ...defaultCharacterModelParameters, 
+            modelName : helpfulAssistantAgent!.model,
             name : charactersList[index].name,
             coreIdentity : charactersList[index].coreIdentity,
             mbti : charactersList[index].mbti,
@@ -42,6 +46,8 @@ function RoleplayPanel({handleMenuItemClick, isStreaming} : IProps){
         <RightMenu handleMenuItemClick={handleMenuItemClick} isStreaming={isStreaming}/>
         <article className='roleplayContainer'>
             <h3 style={{margin:'2px 0 10px 0'}}>SPEAK WITH</h3>
+            <p style={{fontSize:'13px'}}>choose model / context legnth</p>
+            <div style={{width:'100%', height:'1px', borderBottom:'1px dashed #35353599', marginBottom:'1rem'}}></div>
             <div title="search" className="searchContainer active">
                 <input autoFocus type="text" value={searchTerm} placeholder="Search" onChange={handleSearchTermChange}/> {/* ref={searchInputRef} onChange={handleSearchTermChange} */ }
                 {searchTerm == "" ? 
@@ -53,18 +59,20 @@ function RoleplayPanel({handleMenuItemClick, isStreaming} : IProps){
                     </svg>
                 }
             </div>
-            <p style={{fontSize:'13px'}}>choose model / context legnth</p>
-            <hr/>
             <div className="characterList">
-            {charactersList.map((character, index) => (
+            {charactersList.filter(character => character.name.includes(searchTerm) || character.genres.some(genre => genre.includes(searchTerm))).map((character, index) => (
                 <article key={"character"+index} className={activeItemIndex == index ? "characterItem active" : "characterItem"} onClick={() => handleClickCharacterItem(index)}>
                     <img src={'backend/images/characters/' + character.portrait}/>
-                    <span>{character.name}</span>
+                    <span>{capitalizeFirstLetter(character.name)}</span>
                 </article>
             ))}
             </div>
         </article>
     </aside>)
+}
+
+function capitalizeFirstLetter(string : string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 export default RoleplayPanel

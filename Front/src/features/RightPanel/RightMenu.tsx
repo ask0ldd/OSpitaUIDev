@@ -1,3 +1,5 @@
+import './RightPanel3.css'
+
 function RightMenu({handleMenuItemClick, isStreaming} : IProps){
 
     return(
