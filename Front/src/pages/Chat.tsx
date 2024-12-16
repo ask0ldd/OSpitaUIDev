@@ -37,6 +37,7 @@ import ConversationService from "../services/API/ConversationService";
 import ScrapedPage from "../models/ScrapedPage";
 import Snackbar from "../components/Snackbar";
 import { TRightMenuOptions } from "../interfaces/TRightMenuOptions";
+import FormCharacterSettings from "../features/Modal/FormCharacterSettings";
 
 function Chat() {
 
@@ -407,6 +408,7 @@ function Chat() {
             <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus} width= { modalContentId != "formUploadFile" ? "100%" : "560px"}>
                 {{
                     'formEditAgent' : <FormAgentSettings role={"edit"} memoizedSetModalStatus={memoizedSetModalStatus} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>,
+                    'formEditCharacter' : <FormCharacterSettings memoizedSetModalStatus={memoizedSetModalStatus}/>,
                     'formNewAgent' : <FormAgentSettings role={"create"} memoizedSetModalStatus={memoizedSetModalStatus} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>,
                     'formEditPrompt' : <FormPromptSettings role={"edit"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef}/>,
                     'formNewPrompt' : <FormPromptSettings role={"create"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus}/>,

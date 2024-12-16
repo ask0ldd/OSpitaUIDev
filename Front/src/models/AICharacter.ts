@@ -97,10 +97,74 @@ class AICharacter extends AIModel implements IAICharacterPartialParams {
     }
 
     getMbtiCharacteristics(){
+        return this.mbti
     }
 
     getName() : string{
         return this.name;
+    }
+
+    getBackground() : string{
+        return this.background
+    }
+
+    getAppearance() : string{
+        return this.appearance
+    }
+
+    getSocialCircle() : string{
+        return this.socialCircle
+    }
+
+    getFormativeExperiences() : string{
+        return this.formativeExperiences
+    }
+
+    getCoreIdentity() : string{
+        return this.coreIdentity
+    }
+
+
+    clone() : AICharacter{
+        return new AICharacter({
+            modelName: this.getModelName(),
+            systemPrompt: this.getSystemPrompt(),
+            num_ctx: this.getContextSize(),
+            temperature: this.getTemperature(),
+            num_predict: this.getNumPredict(),
+            mirostat: this.getMirostat(),
+            mirostat_eta: this.getMirostatEta(),
+            mirostat_tau: this.getMirostatTau(),
+            repeat_last_n: this.getRepeatLastN(),
+            repeat_penalty: this.getRepeatPenalty(),
+            seed: this.getSeed(),
+            stop: this.getStop(),
+            tfs_z: this.getTfsZ(),
+            top_k: this.getTopK(),
+            top_p: this.getTopP(),
+            min_p: this.getMinP(),
+            num_keep: this.getNumKeep(),
+            typical_p: this.getTypicalP(),
+            presence_penalty: this.getPresencePenalty(),
+            frequency_penalty: this.getFrequencyPenalty(),
+            penalize_newline: this.getPenalizeNewline(),
+            numa: this.getNuma(),
+            num_batch: this.getNumBatch(),
+            num_gpu: this.getNumGpu(),
+            main_gpu: this.getMainGpu(),
+            low_vram: this.getLowVram(),
+            vocab_only: this.getVocabOnly(),
+            use_mmap: this.getUseMmap(),
+            use_mlock: this.getUseMlock(),
+            num_thread: this.getNumThread(),
+            name: this.getName(),
+            mbti: this.getMbtiCharacteristics(),
+            appearance: this.getAppearance(),
+            background: this.getBackground(),
+            socialCircle: this.getSocialCircle(),
+            formativeExperiences: this.getFormativeExperiences(),
+            coreIdentity: this.getCoreIdentity(),
+        })
     }
 
 }
