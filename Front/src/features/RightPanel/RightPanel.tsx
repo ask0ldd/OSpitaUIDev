@@ -187,7 +187,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
 
     if(activeMenuItem == "chain") return(<ChainPanel handleMenuItemClick={handleMenuItemClick} AIAgentsList={AIAgentsList} currentChain={currentChain} setCurrentChain={setCurrentChain} isStreaming={isStreaming} memoizedSetModalStatus={memoizedSetModalStatus}/>)
 
-    if(activeMenuItem == "roleplay") return(<RoleplayPanel handleMenuItemClick={handleMenuItemClick} isStreaming={isStreaming}/>)
+    if(activeMenuItem == "roleplay") return(<RoleplayPanel handleMenuItemClick={handleMenuItemClick} isStreaming={isStreaming} memoizedSetModalStatus={memoizedSetModalStatus}/>)
 
     return(
         <aside className="rightDrawer">
