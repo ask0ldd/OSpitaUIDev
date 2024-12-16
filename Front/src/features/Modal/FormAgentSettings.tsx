@@ -105,7 +105,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
             id : role == "edit" && currentAgent.current ? currentAgent.current.getId() : "", 
             modelName: formValues.modelName, 
             name : formValues.agentName, 
-            type : role == "edit" ? ChatService.getActiveAgent().getType() : "user_created", 
+            type : role == "edit" ? (ChatService.getActiveAgent() as AIAgent).getType() : "user_created", 
             favorite : false
         })
         .setContextSize(formValues.maxContextLength)
@@ -188,7 +188,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                     value={formValues.agentName}
                     onChange={(e) => setFormValues(formValues => ({...formValues, agentName : e.target?.value}))}
                 />
-                {ChatService.getActiveAgent().getType() != 'system' && 
+                {(ChatService.getActiveAgent() as AIAgent).getType() != 'system' && 
                     <button onClick={handleDeleteClick} className="deleteAgentButton purpleShadow">
                         <span style={{transform:'translateY(1px)'}}>Delete </span>
                         <svg width="16" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">

@@ -1,4 +1,5 @@
-.agentForm {
+.agentForm,
+.characterForm {
   display: grid;
   width: 100%;
   grid-template-rows: auto auto auto auto auto auto auto;
@@ -11,6 +12,20 @@
     "set2 set2 set2"
     "advancedBar advancedBar advancedBar"
     "y . z";
+
+  h3 {
+    font-size: 14px;
+    color: var(--label-grey-text-color);
+    text-align: left;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    column-gap: 0.5rem;
+    font-family: "Poppins";
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
 
   .settingsSet1 {
     /*background-color: red;*/
