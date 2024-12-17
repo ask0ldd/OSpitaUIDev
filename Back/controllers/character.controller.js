@@ -19,6 +19,7 @@ const saveCharacterSettings = () => async (req, res) => {
             return res.status(400).json({ message: 'Invalid input. Please provide all required fields with correct types.' })
         }
 
+        // writing the settings
         const settings = { model, temperature, num_ctx, num_predict }
         await fs.writeFile(SETTINGS_FILE, JSON.stringify(settings, null, 2), 'utf8')
         
@@ -63,10 +64,12 @@ const updateCharacterModel = () => async (req, res) => {
             return res.status(400).json({ message: 'Invalid input. Please provide all required fields with correct types.' })
         }
 
-        if(!fs.existsSync(SETTINGS_FILE)) await initSettings({model : "llama3.1:3b", temperature : 0.8, num_ctx : 10000, num_predict : 2048})
+        // reading the settings
+        if(!require('fs').existsSync(SETTINGS_FILE)) await initCharacterSettings({model : "llama3.1:3b", temperature : 0.8, num_ctx : 10000, num_predict : 2048})
         const data = await fs.readFile(SETTINGS_FILE, 'utf8')
         const settings = {...JSON.parse(data)}
 
+        // updating the settings
         settings.model = model
         await fs.writeFile(SETTINGS_FILE, JSON.stringify(settings, null, 2), 'utf8')
         
