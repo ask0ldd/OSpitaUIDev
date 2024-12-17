@@ -11,7 +11,7 @@ import { useServices } from "../hooks/useServices.ts";
 export default function Installation(){
 
     const navigate = useNavigate()
-    const { agentService } = useServices();
+    const { agentService, characterService } = useServices();
     const modelsList = useFetchModelsList("includes-embedding-models")
     const { AIAgentsList } = useFetchAgentsList()
 
@@ -52,7 +52,8 @@ export default function Installation(){
     
     async function handleSaveClick(e : React.MouseEvent){
         e.preventDefault();
-        agentService.updateAgentsConfig({advancedModel : selectedModels.complex, basicModel : selectedModels.trivial, embeddingModel : selectedModels.embedding})
+        await agentService.updateAgentsConfig({advancedModel : selectedModels.complex, basicModel : selectedModels.trivial, embeddingModel : selectedModels.embedding})
+        await characterService.updateModel(selectedModels.complex)
         navigate('/chat')
     }
 
