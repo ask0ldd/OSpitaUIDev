@@ -7,12 +7,13 @@ import picots from '../../assets/sliderpicots.png'
 import ICharacterSettings from "../../interfaces/ICharacterSettings.ts";
 import { ChatService } from "../../services/ChatService.ts";
 import useFetchCharacterSettings from "../../hooks/useFetchCharacterSettings.ts";
-import CharacterService from "../../services/API/CharacterService.ts";
+import { useServices } from "../../hooks/useServices.ts";
 
 export default function FormCharacterSettings({memoizedSetModalStatus} : IProps){
 
     const modelsList = useFetchModelsList()
     const settings = useFetchCharacterSettings()
+    const {characterService} = useServices()
 
     const [characterSettings, setCharacterSettings] = useState<ICharacterSettings>(settings)
 
@@ -39,7 +40,6 @@ export default function FormCharacterSettings({memoizedSetModalStatus} : IProps)
         agent.setNumPredict(characterSettings.num_predict)
         ChatService.setActiveAgent(agent)
         // update backend settings file
-        const characterService = new CharacterService()
         await characterService.saveSettings({...characterSettings})
         memoizedSetModalStatus({visibility : false})
     }
