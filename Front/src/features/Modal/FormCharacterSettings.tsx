@@ -30,15 +30,19 @@ export default function FormCharacterSettings({memoizedSetModalStatus} : IProps)
         memoizedSetModalStatus({visibility : false})
     }
 
-    async function handleSaveClick(e: React.MouseEvent<HTMLButtonElement>){
-        e.preventDefault()
-        // update active agent
+    function setOptionsToActiveCharacter(){
         const agent = ChatService.getActiveAgent().clone()
         agent.setNumCtx(characterSettings.num_ctx)
         agent.setModel(characterSettings.model)
         agent.setTemperature(characterSettings.temperature)
         agent.setNumPredict(characterSettings.num_predict)
         ChatService.setActiveAgent(agent)
+    }
+
+    async function handleSaveClick(e: React.MouseEvent<HTMLButtonElement>){
+        e.preventDefault()
+        // update active agent
+        setOptionsToActiveCharacter()
         // update backend settings file
         await characterService.saveSettings({...characterSettings})
         memoizedSetModalStatus({visibility : false})
@@ -133,12 +137,12 @@ export default function FormCharacterSettings({memoizedSetModalStatus} : IProps)
                     </div>
                 </div>
             </div>
-            <hr style={{gridArea : 'advancedBar', marginTop:'2rem', marginBottom:'0.5rem', border:'none', borderBottom:'1px dashed #37373766'}}/>
+            <hr style={{gridArea : 'advancedBar', marginTop:'2rem', marginBottom:'0.25rem', border:'none', borderBottom:'1px dashed #37373766'}}/>
 
-            <div style={{gridArea:'y', display:'flex', columnGap:'12px', marginTop:'1.5rem'}}>
+            <div style={{gridArea:'y', display:'flex', columnGap:'12px', marginTop:'1rem'}}>
             </div>
 
-            <div style={{gridArea:'z', display:'flex', columnGap:'12px', marginTop:'1.5rem'}}>
+            <div style={{gridArea:'z', display:'flex', columnGap:'12px', marginTop:'1rem'}}>
                 <button className="cancelButton purpleShadow" onClick={(e) => handleCancelClick(e)}>Cancel</button>
                 <button onClick={(e) => handleSaveClick(e)} className="saveButton purpleShadow">Save</button>
             </div>

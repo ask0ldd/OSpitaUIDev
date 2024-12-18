@@ -106,11 +106,18 @@ function Chat() {
             return
         }
         if(activeMenuItemRef.current == "chain") {
+            setWebSearchActivated(false)
             setActiveMode("chain")
             return
         }
         if(activeMenuItemRef.current == "roleplay") {
+            setWebSearchActivated(false)
             setActiveMode("roleplay")
+            return
+        }
+        if(activeMenuItemRef.current == "settings") {
+            setWebSearchActivated(false)
+            setActiveMode("settings")
             return
         }
     }, [activeMenuItemRef.current, isWebSearchActivated])
@@ -328,6 +335,7 @@ function Chat() {
     }
 
     function handleSearchWebClick(e: React.MouseEvent<HTMLDivElement>) {
+        if(activeMenuItemRef.current != "agent") return
         e.preventDefault()
         setWebSearchActivated(!isWebSearchActivatedRef.current)
     }
@@ -402,7 +410,7 @@ function Chat() {
             </div>
         </main>
 
-        <RightPanel memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList} isStreaming={isStreaming} activeMenuItem={activeMenuItem} setActiveMenuItem={setActiveMenuItem}/>
+        <RightPanel memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList} isStreaming={isStreaming} activeMenuItemRef={activeMenuItemRef} setActiveMenuItem={setActiveMenuItem}/>
         
         {modalVisibility && 
             <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus} width= { modalContentId != "formUploadFile" ? "100%" : "560px"}>
