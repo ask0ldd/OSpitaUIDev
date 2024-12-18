@@ -16,7 +16,7 @@ import AICharacter from '../../models/AICharacter.ts'
 import RoleplayPanel from './RoleplayPanel.tsx'
 import { TRightMenuOptions } from '../../interfaces/TRightMenuOptions.ts'
 
-const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreaming, activeMenuItem, setActiveMenuItem} : IProps) => {
+const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreaming, activeMenuItemRef, setActiveMenuItem} : IProps) => {
 
     // retrieved for the ollama api
     const modelsList = useFetchModelsList()
@@ -39,27 +39,16 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
     const [formValues, setFormValues] = useState<IFormStructure>(agentToFormDatas(currentAgent.current))
     const [isFormTouched, setIsFormTouched] = useState<boolean>(false)
 
-    const isFirstRender = useRef(true)
+    // const isFirstRender = useRef(true)
 
     // refresh the form if agentList state changes + set helpfulAssistant as the default agent
     useEffect(() => {
-        currentAgent.current = ChatService.getActiveAgent()
-        setFormValues(agentToFormDatas(ChatService.getActiveAgent()))
-        // when this panel is first rendered, set helpfulAssistant as the default agent
-        if (isFirstRender.current) {
-            handleSwitchAgent({label: 'helpfulAssistant', value: 'helpfulAssistant'})
-            isFirstRender.current = false
+        async function setDefaultAgent() {
+            await handleSwitchAgent({label: 'helpfulAssistant', value: 'helpfulAssistant'})
         }
-    }, [AIAgentsList])
 
-    // refresh the agents within the chain in case some of them have been modified
-    // when the chain tab was inactive
-    useEffect(() => {
-        async function refreshAgents () {
-            await AIAgentChain.refreshAgents()
-        }
-        refreshAgents()
-    }, [activeMenuItem])
+        if(activeMenuItemRef.current == "agent") setDefaultAgent()
+    }, [AIAgentsList, activeMenuItemRef.current])
     
     const [showSavingSuccessfulBtn, setShowSavingSuccessfulBtn] = useState<boolean>(false)
     const timeoutRef = useRef<null | NodeJS.Timeout>(null)
@@ -176,7 +165,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
         return true
     }
 
-    if(activeMenuItem == "settings") return (<aside className="rightDrawer">
+    if(activeMenuItemRef.current == "settings") return (<aside className="rightDrawer">
         <RightMenu handleMenuItemClick={handleMenuItemClick} isStreaming={isStreaming}/>
         <article className='comingSoonContainer'>
             <span className='comingSoon' style={{textAlign:'center', width:'100%'}}>
@@ -185,9 +174,19 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
         </article>
     </aside>)
 
-    if(activeMenuItem == "chain") return(<ChainPanel handleMenuItemClick={handleMenuItemClick} AIAgentsList={AIAgentsList} currentChain={currentChain} setCurrentChain={setCurrentChain} isStreaming={isStreaming} memoizedSetModalStatus={memoizedSetModalStatus}/>)
+    if(activeMenuItemRef.current == "chain") return(
+        <aside className="rightDrawer">
+            <RightMenu handleMenuItemClick={handleMenuItemClick} isStreaming={isStreaming}/>
+            <ChainPanel activeMenuItemRef={activeMenuItemRef} AIAgentsList={AIAgentsList} currentChain={currentChain} setCurrentChain={setCurrentChain} isStreaming={isStreaming} memoizedSetModalStatus={memoizedSetModalStatus}/>
+        </aside>
+    )
 
-    if(activeMenuItem == "roleplay") return(<RoleplayPanel handleMenuItemClick={handleMenuItemClick} isStreaming={isStreaming} memoizedSetModalStatus={memoizedSetModalStatus}/>)
+    if(activeMenuItemRef.current == "roleplay") return(
+        <aside className="rightDrawer">
+            <RightMenu handleMenuItemClick={handleMenuItemClick} isStreaming={isStreaming}/>
+            <RoleplayPanel activeMenuItemRef={activeMenuItemRef} isStreaming={isStreaming} memoizedSetModalStatus={memoizedSetModalStatus}/>
+        </aside>
+    )
 
     return(
         <aside className="rightDrawer">
@@ -320,7 +319,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
     )
 }, (prevProps, nextProps) => {
     // refresh AIAgentsList or isStreaming change
-    return (JSON.stringify(prevProps.AIAgentsList.map(agent => agent.asString())) === JSON.stringify(nextProps.AIAgentsList.map(agent => agent.asString())) && prevProps.isStreaming === nextProps.isStreaming && prevProps.activeMenuItem === nextProps.activeMenuItem)
+    return (JSON.stringify(prevProps.AIAgentsList.map(agent => agent.asString())) === JSON.stringify(nextProps.AIAgentsList.map(agent => agent.asString())) && prevProps.isStreaming === nextProps.isStreaming && prevProps.activeMenuItemRef.current === nextProps.activeMenuItemRef.current)
 })
 
 export default RightPanel
@@ -329,6 +328,6 @@ interface IProps{
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
     AIAgentsList: AIAgent[]
     isStreaming : boolean
-    activeMenuItem : TRightMenuOptions
+    activeMenuItemRef : React.MutableRefObject<TRightMenuOptions>
     setActiveMenuItem : (menuItem: TRightMenuOptions) => void
 }
