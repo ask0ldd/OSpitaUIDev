@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { useEffect } from "react";
+import { TRightMenuOptions } from "../../interfaces/TRightMenuOptions";
 import { AIAgent } from "../../models/AIAgent";
+import AIAgentChain from "../../models/AIAgentChain";
 import Select, { IOption } from "../CustomSelect/Select";
-import RightMenu from "./RightMenu";
 
-function ChainPanel({handleMenuItemClick, AIAgentsList,  currentChain, setCurrentChain, isStreaming, memoizedSetModalStatus} : IProps){
+function ChainPanel({AIAgentsList, activeMenuItemRef, currentChain, setCurrentChain, isStreaming, memoizedSetModalStatus} : IProps){
     function handleSwitchChainAgent(option : IOption, id : string){
         setCurrentChain(chain => chain.map(link => link.selectId == id ? {selectId : link.selectId , agentName : option.value} : link))
     }
@@ -16,9 +18,17 @@ function ChainPanel({handleMenuItemClick, AIAgentsList,  currentChain, setCurren
     function handleEditChainAgent(){
         memoizedSetModalStatus({visibility : true, contentId : "formSelectChainAgent"})
     }
+    
+    // refresh the agents within the chain in case some of them have been modified
+    // when the chain tab was inactive
+    useEffect(() => {
+        async function refreshAgents () {
+            await AIAgentChain.refreshAgents()
+        }
+        if(activeMenuItemRef.current == "chain") refreshAgents()
+    }, [activeMenuItemRef.current])
 
-    return (<aside className="rightDrawer">
-        <RightMenu handleMenuItemClick={handleMenuItemClick} isStreaming={isStreaming}/>
+    return (
         <article className='chainContainer'>
             <h3 onClick={handleEditChainAgent} style={{margin:'2px 0 10px 0'}}>ACTIVE CHAIN</h3>
             <p>NB : Starting with your query, each agent will process the response of its predecessor using its own system prompt. The final response will be displayed.</p>
@@ -54,17 +64,16 @@ function ChainPanel({handleMenuItemClick, AIAgentsList,  currentChain, setCurren
                 </svg>
             </div>))}
             <button className='purpleShadow' onClick={() => setCurrentChain(chain => [...chain, {selectId : "chainAgent" + chain.length, agentName : "COTTableGenerator"}])}>+ Add Agent</button>
-        </article>
-    </aside>)
+        </article>)
 }
 
 export default ChainPanel
 
 interface IProps{
-    handleMenuItemClick : (item : string) => void
     AIAgentsList : AIAgent[]
     currentChain : {selectId : string, agentName : string}[]
     setCurrentChain : React.Dispatch<React.SetStateAction<{selectId : string, agentName : string}[]>>
     isStreaming : boolean
+    activeMenuItemRef : React.MutableRefObject<TRightMenuOptions>
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
 }
