@@ -7,3 +7,4 @@ sandbox.*.*
 images/*.*
 !images/.gitkeep
 deprecated
+test.js

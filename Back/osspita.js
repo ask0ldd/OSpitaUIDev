@@ -9,6 +9,7 @@ const { saveConversation, getAllConversations, getConversationById, deleteConver
 const { getScrapedDatas } = require('./controllers/scraping.controller.js')
 const { getAllCharacters, saveCharacterSettings, getCharacterSettings, SETTINGS_FILE, initCharacterSettings, updateCharacterModel } = require('./controllers/character.controller.js')
 const { uploadImage, getAllImages, deleteImageById } = require('./controllers/image.controller.js')
+const { getAllYamlAsJson } = require('./services/yaml.service.js')
 // const { getTTSaudio } = require('./controllers/tts.controller.js')
 const express = require('express')
 const multer = require('multer')
@@ -47,7 +48,7 @@ function databaseInit() {
     if(!fs.existsSync(SETTINGS_FILE)) initCharacterSettings({model : "llama3.2:3b", temperature : 0.8, num_ctx : 5000, num_predict : 2048})
     if(db.getCollection("prompts").find().length == 0) prompts.forEach(prompt => db.getCollection("prompts").insert(prompt))
     if(db.getCollection("agents").find().length == 0) agents.forEach(agent => db.getCollection("agents").insert(agent))
-    if(db.getCollection("characters").find().length == 0) characters.forEach(character => db.getCollection("characters").insert(character))
+    if(db.getCollection("characters").find().length == 0) /*characters*/getAllYamlAsJson().forEach(character => db.getCollection("characters").insert(character))
     // myCollection.on('insert', function(input) { input.id = input.$loki; })
 }
 
