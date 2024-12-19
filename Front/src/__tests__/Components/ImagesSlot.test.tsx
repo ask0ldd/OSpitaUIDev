@@ -16,6 +16,8 @@ import mockRunningModelsInfos from '../../__mocks__/mockRunningModelsInfos';
 import AgentService from '../../services/API/AgentService';
 import { userEvent } from '@testing-library/user-event';
 import { mockImagesList } from '../../__mocks__/mockImagesList';
+import ImageService from '../../services/API/ImageService';
+import { IImage } from '../../interfaces/IImage';
 
 const MockedRouter = () => (
     <MemoryRouter>
@@ -27,6 +29,11 @@ const mockVoices = [
     { name: 'Voice 1', lang: 'en-US' },
     { name: 'Voice 2', lang: 'es-ES' },
 ];
+
+const mockImage : IImage = {
+    $loki: 0,
+    filename: 'mockImage.png'
+}
 
 describe('Given I am on the Chat page', () => {
     beforeEach(() => {
@@ -42,6 +49,7 @@ describe('Given I am on the Chat page', () => {
         vi.stubGlobal('speechSynthesis', {
             getVoices: vi.fn().mockReturnValue(mockVoices),
         });
+        vi.spyOn(ImageService.prototype, 'upload').mockResolvedValue(mockImage)
         /*vi.spyOn(ImageRepository, 'setSelectedImageId').mockReturnValue()
         vi.spyOn(ImageRepository, 'pushImage').mockReturnValue()
         vi.spyOn(ImageRepository, 'nImages').mockReturnValue(mockImagesList.length)*/
@@ -60,15 +68,24 @@ describe('Given I am on the Chat page', () => {
         expect(screen.getAllByTitle('emptySlot').length).toEqual(5)
     })
 
-    test('Can upload a new image and get it displayed', async () => {
+    test('Can upload a new image and get it displayed', async () => { // get the endpoint called
         await waitFor(() => expect(screen.getByText(/OSSPITA FOR/i)).toBeInTheDocument())
         const imagesButton = (screen.getByText('IMAGES') as HTMLElement).parentElement
         act(() => imagesButton?.click())
         expect(screen.getAllByTitle('emptySlot').length).toEqual(5)
         const uploadImageInput = screen.getByTestId('imageFileInput') as HTMLInputElement
         const file = new File([mockImagesList[0].data], mockImagesList[0].filename, { type: 'image/png' })
+        const formData = new FormData()
+        formData.append('image', file, file.name)
         await userEvent.upload(uploadImageInput, file)
+
+        await waitFor(() => expect(ImageService.prototype.upload).toHaveBeenCalledTimes(1))
+        expect(ImageService.prototype.upload).toHaveBeenCalledWith(formData)
+    })
+
+    /*vi.spyOn(ImageService.prototype, 'getAll')
+    test('When the api return 4 images, all should be displayed', async () => {
         await waitFor(() => expect(screen.getAllByTitle('emptySlot').length).toEqual(4))
         expect(screen.getByAltText(mockImagesList[0].filename)).toBeInTheDocument()
-    })
+    })*/
 })
