@@ -63,7 +63,7 @@ function RoleplayPanel({isStreaming, activeMenuItemRef, memoizedSetModalStatus} 
 
     return(
         <article className='roleplayContainer'>
-            <h3 style={{margin:'2px 0 10px 0'}}>SPEAK WITH</h3>
+            <h3 style={{margin:'2px 0 10px 0'}} onClick={() => console.log(ChatService.getActiveAgent().getSystemPrompt())}>SPEAK WITH</h3>
             <div className="searchSettingsContainer">
                 <div title="search" className="searchCharContainer active">
                     <input autoFocus type="text" value={searchTerm} placeholder="Search" onChange={handleSearchTermChange}/> {/* ref={searchInputRef} onChange={handleSearchTermChange} */ }

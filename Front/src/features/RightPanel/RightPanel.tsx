@@ -39,16 +39,20 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
     const [formValues, setFormValues] = useState<IFormStructure>(agentToFormDatas(currentAgent.current))
     const [isFormTouched, setIsFormTouched] = useState<boolean>(false)
 
-    // const isFirstRender = useRef(true)
-
     // refresh the form if agentList state changes + set helpfulAssistant as the default agent
     useEffect(() => {
         async function setDefaultAgent() {
+            console.log("defaultAgent")
             await handleSwitchAgent({label: 'helpfulAssistant', value: 'helpfulAssistant'})
         }
 
         if(activeMenuItemRef.current == "agent") setDefaultAgent()
-    }, [AIAgentsList, activeMenuItemRef.current])
+    }, [activeMenuItemRef.current])
+
+    useEffect(() => {
+        currentAgent.current = ChatService.getActiveAgent()
+        setFormValues(agentToFormDatas(currentAgent.current))
+    }, [AIAgentsList])
     
     const [showSavingSuccessfulBtn, setShowSavingSuccessfulBtn] = useState<boolean>(false)
     const timeoutRef = useRef<null | NodeJS.Timeout>(null)
@@ -196,7 +200,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
             </article>
             <article className='settingsFormContainer'>
                 <label id="label-agentName" style={{display:'flex'}}>
-                    <div className='circle'></div>
+                    <div className='circle' onClick={() => console.log(ChatService.getActiveAgent().getSystemPrompt())}></div>
                     Agent Powering the Chat
                 </label>
                 {!isStreaming ? <Select 
