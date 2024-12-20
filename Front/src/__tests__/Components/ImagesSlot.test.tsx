@@ -15,9 +15,10 @@ import mockPromptsList from '../../__mocks__/mockPromptsList';
 import mockRunningModelsInfos from '../../__mocks__/mockRunningModelsInfos';
 import AgentService from '../../services/API/AgentService';
 import { userEvent } from '@testing-library/user-event';
-import { mockImagesList } from '../../__mocks__/mockImagesList';
+import { mockImagesList, mockImagesList2 } from '../../__mocks__/mockImagesList';
 import ImageService from '../../services/API/ImageService';
 import { IImage } from '../../interfaces/IImage';
+import { before } from 'node:test';
 
 const MockedRouter = () => (
     <MemoryRouter>
@@ -83,9 +84,41 @@ describe('Given I am on the Chat page', () => {
         expect(ImageService.prototype.upload).toHaveBeenCalledWith(formData)
     })
 
-    /*vi.spyOn(ImageService.prototype, 'getAll')
-    test('When the api return 4 images, all should be displayed', async () => {
-        await waitFor(() => expect(screen.getAllByTitle('emptySlot').length).toEqual(4))
-        expect(screen.getByAltText(mockImagesList[0].filename)).toBeInTheDocument()
-    })*/
+})
+
+describe('Give I am on the chat page focusing on the image slot', () => {
+
+    beforeEach(() => {
+        HTMLDialogElement.prototype.show = vi.fn()
+        HTMLDialogElement.prototype.showModal = vi.fn()
+        HTMLDialogElement.prototype.close = vi.fn()
+        vi.spyOn(OllamaService, 'getModelList').mockResolvedValue(mockModelsList)
+        vi.spyOn(OllamaService, 'getRunningModelInfos').mockResolvedValue(mockRunningModelsInfos)
+        vi.spyOn(AgentService.prototype, 'getAll').mockResolvedValue(mockAgentsList)
+        vi.spyOn(AgentService.prototype, 'getAgentByName').mockResolvedValue(mockAgentsList[0])
+        vi.spyOn(DocService, 'getAll').mockResolvedValue(mockRAGDocumentsList)
+        vi.spyOn(PromptService.prototype, 'getAll').mockResolvedValue(mockPromptsList)
+        vi.stubGlobal('speechSynthesis', {
+            getVoices: vi.fn().mockReturnValue(mockVoices),
+        });
+        vi.spyOn(ImageService.prototype, 'upload').mockResolvedValue(mockImage)
+        vi.spyOn(ImageService.prototype, 'getAll').mockResolvedValueOnce(mockImagesList2)
+        render(<MockedRouter />)
+    });
+
+    afterEach(() => {
+        vi.resetAllMocks()
+        cleanup()
+    })
+
+    test('When the api return 4 images, all of them should be displayed', async () => {
+        await waitFor(() => expect(screen.getByText(/OSSPITA FOR/i)).toBeInTheDocument())
+        const imagesButton = (screen.getByText('IMAGES') as HTMLElement).parentElement
+        act(() => imagesButton?.click())
+        expect(screen.getAllByTitle('emptySlot').length).toEqual(1)
+        expect(screen.getByAltText(mockImagesList2[0].filename)).toBeInTheDocument()
+        expect(screen.getByAltText(mockImagesList2[1].filename)).toBeInTheDocument()
+        expect(screen.getByAltText(mockImagesList2[2].filename)).toBeInTheDocument()
+        expect(screen.getByAltText(mockImagesList2[3].filename)).toBeInTheDocument()
+    })
 })

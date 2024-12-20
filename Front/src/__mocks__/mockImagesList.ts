@@ -1,3 +1,5 @@
+import { IImage } from "../interfaces/IImage";
+
 export const mockImagesList = [
     {
         id : 1, 
@@ -23,4 +25,23 @@ export const mockImagesList = [
           ])], { type: "image/png" })
     },
     //{id : 2, filename : 'mouse.png', data : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAwAB/6Xb9AAAABJRU5ErkJggg=='}
+]
+
+export const mockImagesList2 : IImage[] = [
+    {
+        $loki : 1, 
+        filename : 'gecko.png', 
+    },
+    {
+        $loki : 2, 
+        filename : 'mouse.png', 
+    },
+    {
+        $loki : 3, 
+        filename : 'fox.png', 
+    },
+    {
+        $loki : 4, 
+        filename : 'bear.png', 
+    },
 ]
