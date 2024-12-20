@@ -24,7 +24,7 @@ export default function Snackbar({mode} : {mode: TRightMenuOptions | "web" | "ra
                 'web' : <>Web Search Mode Active</>,
                 'rag' : <>RAG Mode Active</>,
                 'roleplay' : <>Roleplay Mode Active</>,
-                'settings': <></>
+                'settings': <>Settings</>
             } [mode]}
         </div>
     )

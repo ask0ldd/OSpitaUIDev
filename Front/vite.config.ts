@@ -31,6 +31,7 @@ export default defineConfig({
       '/ollama': {
         target: 'http://localhost:11434',
         changeOrigin: true,
+        secure: false,
         rewrite: (path) => path.replace(/^\/ollama/, '')
       }
     }
