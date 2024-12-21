@@ -1,7 +1,6 @@
 const fs = require('fs')
 const prompts = require('./constants/prompts.js')
 const agents = require('./constants/agents.js')
-const characters = require('./constants/characters/characters.js')
 const { savePrompt, getPromptById, getPromptByName, getAllPrompts, updatePromptById, updatePromptByName, deletePromptById } = require('./controllers/prompt.controller.js')
 const { saveAgent, updateAgentByName, updateAgentById, getAgentById, getAgentByName, getAllAgents, deleteAgentByName, updateAgentsConfig } = require('./controllers/agent.controller.js')
 const { getAllDocs, getDocsChunksBySimilarity, saveEmbeddings, deleteDocumentEmbeddings } = require('./controllers/doc.controller.js')
@@ -48,7 +47,7 @@ function databaseInit() {
     if(!fs.existsSync(SETTINGS_FILE)) initCharacterSettings({model : "llama3.2:3b", temperature : 0.8, num_ctx : 5000, num_predict : 2048})
     if(db.getCollection("prompts").find().length == 0) prompts.forEach(prompt => db.getCollection("prompts").insert(prompt))
     if(db.getCollection("agents").find().length == 0) agents.forEach(agent => db.getCollection("agents").insert(agent))
-    if(db.getCollection("characters").find().length == 0) /*characters*/getAllYamlAsJson().forEach(character => db.getCollection("characters").insert(character))
+    if(db.getCollection("characters").find().length == 0) getAllYamlAsJson().forEach(character => db.getCollection("characters").insert(character))
     // myCollection.on('insert', function(input) { input.id = input.$loki; })
 }
 

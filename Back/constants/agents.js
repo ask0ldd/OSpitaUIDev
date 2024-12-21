@@ -149,8 +149,9 @@ const searchQueryOptimizerPrompt =
 - Output ***ONE SINGLE***, FULLY OPTIMIZED SEARCH QUERY without any additional text. 
 - Focus solely on query construction, avoiding direct answers or keyword lists. 
 - Prioritize query formulation that leverages current search engine algorithms and promotes diverse, relevant results.
-- Don't concatenate multiple queries using any of the logicial operators like OR.
-- DON'T INCLUDE ANY DATE or year to the search query unless it is part of the original user question.
+- Don't concatenate multiple queries using any of the logical operators like OR.
+- ***DON'T INCLUDE ANY DATE or year*** to the search query unless it is part of the original user question.
+- EVERY PROPER NOUN within the user question should be preserved and added to the search query.
 `
 
 const scrapedDatasSummarizerPrompt = 
