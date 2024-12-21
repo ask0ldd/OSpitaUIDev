@@ -234,11 +234,11 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                     className="formInput"
                     spellCheck="false"
                     type="number"
-                    step="0.01" min="0.01" max="1" 
+                    step="0.01" min="0.01" max="2" 
                     value={formValues.temperature}
                     onChange={(e) => setFormValues(formValues => ({...formValues, temperature : e.target.value === '' ? 0 : parseFloat(e.target.value)}))}
                     />
-                    <FormSlider ariaLabel="temperature" label="Temperature" value={formValues.temperature} onValueChange={(e) => setFormValues(formValues => ({...formValues, temperature : e[0]}))} max={1} min={0.1} step={0.01} />
+                    <FormSlider ariaLabel="labelTemperature" label="Temperature" value={formValues.temperature} onValueChange={(e) => setFormValues(formValues => ({...formValues, temperature : e[0]}))} max={2} min={0.01} step={0.01} />
                 </div>
                 <div/>
                 <div className="inputNSliderContainer">
@@ -248,6 +248,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                         type="number"
                         className="formInput"
                         value={formValues.maxTokensPerReply}
+                        step="1024" min="1024" max="128000" 
                         onChange={(e) => setFormValues(formValues => ({...formValues, maxTokensPerReply : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
                     {/*<div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
@@ -262,7 +263,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                             </div>
                         </div>
                     </div>*/}
-                    <FormSlider ariaLabel="maxTokens" label="Max Tokens" value={formValues.maxTokensPerReply} onValueChange={(e) => setFormValues(formValues => ({...formValues, maxTokensPerReply : e[0]}))} min={1024} max={128000} step={1024} />
+                    <FormSlider ariaLabel="labelMaxTokensPerReply" label="Max Tokens" value={formValues.maxTokensPerReply} onValueChange={(e) => setFormValues(formValues => ({...formValues, maxTokensPerReply : e[0]}))} min={1024} max={128000} step={1024} />
                 </div>
 
                 <label id="labelMaxContextLength" className="formLabel">Max Context Length</label>
@@ -274,12 +275,12 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                         aria-labelledby="labelMaxContextLength" 
                         spellCheck="false" 
                         type="number"
-                        step="1" min="0" max="1000000" 
+                        step="128" min="512" max="256000" 
                         className="formInput"
                         value={formValues.maxContextLength}
                         onChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
-                    <FormSlider ariaLabel="maxContextLength" label="Max Context Length" value={formValues.maxContextLength} onValueChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : e[0]}))} max={256000} min={512} step={128} />
+                    <FormSlider ariaLabel="labelMaxContextLength" label="Max Context Length" value={formValues.maxContextLength} onValueChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : e[0]}))} max={256000} min={512} step={128} />
                 </div>
                 <div/>
                 <div className='webSearchContainer'>
@@ -314,11 +315,11 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                     className="formInput"
                     spellCheck="false"
                     type="number"
-                    step="0.01" min="0.01" max="1" 
+                    step="0.01" min="0" max="1" 
                     value={formValues.topP}
                     onChange={(e) => setFormValues(formValues => ({...formValues, topP : e.target.value === '' ? 0 : parseFloat(e.target.value)}))}
                     />
-                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                    {/*<div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
                         <div className="sliderbarContainer">
                             <div className="sliderTrack">
                                 <div className="slider" style={{marginLeft:'180px'}}>
@@ -329,7 +330,8 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                                 <span>Top-P</span><span>{formValues.topP}</span>
                             </div>
                         </div>
-                    </div>
+                    </div>*/}
+                    <FormSlider ariaLabel="labelTopP" label="Top-P" value={formValues.topP !== undefined ? formValues.topP : 0} onValueChange={(e) => setFormValues(formValues => ({...formValues, topP : e[0]}))} min={0} max={1} step={0.01} />
                 </div>
                 <div/>
                 <div className="inputNSliderContainer">
@@ -342,7 +344,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                         step="1" min="1" max="200" 
                         onChange={(e) => setFormValues(formValues => ({...formValues, topK : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
-                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                    {/*<div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
                         <div className="sliderbarContainer">
                             <div className="sliderTrack">
                                 <div className="slider" style={{marginLeft:'80px'}}>
@@ -353,7 +355,8 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                                 <span>Top-K</span><span>{formValues.topK}</span>
                             </div>
                         </div>
-                    </div>
+                    </div>*/}
+                    <FormSlider ariaLabel="labelTopK" label="Top-K" value={formValues.topK !== undefined ? formValues.topK : 40} onValueChange={(e) => setFormValues(formValues => ({...formValues, topK : e[0]}))} min={1} max={200} step={1} />
                 </div>
 
 
@@ -367,11 +370,11 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                     className="formInput"
                     spellCheck="false"
                     type="number"
-                    step="1" min="0" max="256" 
+                    step="0.01" min="-2" max="2" 
                     value={formValues.repeatPenalty}
                     onChange={(e) => setFormValues(formValues => ({...formValues, repeatPenalty : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
-                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                    {/*<div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
                         <div className="sliderbarContainer">
                             <div className="sliderTrack">
                                 <div className="slider" style={{marginLeft:'180px'}}>
@@ -382,7 +385,8 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                                 <span>Repeat Penalty</span><span>{formValues.repeatPenalty}</span>
                             </div>
                         </div>
-                    </div>
+                    </div>*/}
+                    <FormSlider ariaLabel="labelRepeatPenalty" label="Repeat Penalty" value={formValues.repeatPenalty !== undefined ? formValues.repeatPenalty : 1.1} onValueChange={(e) => setFormValues(formValues => ({...formValues, repeatPenalty : e[0]}))} min={-2} max={2} step={0.01} />
                 </div>
                 <div/>
                 <div className="inputNSliderContainer">
@@ -395,7 +399,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                         step="1" min="1" max="200" 
                         onChange={(e) => setFormValues(formValues => ({...formValues, seed : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
-                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                    {/*<div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
                         <div className="sliderbarContainer">
                             <div className="sliderTrack">
                                 <div className="slider" style={{marginLeft:'0px'}}>
@@ -406,7 +410,8 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                                 <span>Seed</span><span>{formValues.seed}</span>
                             </div>
                         </div>
-                    </div>
+                    </div>*/}
+                    <FormSlider ariaLabel="labelSeed" label="Seed" value={formValues.seed !== undefined ? formValues.seed : 0} onValueChange={(e) => setFormValues(formValues => ({...formValues, seed : e[0]}))} min={0} max={512} step={1} />
                 </div>
 
                 <label id="labelRepeatLastN" className="formLabel">Repeat Last N</label>
@@ -423,7 +428,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                     value={formValues.repeatLastN}
                     onChange={(e) => setFormValues(formValues => ({...formValues, repeatLastN : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
-                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                    {/*<div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
                         <div className="sliderbarContainer">
                             <div className="sliderTrack">
                                 <div className="slider" style={{marginLeft:'60px'}}>
@@ -434,7 +439,8 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                                 <span>Repeat Last N</span><span>{formValues.repeatLastN}</span>
                             </div>
                         </div>
-                    </div>
+                    </div>*/}
+                    <FormSlider ariaLabel="labelRepeatLastN" label="Repeat Last N" value={formValues.repeatLastN !== undefined ? formValues.repeatLastN : 64} onValueChange={(e) => setFormValues(formValues => ({...formValues, repeatLastN : e[0]}))} min={-1} max={512} step={1} />
                 </div>
                 <div/>
                 <div className="inputNSliderContainer">
@@ -444,21 +450,10 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                         type="number"
                         className="formInput"
                         value={formValues.tfsZ}
-                        step="0.1" min="1" max="2" 
+                        step="0.1" min="0" max="1" 
                         onChange={(e) => setFormValues(formValues => ({...formValues, tfsZ : e.target.value === '' ? 0 : parseFloat(e.target.value)}))}
                     />
-                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
-                        <div className="sliderbarContainer">
-                            <div className="sliderTrack">
-                                <div className="slider" style={{marginLeft:'0px'}}>
-                                    <img src={picots} alt="picots" className="sliderPicots"/>
-                                </div>
-                            </div>
-                            <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
-                                <span>Tfs Z</span><span>{formValues.tfsZ}</span>
-                            </div>
-                        </div>
-                    </div>
+                    <FormSlider ariaLabel="labelTfsZ" label="Tfs Z" value={formValues.tfsZ !== undefined ? formValues.tfsZ : 1} onValueChange={(e) => setFormValues(formValues => ({...formValues, tfsZ : e[0]}))} min={0} max={1} step={0.1} />
                 </div>
             </section>}
 
