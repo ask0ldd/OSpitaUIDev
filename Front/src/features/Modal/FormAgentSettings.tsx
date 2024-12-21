@@ -5,11 +5,12 @@ import Select, { IOption } from "../CustomSelect/Select";
 import './FormAgentSettings.css'
 import useFetchModelsList from "../../hooks/useFetchModelsList.ts";
 import IFormStructure from "../../interfaces/IAgentFormStructure";
-import picots from '../../assets/sliderpicots.png'
+// import picots from '../../assets/sliderpicots.png'
 import { ChatService } from "../../services/ChatService";
 import useFetchAgentsList from "../../hooks/useFetchAgentsList.ts";
 import { useServices } from "../../hooks/useServices.ts";
 import FormSlider from "../../components/FormSlider.tsx";
+import { LLMParameters } from "../../constants/LLMParameters.ts";
 
 export default function FormAgentSettings({memoizedSetModalStatus, role, triggerAIAgentsListRefresh} : IProps){
 
@@ -155,16 +156,16 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
             setError("System prompt is missing.")
             return false
         }
-        if(!temperature || temperature < 0 || temperature > 2) { 
-            setError("Temperature must be > 0 and <= 2.")
+        if(!temperature || temperature < LLMParameters.temperature.min || temperature > LLMParameters.temperature.max) { 
+            setError(`Temperature must be >= ${LLMParameters.temperature.min} and <= ${LLMParameters.temperature.max}.`)
             return false
         }
-        if(!maxContextLength || maxContextLength < 1024 || maxContextLength > 8388608) { 
-            setError("Context length must be >= 1024 and < 8388609.")
+        if(!maxContextLength || maxContextLength < LLMParameters.maxContextLength.min || maxContextLength > LLMParameters.maxContextLength.max) { 
+            setError(`Context length must be >= ${LLMParameters.maxContextLength.min} and <= ${LLMParameters.maxContextLength.max}.`)
             return false
         }
-        if(!maxTokensPerReply || maxTokensPerReply < 1 || maxTokensPerReply > 128000) { 
-            setError("Max tokens must be >= 1 and < 128000.")
+        if(!maxTokensPerReply || maxTokensPerReply < LLMParameters.maxTokensPerReply.min || maxTokensPerReply > LLMParameters.maxTokensPerReply.max) { 
+            setError(`Max tokens must be >= ${LLMParameters.maxTokensPerReply.min} and <= ${LLMParameters.maxTokensPerReply.max}.`)
             return false
         }
         return true
@@ -234,11 +235,11 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                     className="formInput"
                     spellCheck="false"
                     type="number"
-                    step="0.01" min="0.01" max="2" 
+                    step={LLMParameters.temperature.step} min={LLMParameters.temperature.min} max={LLMParameters.temperature.max} 
                     value={formValues.temperature}
                     onChange={(e) => setFormValues(formValues => ({...formValues, temperature : e.target.value === '' ? 0 : parseFloat(e.target.value)}))}
                     />
-                    <FormSlider ariaLabel="labelTemperature" label="Temperature" value={formValues.temperature} onValueChange={(e) => setFormValues(formValues => ({...formValues, temperature : e[0]}))} max={2} min={0.01} step={0.01} />
+                    <FormSlider ariaLabel="labelTemperature" label="Temperature" value={formValues.temperature} onValueChange={(e) => setFormValues(formValues => ({...formValues, temperature : e[0]}))} max={LLMParameters.temperature.max} min={LLMParameters.temperature.min} step={LLMParameters.temperature.step} />
                 </div>
                 <div/>
                 <div className="inputNSliderContainer">
@@ -248,7 +249,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                         type="number"
                         className="formInput"
                         value={formValues.maxTokensPerReply}
-                        step="1024" min="1024" max="128000" 
+                        step={LLMParameters.maxTokensPerReply.step} min={LLMParameters.maxTokensPerReply.min} max={LLMParameters.maxTokensPerReply.max} 
                         onChange={(e) => setFormValues(formValues => ({...formValues, maxTokensPerReply : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
                     {/*<div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
@@ -263,7 +264,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                             </div>
                         </div>
                     </div>*/}
-                    <FormSlider ariaLabel="labelMaxTokensPerReply" label="Max Tokens" value={formValues.maxTokensPerReply} onValueChange={(e) => setFormValues(formValues => ({...formValues, maxTokensPerReply : e[0]}))} min={1024} max={128000} step={1024} />
+                    <FormSlider ariaLabel="labelMaxTokensPerReply" label="Max Tokens" value={formValues.maxTokensPerReply} onValueChange={(e) => setFormValues(formValues => ({...formValues, maxTokensPerReply : e[0]}))} min={LLMParameters.maxTokensPerReply.min} max={LLMParameters.maxTokensPerReply.max} step={LLMParameters.maxTokensPerReply.step} />
                 </div>
 
                 <label id="labelMaxContextLength" className="formLabel">Max Context Length</label>
@@ -275,12 +276,12 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                         aria-labelledby="labelMaxContextLength" 
                         spellCheck="false" 
                         type="number"
-                        step="128" min="512" max="256000" 
+                        step={LLMParameters.maxContextLength.step} min={LLMParameters.maxContextLength.min} max={LLMParameters.maxContextLength.max} 
                         className="formInput"
                         value={formValues.maxContextLength}
                         onChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
-                    <FormSlider ariaLabel="labelMaxContextLength" label="Max Context Length" value={formValues.maxContextLength} onValueChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : e[0]}))} max={256000} min={512} step={128} />
+                    <FormSlider ariaLabel="labelMaxContextLength" label="Max Context Length" value={formValues.maxContextLength} onValueChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : e[0]}))} max={LLMParameters.maxContextLength.max} min={LLMParameters.maxContextLength.min} step={LLMParameters.maxContextLength.step} />
                 </div>
                 <div/>
                 <div className='webSearchContainer'>
@@ -315,7 +316,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                     className="formInput"
                     spellCheck="false"
                     type="number"
-                    step="0.01" min="0" max="1" 
+                    step={LLMParameters.topP.step} min={LLMParameters.topP.min} max={LLMParameters.topP.max} 
                     value={formValues.topP}
                     onChange={(e) => setFormValues(formValues => ({...formValues, topP : e.target.value === '' ? 0 : parseFloat(e.target.value)}))}
                     />
@@ -331,7 +332,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                             </div>
                         </div>
                     </div>*/}
-                    <FormSlider ariaLabel="labelTopP" label="Top-P" value={formValues.topP !== undefined ? formValues.topP : 0} onValueChange={(e) => setFormValues(formValues => ({...formValues, topP : e[0]}))} min={0} max={1} step={0.01} />
+                    <FormSlider ariaLabel="labelTopP" label="Top-P" value={formValues.topP !== undefined ? formValues.topP : 0} onValueChange={(e) => setFormValues(formValues => ({...formValues, topP : e[0]}))} min={LLMParameters.topP.min} max={LLMParameters.topP.max} step={LLMParameters.topP.step} />
                 </div>
                 <div/>
                 <div className="inputNSliderContainer">
@@ -341,7 +342,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                         type="number"
                         className="formInput"
                         value={formValues.topK}
-                        step="1" min="1" max="200" 
+                        step={LLMParameters.topK.step} min={LLMParameters.topK.min} max={LLMParameters.topK.max} 
                         onChange={(e) => setFormValues(formValues => ({...formValues, topK : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
                     {/*<div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
@@ -356,7 +357,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                             </div>
                         </div>
                     </div>*/}
-                    <FormSlider ariaLabel="labelTopK" label="Top-K" value={formValues.topK !== undefined ? formValues.topK : 40} onValueChange={(e) => setFormValues(formValues => ({...formValues, topK : e[0]}))} min={1} max={200} step={1} />
+                    <FormSlider ariaLabel="labelTopK" label="Top-K" value={formValues.topK !== undefined ? formValues.topK : 40} onValueChange={(e) => setFormValues(formValues => ({...formValues, topK : e[0]}))} min={LLMParameters.topK.min} max={LLMParameters.topK.max} step={LLMParameters.topK.step} />
                 </div>
 
 
@@ -370,23 +371,11 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                     className="formInput"
                     spellCheck="false"
                     type="number"
-                    step="0.01" min="-2" max="2" 
+                    step={LLMParameters.repeatPenalty.step} min={LLMParameters.repeatPenalty.min} max={LLMParameters.repeatPenalty.max}
                     value={formValues.repeatPenalty}
                     onChange={(e) => setFormValues(formValues => ({...formValues, repeatPenalty : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
-                    {/*<div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
-                        <div className="sliderbarContainer">
-                            <div className="sliderTrack">
-                                <div className="slider" style={{marginLeft:'180px'}}>
-                                    <img src={picots} alt="picots" className="sliderPicots"/>
-                                </div>
-                            </div>
-                            <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
-                                <span>Repeat Penalty</span><span>{formValues.repeatPenalty}</span>
-                            </div>
-                        </div>
-                    </div>*/}
-                    <FormSlider ariaLabel="labelRepeatPenalty" label="Repeat Penalty" value={formValues.repeatPenalty !== undefined ? formValues.repeatPenalty : 1.1} onValueChange={(e) => setFormValues(formValues => ({...formValues, repeatPenalty : e[0]}))} min={-2} max={2} step={0.01} />
+                    <FormSlider ariaLabel="labelRepeatPenalty" label="Repeat Penalty" value={formValues.repeatPenalty !== undefined ? formValues.repeatPenalty : 1.1} onValueChange={(e) => setFormValues(formValues => ({...formValues, repeatPenalty : e[0]}))} min={LLMParameters.repeatPenalty.min} max={LLMParameters.repeatPenalty.max} step={LLMParameters.repeatPenalty.step} />
                 </div>
                 <div/>
                 <div className="inputNSliderContainer">
@@ -396,7 +385,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                         type="number"
                         className="formInput"
                         value={formValues.seed}
-                        step="1" min="1" max="200" 
+                        step={LLMParameters.seed.step} min={LLMParameters.seed.min} max={LLMParameters.seed.max}
                         onChange={(e) => setFormValues(formValues => ({...formValues, seed : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
                     {/*<div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
@@ -411,7 +400,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                             </div>
                         </div>
                     </div>*/}
-                    <FormSlider ariaLabel="labelSeed" label="Seed" value={formValues.seed !== undefined ? formValues.seed : 0} onValueChange={(e) => setFormValues(formValues => ({...formValues, seed : e[0]}))} min={0} max={512} step={1} />
+                    <FormSlider ariaLabel="labelSeed" label="Seed" value={formValues.seed !== undefined ? formValues.seed : 0} onValueChange={(e) => setFormValues(formValues => ({...formValues, seed : e[0]}))} min={LLMParameters.seed.min} max={LLMParameters.seed.max} step={LLMParameters.seed.step} />
                 </div>
 
                 <label id="labelRepeatLastN" className="formLabel">Repeat Last N</label>
@@ -424,7 +413,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                     className="formInput"
                     spellCheck="false"
                     type="number"
-                    step="1" min="-1" max="512" 
+                    step={LLMParameters.repeatLastN.step} min={LLMParameters.repeatLastN.min} max={LLMParameters.repeatLastN.max}
                     value={formValues.repeatLastN}
                     onChange={(e) => setFormValues(formValues => ({...formValues, repeatLastN : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
@@ -440,7 +429,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                             </div>
                         </div>
                     </div>*/}
-                    <FormSlider ariaLabel="labelRepeatLastN" label="Repeat Last N" value={formValues.repeatLastN !== undefined ? formValues.repeatLastN : 64} onValueChange={(e) => setFormValues(formValues => ({...formValues, repeatLastN : e[0]}))} min={-1} max={512} step={1} />
+                    <FormSlider ariaLabel="labelRepeatLastN" label="Repeat Last N" value={formValues.repeatLastN !== undefined ? formValues.repeatLastN : 64} onValueChange={(e) => setFormValues(formValues => ({...formValues, repeatLastN : e[0]}))} min={LLMParameters.repeatLastN.min} max={LLMParameters.repeatLastN.max} step={LLMParameters.repeatLastN.step} />
                 </div>
                 <div/>
                 <div className="inputNSliderContainer">
@@ -450,10 +439,10 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                         type="number"
                         className="formInput"
                         value={formValues.tfsZ}
-                        step="0.1" min="0" max="1" 
+                        step={LLMParameters.tfsZ.step} min={LLMParameters.tfsZ.min} max={LLMParameters.tfsZ.max}
                         onChange={(e) => setFormValues(formValues => ({...formValues, tfsZ : e.target.value === '' ? 0 : parseFloat(e.target.value)}))}
                     />
-                    <FormSlider ariaLabel="labelTfsZ" label="Tfs Z" value={formValues.tfsZ !== undefined ? formValues.tfsZ : 1} onValueChange={(e) => setFormValues(formValues => ({...formValues, tfsZ : e[0]}))} min={0} max={1} step={0.1} />
+                    <FormSlider ariaLabel="labelTfsZ" label="Tfs Z" value={formValues.tfsZ !== undefined ? formValues.tfsZ : 1} onValueChange={(e) => setFormValues(formValues => ({...formValues, tfsZ : e[0]}))} min={LLMParameters.tfsZ.min} max={LLMParameters.tfsZ.max} step={LLMParameters.tfsZ.step} />
                 </div>
             </section>}
 
