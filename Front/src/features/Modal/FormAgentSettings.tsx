@@ -9,6 +9,7 @@ import picots from '../../assets/sliderpicots.png'
 import { ChatService } from "../../services/ChatService";
 import useFetchAgentsList from "../../hooks/useFetchAgentsList.ts";
 import { useServices } from "../../hooks/useServices.ts";
+import FormSlider from "../../components/FormSlider.tsx";
 
 export default function FormAgentSettings({memoizedSetModalStatus, role, triggerAIAgentsListRefresh} : IProps){
 
@@ -21,6 +22,22 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
 
     const [webSearchEconomy, setWebSearchEconomy] = useState(true)
     const [error, setError] = useState("")
+
+    const [formValues, setFormValues] = useState<IFormStructure>({
+        agentName : "",
+        modelName : "",
+        systemPrompt : "",
+        temperature : 0.8,
+        maxContextLength : 2048,
+        maxTokensPerReply : 1024,
+        webSearchEconomy : false,
+        topP : 0.9,
+        topK : 40,
+        repeatPenalty : 1.1,
+        seed : 0,
+        repeatLastN : 64,
+        tfsZ : 1,
+    })
 
     useEffect(() => {
         async function retrieveAgent(agentName : string) {
@@ -46,22 +63,6 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
 
         retrieveAgent(ChatService.getActiveAgent().getName())
     }, [])
-
-    const [formValues, setFormValues] = useState<IFormStructure>({
-        agentName : "",
-        modelName : "",
-        systemPrompt : "",
-        temperature : 0.8,
-        maxContextLength : 2048,
-        maxTokensPerReply : 1024,
-        webSearchEconomy : false,
-        topP : 0.9,
-        topK : 40,
-        repeatPenalty : 1.1,
-        seed : 0,
-        repeatLastN : 64,
-        tfsZ : 1,
-    })
 
     const [activeOptionsSet, setActiveOptionsSet] = useState(0)
 
@@ -237,18 +238,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                     value={formValues.temperature}
                     onChange={(e) => setFormValues(formValues => ({...formValues, temperature : e.target.value === '' ? 0 : parseFloat(e.target.value)}))}
                     />
-                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
-                        <div className="sliderbarContainer">
-                            <div className="sliderTrack">
-                                <div className="slider" style={{marginLeft:'180px'}}>
-                                    <img src={picots} alt="picots" className="sliderPicots"/>
-                                </div>
-                            </div>
-                            <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
-                                <span>Temperature</span><span>{formValues.temperature}</span>
-                            </div>
-                        </div>
-                    </div>
+                    <FormSlider ariaLabel="temperature" label="Temperature" value={formValues.temperature} onValueChange={(e) => setFormValues(formValues => ({...formValues, temperature : e[0]}))} max={1} min={0.1} step={0.01} />
                 </div>
                 <div/>
                 <div className="inputNSliderContainer">
@@ -260,7 +250,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                         value={formValues.maxTokensPerReply}
                         onChange={(e) => setFormValues(formValues => ({...formValues, maxTokensPerReply : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
-                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                    {/*<div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
                         <div className="sliderbarContainer">
                             <div className="sliderTrack">
                                 <div className="slider" style={{marginLeft:'110px'}}>
@@ -271,7 +261,8 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                                 <span>Max Tokens</span><span>{formValues.maxTokensPerReply}</span>
                             </div>
                         </div>
-                    </div>
+                    </div>*/}
+                    <FormSlider ariaLabel="maxTokens" label="Max Tokens" value={formValues.maxTokensPerReply} onValueChange={(e) => setFormValues(formValues => ({...formValues, maxTokensPerReply : e[0]}))} min={1024} max={128000} step={1024} />
                 </div>
 
                 <label id="labelMaxContextLength" className="formLabel">Max Context Length</label>
@@ -288,18 +279,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                         value={formValues.maxContextLength}
                         onChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
-                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
-                        <div className="sliderbarContainer">
-                            <div className="sliderTrack">
-                                <div className="slider" style={{marginLeft:'50px'}}>
-                                    <img src={picots} alt="picots" className="sliderPicots"/>
-                                </div>
-                            </div>
-                            <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
-                                <span>Context Length</span><span>{formValues.maxContextLength}</span>
-                            </div>
-                        </div>
-                    </div>
+                    <FormSlider ariaLabel="maxContextLength" label="Max Context Length" value={formValues.maxContextLength} onValueChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : e[0]}))} max={256000} min={512} step={128} />
                 </div>
                 <div/>
                 <div className='webSearchContainer'>
