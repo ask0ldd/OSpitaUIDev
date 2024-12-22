@@ -16,7 +16,9 @@ export class AIAgent extends AIModel implements Observer {
     #targetFilesNames : string[] = []
     #webSearchEconomy: boolean = false
     #observers : (AIAgent | ProgressTracker)[] = []
+    #onUpdate?: (state: unknown) => Promise<ICompletionResponse | string | undefined>
 
+    // !!!! should receive a callback that will be used on update
     constructor({
         id,
         name, 
@@ -55,6 +57,7 @@ export class AIAgent extends AIModel implements Observer {
         use_mlock = false,
         num_thread = 8,
         targetFilesNames = [],
+        onUpdate = undefined,
     } : IAIModelParams & IAIAgentPartialParams)
     {
         super({
@@ -96,6 +99,7 @@ export class AIAgent extends AIModel implements Observer {
         this.#favorite = favorite
         this.#targetFilesNames = targetFilesNames
         this.#webSearchEconomy = webSearchEconomy
+        this.#onUpdate = onUpdate
         return this
     }
 
@@ -235,12 +239,37 @@ export class AIAgent extends AIModel implements Observer {
             use_mlock: this.getUseMlock(),
             num_thread: this.getNumThread(),
         })
+       // return Object.create(this)
     }
 
     // Observer methods / observer[0] -> AIAgent, observer[1] -> ProgressTracker
-    async update(data : string) : Promise<ICompletionResponse | undefined> {
+    async update(response: unknown): Promise<ICompletionResponse | string | undefined> {
+        try {
+            let result: ICompletionResponse | string | undefined
+    
+            if (this.#onUpdate) {
+                result = await this.#onUpdate(response)
+            } else {
+                if (typeof response !== "string") {
+                    throw new Error("State must be a string when no callback is defined")
+                }
+                result = await this.defaultAskLLMCallback(response)
+            }
+    
+            if (result && this.#observers.length > 0) {
+                return this.notifyObservers(result)
+            }
+    
+            return result
+        } catch (error) {
+            console.error(`Error when trying to update the agent ${this.#name} :`, error)
+            return undefined
+        }
+    }
+
+    async defaultAskLLMCallback(query : string) : Promise<ICompletionResponse | string | undefined>{
         try{
-            const response = await this.ask(data)
+            const response = await this.ask(query)
             // if there is no observer listening to this agent (last agent of the chain)
             if(this.#observers.length < 1) return response
             // if there is at least an observer
@@ -257,12 +286,12 @@ export class AIAgent extends AIModel implements Observer {
 
     // notify the next agent in the chain
     // & the chainProgressTracker
-    notifyObservers(response : ICompletionResponse) {
+    notifyObservers(response : ICompletionResponse | string) {
         this.#observers.forEach(observer => {
             if(observer instanceof ProgressTracker) observer.update(response)
         })
         for(const observer of this.#observers){
-            if(observer instanceof AIAgent) return observer.update(response.response)
+            if(observer instanceof AIAgent) return observer.update((typeof(response) === "object" && 'response' in response) ? response.response : response)
         }
         return undefined
     }
