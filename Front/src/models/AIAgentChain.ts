@@ -5,11 +5,11 @@ import { AIAgent } from "./AIAgent";
 import { Observer } from "./Observer";
 
 export class ProgressTracker implements Observer {
-    private results : ICompletionResponse[] = []
+    private results : (ICompletionResponse | string)[] = []
   
-    update(response : ICompletionResponse): void {
+    update(response : ICompletionResponse | string): void {
       this.results.push(response)
-      console.log("progressTrackerState : " + response.response)
+      console.log("progressTrackerState : " + (typeof response === 'object' && 'response' in response ? response.response : response))
     }
 
     reset(){
@@ -59,7 +59,7 @@ export default class AIAgentChain{
         return this.agents.length === 0
     }
 
-    static async process(query : string) : Promise<ICompletionResponse | undefined>{
+    static async process(query : string) : Promise<ICompletionResponse | string | undefined>{
         try{
             this.progressTracker.reset()
             console.log("starting chain process")
