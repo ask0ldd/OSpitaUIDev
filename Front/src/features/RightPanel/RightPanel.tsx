@@ -15,6 +15,7 @@ import { useImagesStore } from '../../hooks/stores/useImagesStore.ts'
 import AICharacter from '../../models/AICharacter.ts'
 import RoleplayPanel from './RoleplayPanel.tsx'
 import { TRightMenuOptions } from '../../interfaces/TRightMenuOptions.ts'
+import SettingsPanel from './SettingsPanel.tsx'
 
 const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreaming, activeMenuItemRef, setActiveMenuItem} : IProps) => {
 
@@ -42,7 +43,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
     // refresh the form if agentList state changes + set helpfulAssistant as the default agent
     useEffect(() => {
         async function setDefaultAgent() {
-            console.log("defaultAgent")
+            // console.log("defaultAgent")
             await handleSwitchAgent({label: 'helpfulAssistant', value: 'helpfulAssistant'})
         }
 
@@ -171,11 +172,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
 
     if(activeMenuItemRef.current == "settings") return (<aside className="rightDrawer">
         <RightMenu handleMenuItemClick={handleMenuItemClick} isStreaming={isStreaming}/>
-        <article className='comingSoonContainer'>
-            <span className='comingSoon' style={{textAlign:'center', width:'100%'}}>
-                Coming Soon
-            </span>
-        </article>
+        <SettingsPanel/>
     </aside>)
 
     if(activeMenuItemRef.current == "chain") return(
