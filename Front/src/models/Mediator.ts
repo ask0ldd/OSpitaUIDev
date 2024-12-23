@@ -1,3 +1,5 @@
+import IMediatorUpdateParams from "../interfaces/params/IMediatorUpdateParams";
+import { ICompletionResponse } from "../interfaces/responses/ICompletionResponse";
 import { AIAgent } from "./AIAgent";
 import { ProgressTracker } from "./AIAgentChain";
 import { Observer } from "./Observer";
@@ -15,23 +17,24 @@ class Mediator implements Observer{
         if(!this.#requiredNodesIds.includes(nodeId)) this.#requiredNodesIds.push(nodeId)
     }
 
-    update({sourceNode, data} : {sourceNode : string, data : unknown}) : void {
+    async update({sourceNode, data} : IMediatorUpdateParams) : Promise<ICompletionResponse | string | undefined | void> {
         if(this.#requiredNodesIds.includes(sourceNode)) this.#state = {...this.#state, [sourceNode] : data}
-        if(this.allKeyExist()) this.notifyObservers()
+        // notify the observers only when the data from the last source node has been collected
+        if(this.allNodesResultsReceived()) return await this.notifyObservers() 
     }
 
-    addObserver(observer : AIAgent | ProgressTracker ) {
+    addObserver(observer : AIAgent | ProgressTracker) {
         this.#observers.push(observer);
     }
 
-    notifyObservers() {
+    async notifyObservers() : Promise<ICompletionResponse | string | undefined | void> {
         for(const observer of this.#observers){
-            if(observer instanceof AIAgent) return observer.update(this.#state)
+            if(observer instanceof AIAgent) return observer.update(JSON.stringify(this.#state))
         }
         return undefined
     }
 
-    allKeyExist() : boolean {
+    allNodesResultsReceived() : boolean {
         return this.#requiredNodesIds.every(id => id in this.#state)
     }
 }

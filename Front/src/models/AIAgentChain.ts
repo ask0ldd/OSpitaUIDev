@@ -59,7 +59,7 @@ export default class AIAgentChain{
         return this.agents.length === 0
     }
 
-    static async process(query : string) : Promise<ICompletionResponse | string | undefined>{
+    static async process(query : string) : Promise<ICompletionResponse | string | void>{
         try{
             this.progressTracker.reset()
             console.log("starting chain process")
