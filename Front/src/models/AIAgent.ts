@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-unused-private-class-members */
 import IAIAgentPartialParams from "../interfaces/params/IAIAgentPartialParams.js"
@@ -5,9 +6,12 @@ import { IAIModelParams } from "../interfaces/params/IAIModelParams.js"
 import { ICompletionResponse } from "../interfaces/responses/ICompletionResponse.js"
 import { ProgressTracker } from "./AIAgentChain.js"
 import { AIModel } from "./AIModel.js"
+import Mediator from "./Mediator.js"
 import { Observer } from "./Observer.js"
 
 export class AIAgent extends AIModel implements Observer {
+
+    // !!! user should be able to add a regex verifying the quality of the output
 
     #id : string
     #name : string
@@ -15,12 +19,11 @@ export class AIAgent extends AIModel implements Observer {
     #favorite : boolean = false
     #targetFilesNames : string[] = []
     #webSearchEconomy: boolean = false
-    #observers : (AIAgent | ProgressTracker)[] = []
-    #onUpdate?: (state: unknown) => Promise<ICompletionResponse | string | undefined>
+    #observers : (AIAgent | Mediator | ProgressTracker)[] = []
+    #onUpdate?: (state: string, systemPrompt? : string) => Promise<ICompletionResponse | string | void>
 
-    // !!!! should receive a callback that will be used on update
     constructor({
-        id,
+        id = "",
         name, 
         modelName = "llama3.1:8b", 
         systemPrompt = "You are an helpful assistant.", 
@@ -178,6 +181,13 @@ export class AIAgent extends AIModel implements Observer {
         )
     }
 
+    onUpdate(callback : (state: string) => Promise<ICompletionResponse | string | void >){
+        /*const boundCallback = (state : string) => {
+            return callback.call(this, state)
+        }*/
+        this.#onUpdate = callback //boundCallback
+    }
+
     toObject(){
         return({
             id : this.getId(),
@@ -243,54 +253,53 @@ export class AIAgent extends AIModel implements Observer {
     }
 
     // Observer methods / observer[0] -> AIAgent, observer[1] -> ProgressTracker
-    async update(response: unknown): Promise<ICompletionResponse | string | undefined> {
+    async update(response: string): Promise<ICompletionResponse | string | void> {
         try {
-            let result: ICompletionResponse | string | undefined
+            let result: ICompletionResponse | string | void
     
+            // if the onUpdate callback has been defined, use it
             if (this.#onUpdate) {
                 result = await this.#onUpdate(response)
             } else {
-                if (typeof response !== "string") {
-                    throw new Error("State must be a string when no callback is defined")
-                }
+                // if not, LLM.ask
                 result = await this.defaultAskLLMCallback(response)
             }
     
             if (result && this.#observers.length > 0) {
-                return this.notifyObservers(result)
+                return await this.notifyObservers(result)
             }
     
             return result
         } catch (error) {
             console.error(`Error when trying to update the agent ${this.#name} :`, error)
-            return undefined
         }
     }
 
-    async defaultAskLLMCallback(query : string) : Promise<ICompletionResponse | string | undefined>{
+    async defaultAskLLMCallback(query : string) : Promise<ICompletionResponse | string | void>{
         try{
             const response = await this.ask(query)
             // if there is no observer listening to this agent (last agent of the chain)
             if(this.#observers.length < 1) return response
             // if there is at least an observer
-            return this.notifyObservers(response)
+            return await this.notifyObservers(response)
         }catch(error){
             console.error(error)
             throw error
         }
     }
 
-    addObserver(observer : AIAgent | ProgressTracker ) {
+    addObserver(observer : AIAgent | Mediator | ProgressTracker ) {
         this.#observers.push(observer);
     }
 
     // notify the next agent in the chain
     // & the chainProgressTracker
-    notifyObservers(response : ICompletionResponse | string) {
+    async notifyObservers(response : ICompletionResponse | string) : Promise<ICompletionResponse | string | void> {
         this.#observers.forEach(observer => {
             if(observer instanceof ProgressTracker) observer.update(response)
         })
         for(const observer of this.#observers){
+            if(observer instanceof Mediator) return observer.update((typeof(response) === "object" && 'response' in response) ? {sourceNode : this.#name, data : response.response} : {sourceNode : this.#name, data : response})
             if(observer instanceof AIAgent) return observer.update((typeof(response) === "object" && 'response' in response) ? response.response : response)
         }
         return undefined

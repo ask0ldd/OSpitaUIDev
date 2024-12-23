@@ -1,11 +1,11 @@
 import { ICompletionResponse } from "../responses/ICompletionResponse"
 
 interface IAIAgentPartialParams{
-    id : string
+    id? : string
     name : string
-    type : "system" | "user_created"
-    favorite : boolean
-    onUpdate? : (state : unknown) => Promise<ICompletionResponse | string | undefined>
+    type? : "system" | "user_created"
+    favorite? : boolean
+    onUpdate? : (state : string, systemPrompt? : string) => Promise<ICompletionResponse | string | undefined>
     targetFilesNames?: string[]
     webSearchEconomy? : boolean
 }
