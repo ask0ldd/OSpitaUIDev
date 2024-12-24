@@ -1,6 +1,7 @@
 import IRAGChunkResponse from "../interfaces/responses/IRAGChunkResponse"
 import { AIModel } from "../models/AIModel"
 import { ChatService } from "./ChatService"
+import { split } from 'sentence-splitter'
 
 class DocProcessorService{
 
@@ -29,6 +30,27 @@ class DocProcessorService{
             }
         }
         return sequences
+    }
+
+    /*static sentencesSplitter(text : string){
+        const segmenter = new (Intl as any).Segmenter('en', { granularity: 'sentence' });
+        const sentences = Array.from(segmenter.segment(text), (s : SegmentResult) => s?.segment ? s.segment.trim() : undefined);
+        console.log(sentences);
+    }*/
+
+    static sentencesSplitter2(text : string){
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const sentences = split(text);
+
+        // Process sentences for LLM input
+        const processedSentences = sentences.map(node => {
+        if (node.type === 'Sentence') {
+            return node.raw.trim();
+        }
+        return '';
+        }).filter(Boolean);
+
+        console.log(JSON.stringify(processedSentences));
     }
 
     static async getEmbeddingsForChunk(chunk : string) : Promise<{text : string, embeddings : number[]}> {
