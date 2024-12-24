@@ -279,17 +279,22 @@ export class AIAgent extends AIModel implements Observer {
         try{
             const response = await this.ask(query)
             // if there is no observer listening to this agent (last agent of the chain)
-            if(this.#observers.length < 1) return response
+            // if(this.#observers.length < 1) return response
             // if there is at least an observer
-            return await this.notifyObservers(response)
+            // return await this.notifyObservers(response)
+            return response
         }catch(error){
-            console.error(error)
+            console.error('Error while trying to communicate with the model : ', error)
             throw error
         }
     }
 
     addObserver(observer : AIAgent | Mediator | ProgressTracker ) {
         this.#observers.push(observer);
+    }
+
+    getObservers(){
+        return this.#observers
     }
 
     // notify the next agent in the chain
@@ -327,4 +332,129 @@ Verbose (optional)	Setting this to True configures the internal logger to provid
 Allow Delegation (optional)	Agents can delegate tasks or questions to one another, ensuring that each task is handled by the most suitable agent. Default is True.
 Step Callback (optional)	A function that is called after each step of the agent. This can be used to log the agent's actions or to perform other operations. It will overwrite the crew step_callback.
 Cache (optional)	Indicates if the agent should use a cache for tool usage. Default is True.
+*/
+
+/*
+interface ModelParams {
+  id: string;
+  name: string;
+  modelName: string;
+  systemPrompt: string;
+  temperature: number;
+  mirostat: number;
+  mirostat_eta: number;
+  mirostat_tau: number;
+}
+
+interface ContextParams {
+  context: any[];
+  num_ctx: number;
+  repeat_last_n: number;
+  repeat_penalty: number;
+  seed: number;
+  stop: string[];
+}
+
+interface PredictionParams {
+  tfs_z: number;
+  num_predict: number;
+  top_k: number;
+  top_p: number;
+}
+
+interface AgentParams {
+  type: string;
+  favorite: boolean;
+  webSearchEconomy: boolean;
+  min_p: number;
+  num_keep: number;
+  typical_p: number;
+  presence_penalty: number;
+  frequency_penalty: number;
+  penalize_newline: boolean;
+}
+
+interface HardwareParams {
+  numa: boolean;
+  num_batch: number;
+  num_gpu: number;
+  main_gpu: number;
+  low_vram: boolean;
+  vocab_only: boolean;
+  use_mmap: boolean;
+  use_mlock: boolean;
+  num_thread: number;
+}
+
+constructor({
+  modelParams = {
+    id: "",
+    name: "",
+    modelName: "llama3.1:8b",
+    systemPrompt: "You are an helpful assistant.",
+    temperature: 0.8,
+    mirostat: 0,
+    mirostat_eta: 0.1,
+    mirostat_tau: 5.0,
+  },
+  contextParams = {
+    context: [],
+    num_ctx: 2048,
+    repeat_last_n: 64,
+    repeat_penalty: 1.1,
+    seed: 0,
+    stop: ["\n", "user:", "AI assistant:"],
+  },
+  predictionParams = {
+    tfs_z: 1,
+    num_predict: 1024,
+    top_k: 40,
+    top_p: 0.9,
+  },
+  agentParams = {
+    type: "user_created",
+    favorite: false,
+    webSearchEconomy: false,
+    min_p: 0.0,
+    num_keep: 5,
+    typical_p: 0.7,
+    presence_penalty: 1.5,
+    frequency_penalty: 1.0,
+    penalize_newline: true,
+  },
+  hardwareParams = {
+    numa: false,
+    num_batch: 2,
+    num_gpu: 1,
+    main_gpu: 0,
+    low_vram: false,
+    vocab_only: false,
+    use_mmap: true,
+    use_mlock: false,
+    num_thread: 8,
+  },
+  targetFilesNames = [],
+  onUpdate = undefined,
+  searchRequest,
+}: {
+  modelParams: ModelParams;
+  contextParams: ContextParams;
+  predictionParams: PredictionParams;
+  agentParams: AgentParams;
+  hardwareParams: HardwareParams;
+  targetFilesNames: any[];
+  onUpdate: any;
+  searchRequest: string;
+}) {
+  super({
+    ...modelParams,
+    ...contextParams,
+    ...predictionParams,
+    ...agentParams,
+    ...hardwareParams,
+    targetFilesNames,
+    onUpdate,
+  });
+  this.#searchRequest = searchRequest;
+}
 */
