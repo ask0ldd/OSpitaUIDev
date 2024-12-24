@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useRef } from "react"
-import { AIAgent } from "../../models/AIAgent"
-import AIAgentsLine from "../../models/AIAgentsLine"
+import AINodesChain from "../../models/nodes/AINodesChain"
+import { AIAgentNew } from "../../models/nodes/AIAgentNew"
+import DocProcessorService from "../../services/DocProcessorService"
 
 function SettingsPanel(){
 
@@ -9,7 +10,7 @@ function SettingsPanel(){
 
     useEffect(() => {
         if(firstLoad.current == false) return
-        const startingRequest = `name of random langage of programmation. strict rule : provide only the name.`
+        /*const startingRequest = `name of random langage of programmation. strict rule : provide only the name.`
         // initiate the agents line
         const agentLine = new AIAgentsLine([
             new AIAgent({name : "agentLg1", modelName : 'llama3.2:3b'}),
@@ -34,7 +35,16 @@ function SettingsPanel(){
             console.log(response.response)
         })
         // ask the line to act
-        agentLine.update(startingRequest) // executing the whole line
+        agentLine.update(startingRequest) // executing the whole line*/
+        const agentWriter = new AIAgentNew({name : "agentWriter", modelName : 'llama3.2:3b', systemPrompt : 'write a 50 lines short story with this theme : '})
+        const agentSummarizer = new AIAgentNew({name : "agentSummarizer", modelName : 'llama3.2:3b', systemPrompt : 'summarize the following story in 5 lines : '})
+        agentWriter.addObserver(agentSummarizer)
+        const agentsChain = new AINodesChain({startNode : agentWriter, endNode : agentSummarizer})
+        const result = agentsChain.process("heroic fantasy")
+
+        const text = `Allow miles wound place the leave had. To sitting subject no improve studied limited. Ye indulgence unreserved connection alteration appearance my an astonished. Up as seen sent make he they of. Her raising and himself pasture believe females. Fancy she stuff after aware merit small his. Charmed esteems luckily age out.`
+        DocProcessorService.sentencesSplitter2(text)
+
         firstLoad.current = false
     }, [])
 
