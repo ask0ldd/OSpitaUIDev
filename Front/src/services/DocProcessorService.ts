@@ -1,3 +1,4 @@
+import { IEmbeddingResponse } from "../interfaces/responses/IEmbeddingResponse"
 import IRAGChunkResponse from "../interfaces/responses/IRAGChunkResponse"
 import { AIModel } from "../models/AIModel"
 import { ChatService } from "./ChatService"
@@ -7,12 +8,12 @@ class DocProcessorService{
 
     static embeddingModel = new AIModel({modelName : "nomic-embed-text"})
 
-    static async processTextFile(fileContent : string) : Promise<{text : string, embeddings : number[]}[]>{
+    static async processTextFile(fileContent : string) : Promise<{text : string, embedding : number[]}[]>{
         const chunks = this.splitTextIntoChunks(fileContent, 600 /* words */)
         const chunksEmbeddings = []
         for (const chunk of chunks) {
-            const embeddings = (await this.embeddingModel.askEmbeddingsFor(chunk)).embedding
-            chunksEmbeddings.push({text : chunk, embeddings : embeddings})
+            const embedding = (await this.embeddingModel.askEmbeddingsFor(chunk)).embedding
+            chunksEmbeddings.push({text : chunk, embedding : embedding})
         }
         return chunksEmbeddings
     }
@@ -38,24 +39,30 @@ class DocProcessorService{
         console.log(sentences);
     }*/
 
-    static sentencesSplitter2(text : string){
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    static sentencesSplitter(text : string) : string[]{
         const sentences = split(text);
-
         // Process sentences for LLM input
-        const processedSentences = sentences.map(node => {
+        const extractedSentences = sentences.map(node => {
         if (node.type === 'Sentence') {
-            return node.raw.trim();
+            return node.raw.trim()
         }
-        return '';
-        }).filter(Boolean);
+        return ''
+        }).filter(Boolean)
 
-        console.log(JSON.stringify(processedSentences));
+        console.log(JSON.stringify(extractedSentences))
+        return extractedSentences
     }
 
-    static async getEmbeddingsForChunk(chunk : string) : Promise<{text : string, embeddings : number[]}> {
+    static getCosineSimilarity(vecA : number[], vecB : number[]) {
+        const dotProduct = vecA.reduce((sum, a, i) => sum + a * vecB[i], 0)
+        const magnitudeA = Math.sqrt(vecA.reduce((sum, a) => sum + a * a, 0))
+        const magnitudeB = Math.sqrt(vecB.reduce((sum, b) => sum + b * b, 0))
+        return dotProduct / (magnitudeA * magnitudeB)
+    }
+
+    static async getEmbeddingsForChunk(chunk : string) : Promise<{text : string} & IEmbeddingResponse> {
         const embeddings = (await this.embeddingModel.askEmbeddingsFor(this.toTelegraphicText(chunk))).embedding
-        return {text  : chunk, embeddings : this.normalizeVector(embeddings)}
+        return {text  : chunk, embedding : this.normalizeVector(embeddings)}
     }
 
     static normalizeVector(vector : number[]) {
