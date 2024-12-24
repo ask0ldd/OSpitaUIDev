@@ -6,10 +6,25 @@ import { Observer } from "./Observer";
 
 export class ProgressTracker implements Observer {
     private results : (ICompletionResponse | string)[] = []
+    #name : string
+
+    constructor(){
+        this.#name = this.generateUniqueName()
+    }
+
+    generateUniqueName(): string {
+        const timestamp = Date.now().toString(36);
+        const randomPart = Math.random().toString(36).substr(2);
+        return `${timestamp}${randomPart}`;
+    }
+
+    getName() : string{
+        return this.#name
+    }
   
     update(response : ICompletionResponse | string): void {
       this.results.push(response)
-      console.log("progressTrackerState : " + (typeof response === 'object' && 'response' in response ? response.response : response))
+      console.log("progressTrackerState : \n\n" + (typeof response === 'object' && 'response' in response ? response.response : response))
     }
 
     reset(){

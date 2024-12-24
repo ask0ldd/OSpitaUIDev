@@ -8,9 +8,21 @@ class Mediator implements Observer{
     #requiredNodesIds : string[] = []
     #observers : (AIAgent | ProgressTracker)[] = []
     #state : {[requiredNode : string] : unknown} = {}
+    #name : string
 
     constructor({requiredNodesIds} : {requiredNodesIds : string[]}){
         this.#requiredNodesIds = requiredNodesIds
+        this.#name = this.generateUniqueName()
+    }
+
+    generateUniqueName(): string {
+        const timestamp = Date.now().toString(36);
+        const randomPart = Math.random().toString(36).substr(2);
+        return `${timestamp}${randomPart}`;
+    }
+
+    getName() : string{
+        return this.#name
     }
 
     addSource(nodeId : string){
@@ -25,6 +37,10 @@ class Mediator implements Observer{
 
     addObserver(observer : AIAgent | ProgressTracker) {
         this.#observers.push(observer);
+    }
+
+    getObservers(){
+        return this.#observers
     }
 
     async notifyObservers() : Promise<ICompletionResponse | string | undefined | void> {
