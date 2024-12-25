@@ -65,6 +65,17 @@ class DocProcessorService{
         return {text  : chunk, embedding : this.normalizeVector(embeddings)}
     }
 
+    static async semanticChunking(text : string, threshold : number){
+        const sentences = this.sentencesSplitter(text)
+        const embedSentences : { text: string, embedding : number[] } [] = []
+        for(const sentence of sentences){
+            const embedSentence = await this.getEmbeddingsForChunk(sentence)
+            embedSentences.push({text : embedSentence.text.replace(/\s+/g, ' '), embedding : embedSentence.embedding})
+        }
+        console.log(embedSentences.length)
+        return await this.sentencesGroupingBySimilarity(embedSentences, threshold)
+    }
+
     static async sentencesGroupingBySimilarity(embedSentences : {text : string, embedding : number[]}[], threshold : number){
         const groupedSentences = []
         let concatSentence = ""
