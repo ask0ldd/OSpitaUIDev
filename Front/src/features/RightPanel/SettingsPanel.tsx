@@ -20,12 +20,12 @@ function SettingsPanel(){
 
             // const text = `Allow miles wound place the leave had. To sitting subject no improve studied limited. Ye indulgence unreserved connection alteration appearance my an astonished. Up as seen sent make he they of. Her raising and himself pasture believe females. Fancy she stuff after aware merit small his. Charmed esteems luckily age out.`
 
-            const similarityThreshold = 0.7
+            const similarityThreshold = 0.1
             const sentences = DocProcessorService.sentencesSplitter(text)
             const embedSentences : { text: string, embedding : number[] } [] = []
             for(const sentence of sentences){
                 const embedSentence = await DocProcessorService.getEmbeddingsForChunk(sentence)
-                embedSentences.push(embedSentence)
+                embedSentences.push({text : embedSentence.text.replace(/\s+/g, ' '), embedding : embedSentence.embedding})
             }
             console.log(embedSentences.length)
             /*const groupedSentences = embedSentences.reduce((acc : string[], sentence, index, array) => {
@@ -36,15 +36,15 @@ function SettingsPanel(){
                 }
                 return acc
             }, [])*/
+            
             const groupedSentences = []
+            let concatSentence = ""
             if (embedSentences.length > 2){
-                let concatSentence = embedSentences[0].text
+                concatSentence = embedSentences[0].text
                 for(let i = 0; i < embedSentences.length-2; i++){
                     console.log(DocProcessorService.getCosineSimilarity(embedSentences[i].embedding, embedSentences[i+2].embedding))
                     if(DocProcessorService.getCosineSimilarity(embedSentences[i].embedding, embedSentences[i+2].embedding) > similarityThreshold) {
-                        concatSentence += embedSentences[i+1].text
-                        concatSentence += embedSentences[i+2].text
-                        i++
+                        concatSentence += embedSentences[i+1].text + embedSentences[i+2].text
                         i++
                         continue
                     }
@@ -60,6 +60,7 @@ function SettingsPanel(){
                     groupedSentences.push(concatSentence)
                     concatSentence = embedSentences[i+1].text
                 }
+                groupedSentences.push(concatSentence)
             }
 
             console.log(JSON.stringify(groupedSentences))
