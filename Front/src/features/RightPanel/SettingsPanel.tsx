@@ -20,7 +20,7 @@ function SettingsPanel(){
 
             // const text = `Allow miles wound place the leave had. To sitting subject no improve studied limited. Ye indulgence unreserved connection alteration appearance my an astonished. Up as seen sent make he they of. Her raising and himself pasture believe females. Fancy she stuff after aware merit small his. Charmed esteems luckily age out.`
 
-            const similarityThreshold = 0.1
+            const similarityThreshold = 0.7
             const sentences = DocProcessorService.sentencesSplitter(text)
             const embedSentences : { text: string, embedding : number[] } [] = []
             for(const sentence of sentences){
@@ -28,35 +28,30 @@ function SettingsPanel(){
                 embedSentences.push({text : embedSentence.text.replace(/\s+/g, ' '), embedding : embedSentence.embedding})
             }
             console.log(embedSentences.length)
-            /*const groupedSentences = embedSentences.reduce((acc : string[], sentence, index, array) => {
-                if(index == 0 || DocProcessorService.getCosineSimilarity(array[index-1].embedding, array[index].embedding) < similarityThreshold ) {
-                    acc.push(sentence.text)
-                } else {
-                    acc[acc.length-1] += sentence.text
-                }
-                return acc
-            }, [])*/
             
             const groupedSentences = []
             let concatSentence = ""
-            if (embedSentences.length > 2){
+            if (embedSentences.length > 0){
                 concatSentence = embedSentences[0].text
-                for(let i = 0; i < embedSentences.length-2; i++){
-                    console.log(DocProcessorService.getCosineSimilarity(embedSentences[i].embedding, embedSentences[i+2].embedding))
-                    if(DocProcessorService.getCosineSimilarity(embedSentences[i].embedding, embedSentences[i+2].embedding) > similarityThreshold) {
+                for(let i = 0; i < embedSentences.length - 1; i++){
+                    // console.log(DocProcessorService.getCosineSimilarity(embedSentences[i].embedding, embedSentences[i+2].embedding))
+                    // is there 3 elements left? how similar are they?
+                    if(i < embedSentences.length - 3 && DocProcessorService.getCosineSimilarity(embedSentences[i].embedding, embedSentences[i+2].embedding) > similarityThreshold) 
+                    {
                         concatSentence += embedSentences[i+1].text + embedSentences[i+2].text
                         i++
                         continue
                     }
-
-                    if(DocProcessorService.getCosineSimilarity(embedSentences[i].embedding, embedSentences[i+1].embedding) > similarityThreshold) {
+                    // is there 2 elements left? how similar are they?
+                    if(i < embedSentences.length - 2 && DocProcessorService.getCosineSimilarity(embedSentences[i].embedding, embedSentences[i+1].embedding) > similarityThreshold) 
+                    {
                         concatSentence += embedSentences[i+1].text
                         groupedSentences.push(concatSentence)
                         concatSentence = embedSentences[i+2].text
                         i++
                         continue
                     }
-                        
+                    
                     groupedSentences.push(concatSentence)
                     concatSentence = embedSentences[i+1].text
                 }
