@@ -29,7 +29,7 @@ function SettingsPanel(){
             }
             console.log(embedSentences.length)
             
-            const groupedSentences = []
+            /*const groupedSentences = []
             let concatSentence = ""
             if (embedSentences.length > 0){
                 concatSentence = embedSentences[0].text
@@ -56,12 +56,14 @@ function SettingsPanel(){
                     concatSentence = embedSentences[i+1].text
                 }
                 groupedSentences.push(concatSentence)
-            }
+            }*/
+
+            const groupedSentences = await DocProcessorService.sentencesGroupingBySimilarity(embedSentences, 0.7)
 
             console.log(JSON.stringify(groupedSentences))
             console.log(groupedSentences.length)
-            console.log(embedSentences.reduce((acc, sentence) => acc + sentence.text, "").length)
-            console.log(groupedSentences.reduce((acc, sentence) => acc + sentence, "").length)
+            // console.log(embedSentences.reduce((acc, sentence) => acc + sentence.text, "").length)
+            // console.log(groupedSentences.reduce((acc, sentence) => acc + sentence, "").length)
         }
 
         effect()

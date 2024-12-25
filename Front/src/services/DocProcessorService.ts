@@ -65,6 +65,48 @@ class DocProcessorService{
         return {text  : chunk, embedding : this.normalizeVector(embeddings)}
     }
 
+    static async sentencesGroupingBySimilarity(embedSentences : {text : string, embedding : number[]}[], threshold : number){
+        const groupedSentences = []
+        let concatSentence = ""
+        if (embedSentences.length > 0){
+            concatSentence = embedSentences[0].text
+            for(let i = 0; i < embedSentences.length - 1; i++){
+                // console.log(DocProcessorService.getCosineSimilarity(embedSentences[i].embedding, embedSentences[i+2].embedding))
+                // is there 3 elements left? how similar are they?
+                if(i < embedSentences.length - 3 && DocProcessorService.getCosineSimilarity(embedSentences[i].embedding, embedSentences[i+2].embedding) > threshold) 
+                {
+                    concatSentence += embedSentences[i+1].text + embedSentences[i+2].text
+                    i++
+                    continue
+                }
+                // is there 2 elements left? how similar are they?
+                if(i < embedSentences.length - 2 && DocProcessorService.getCosineSimilarity(embedSentences[i].embedding, embedSentences[i+1].embedding) > threshold) 
+                {
+                    concatSentence += embedSentences[i+1].text
+                    groupedSentences.push(concatSentence)
+                    concatSentence = embedSentences[i+2].text
+                    i++
+                    continue
+                }
+                
+                groupedSentences.push(concatSentence)
+                concatSentence = embedSentences[i+1].text
+            }
+            groupedSentences.push(concatSentence)
+        } 
+        
+        console.log(JSON.stringify(groupedSentences))
+        console.log(groupedSentences.length)
+        console.log(embedSentences.reduce((acc, sentence) => acc + sentence.text, "").length)
+        console.log(groupedSentences.reduce((acc, sentence) => acc + sentence, "").length)
+        
+        const sentencesWithEmbedding = []
+        for(const sentence of groupedSentences){
+            sentencesWithEmbedding.push({text : sentence, embedding : await DocProcessorService.getEmbeddingsForChunk(sentence)})
+        }
+        return sentencesWithEmbedding
+    }
+
     static normalizeVector(vector : number[]) {
         const magnitude = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
         return vector.map(val => Math.round(val * 10000000 / magnitude));
