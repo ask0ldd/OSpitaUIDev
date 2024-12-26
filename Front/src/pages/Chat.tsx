@@ -38,6 +38,7 @@ import ScrapedPage from "../models/ScrapedPage";
 import Snackbar from "../components/Snackbar";
 import { TRightMenuOptions } from "../interfaces/TRightMenuOptions";
 import FormCharacterSettings from "../features/Modal/FormCharacterSettings";
+import { isAbortError, isCompletionResponse } from "../utils/typeguards";
 
 function Chat() {
 
@@ -230,7 +231,8 @@ function Chat() {
 
             // Abort requests shouldn't display any error modale
             if((JSON.stringify(error)).includes("abort")) return 
-            if(error instanceof Error && (error.name === "AbortError" || error.name.includes("abort") || error.message.includes("Signal"))) return 
+            // if(error instanceof Error && (error.name === "AbortError" || error.name.includes("abort") || error.message.includes("Signal"))) return 
+            if(isAbortError(error)) return
 
             ChatService.abortAgentLastRequest()
             showErrorModal("Stream failed. " + (error instanceof Error ? error.message : error))
@@ -253,7 +255,8 @@ function Chat() {
                 agentUsed : AIAgentChain.getLastAgent().getName(),
                 modelUsed : AIAgentChain.getLastAgent().getModelName()}
             })
-            const response = await AIAgentChain.process(query) || (() => { throw new Error("The chain failed to produce a response.") })()
+            const response = await AIAgentChain.process(query) 
+            if(response == null) throw new Error("The chain failed to produce a response.")
             const answerAsHTML = await AnswerFormatingService.format(response.response)
             dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, payload : {html : answerAsHTML, markdown : response.response}})
             if((textareaRef.current as HTMLTextAreaElement).value == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
@@ -267,7 +270,7 @@ function Chat() {
             activeConv.history[activeConv.history.length-1].answer = {asHTML : answerAsHTML, asMarkdown : response.response}
             await ConversationService.updateById(activeConversationId.value, activeConv)
             return
-        }catch (error : unknown) {
+        }catch(error : unknown) {
             dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
             AIAgentChain.abortProcess()
             console.error(error)
