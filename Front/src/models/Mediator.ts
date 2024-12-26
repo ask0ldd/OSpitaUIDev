@@ -1,10 +1,10 @@
 import IMediatorUpdateParams from "../interfaces/params/IMediatorUpdateParams";
-import { ICompletionResponse } from "../interfaces/responses/OllamaResponseTypes";
+import TAgentReturnValue from "../interfaces/TAgentReturnValue";
 import { AIAgent } from "./AIAgent";
 import { ProgressTracker } from "./AIAgentChain";
 import { Observer } from "./Observer";
 
-class Mediator implements Observer{
+class Mediator implements Observer<IMediatorUpdateParams>{
     #requiredNodesIds : string[] = []
     #observers : (AIAgent | ProgressTracker)[] = []
     #state : {[requiredNode : string] : unknown} = {}
@@ -29,7 +29,7 @@ class Mediator implements Observer{
         if(!this.#requiredNodesIds.includes(nodeId)) this.#requiredNodesIds.push(nodeId)
     }
 
-    async update({sourceNode, data} : IMediatorUpdateParams) : Promise<ICompletionResponse | string | undefined | void> {
+    async update({sourceNode, data} : IMediatorUpdateParams) : Promise<TAgentReturnValue | undefined | void> {
         if(this.#requiredNodesIds.includes(sourceNode)) this.#state = {...this.#state, [sourceNode] : data}
         // notify the observers only when the data from the last source node has been collected
         if(this.allNodesResultsReceived()) return await this.notifyObservers() 
@@ -43,7 +43,7 @@ class Mediator implements Observer{
         return this.#observers
     }
 
-    async notifyObservers() : Promise<ICompletionResponse | string | undefined | void> {
+    async notifyObservers() : Promise<TAgentReturnValue | undefined | void> {
         for(const observer of this.#observers){
             if(observer instanceof AIAgent) return observer.update(JSON.stringify(this.#state))
         }

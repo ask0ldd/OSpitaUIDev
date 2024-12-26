@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ICompletionResponse } from "../interfaces/responses/OllamaResponseTypes";
+import TAgentReturnValue from "../interfaces/TAgentReturnValue";
 import AgentService from "../services/API/AgentService";
 import { isCompletionResponse } from "../utils/typeguards";
 import { AIAgent } from "./AIAgent";
 import { Observer } from "./Observer";
 
-export class ProgressTracker implements Observer {
+export class ProgressTracker implements Observer<TAgentReturnValue> {
     #results : (ICompletionResponse | string)[] = []
     readonly #name : string
 
@@ -23,7 +24,7 @@ export class ProgressTracker implements Observer {
         return this.#name
     }
   
-    update(response : ICompletionResponse | string): void {
+    update(response : TAgentReturnValue): void {
       this.#results.push(response)
       console.log("progressTrackerState : \n\n" + (typeof response === 'object' && 'response' in response ? response.response : response))
     }

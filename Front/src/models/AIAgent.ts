@@ -9,7 +9,7 @@ import { AIModel } from "./AIModel.js"
 import Mediator from "./Mediator.js"
 import { Observer } from "./Observer.js"
 
-export class AIAgent extends AIModel implements Observer {
+export class AIAgent extends AIModel implements Observer<string> {
 
     // !!! user should be able to add a regex verifying the quality of the output
 
