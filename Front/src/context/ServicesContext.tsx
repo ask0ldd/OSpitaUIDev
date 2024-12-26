@@ -5,6 +5,7 @@ import { WebSearchService } from '../services/WebSearchService';
 import { TTSService } from '../services/TTSService';
 import ImageService from '../services/API/ImageService';
 import CharacterService from '../services/API/CharacterService';
+import ComfyUIService from '../services/ComfyUIService';
 
 export interface ServicesContextType {
   agentService: AgentService
@@ -13,6 +14,7 @@ export interface ServicesContextType {
   ttsService : TTSService
   imageService : ImageService
   characterService : CharacterService
+  comfyUIService : ComfyUIService
 }
 
 const defaultContextValue: ServicesContextType = {
@@ -22,6 +24,7 @@ const defaultContextValue: ServicesContextType = {
   ttsService : new TTSService(),
   imageService : new ImageService(),
   characterService : new CharacterService(),
+  comfyUIService : new ComfyUIService(),
 };
 
 export const ServicesContext = createContext<ServicesContextType>({
@@ -31,6 +34,7 @@ export const ServicesContext = createContext<ServicesContextType>({
   ttsService : new TTSService(),
   imageService : new ImageService(),
   characterService : new CharacterService(),
+  comfyUIService : new ComfyUIService()
 });
 
 interface ServicesProviderProps {

@@ -3,15 +3,20 @@ import { useEffect, useRef } from "react"
 import AINodesChain from "../../models/nodes/AINodesChain"
 import { AIAgentNew } from "../../models/nodes/AIAgentNew"
 import DocProcessorService from "../../services/DocProcessorService"
+import { useServices } from "../../hooks/useServices"
 
 function SettingsPanel(){
 
     const firstLoad = useRef(true)
 
+    const { comfyUIService } = useServices()
+
     useEffect(() => {
         if(firstLoad.current == false) return
 
         async function effect(){
+
+            await comfyUIService.queuePrompt()
             const agentWriter = new AIAgentNew({name : "agentWriter", modelName : 'llama3.2:3b', systemPrompt : 'write a 50 lines short story with this theme : '})
             const agentSummarizer = new AIAgentNew({name : "agentSummarizer", modelName : 'llama3.2:3b', systemPrompt : 'summarize the following story in 5 lines : '})
             agentWriter.addObserver(agentSummarizer)
