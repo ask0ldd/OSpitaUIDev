@@ -8,7 +8,7 @@ class Mediator implements Observer{
     #requiredNodesIds : string[] = []
     #observers : (AIAgent | ProgressTracker)[] = []
     #state : {[requiredNode : string] : unknown} = {}
-    #name : string
+    readonly #name : string
 
     constructor({requiredNodesIds} : {requiredNodesIds : string[]}){
         this.#requiredNodesIds = requiredNodesIds
