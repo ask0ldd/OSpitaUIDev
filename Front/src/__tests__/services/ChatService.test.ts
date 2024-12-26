@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AIAgent } from '../../models/AIAgent';
 import AnswerFormatingService from '../../services/AnswerFormatingService';
 import { ChatService } from '../../services/ChatService';
-import { ICompletionResponse } from '../../interfaces/responses/ICompletionResponse';
+import { ICompletionResponse } from '../../interfaces/responses/OllamaResponseTypes';
 
 vi.mock('../models/AIAgent')
 vi.mock('./AnswerFormatingService')

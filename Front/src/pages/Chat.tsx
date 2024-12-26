@@ -38,7 +38,7 @@ import ScrapedPage from "../models/ScrapedPage";
 import Snackbar from "../components/Snackbar";
 import { TRightMenuOptions } from "../interfaces/TRightMenuOptions";
 import FormCharacterSettings from "../features/Modal/FormCharacterSettings";
-import { isAbortError, isCompletionResponse } from "../utils/typeguards";
+import { isAbortError } from "../utils/typeguards";
 
 function Chat() {
 
@@ -161,9 +161,9 @@ function Chat() {
             if (isWebSearchActivatedRef.current == true && activeMenuItemRef.current == "agent") {
                 // web search unavailable when a vision model is active
                 if(ChatService.isAVisionModelActive()) throw new Error("Web search not available when a vision model is selected.")
-                console.log("***Web Search***")
+                console.log("___Web Search___")
                 scrapedPages = await webSearchService.scrapeRelatedDatas({query, maxPages : 3}) || (() => { throw new Error("No results found for your query") })()
-                console.log("***LLM Loading***")
+                console.log("___LLM Loading___")
                 // format YYYY/MM/DD
                 const currentDate = "Current date : " + new Date().getFullYear() + "/" + (new Date().getMonth() + 1) + "/" + new Date().getDate() + ". "
                 const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse({question : currentDate + query, chunkProcessorCallback : onStreamedChunkReceived_Callback, context : currentContext, scrapedPages}) // convert to object and add : showErrorModal : (errorMessage: string) => void
@@ -177,7 +177,7 @@ function Chat() {
                 })
             } else {
                 // Use internal knowledge without web search
-                console.log("***LLM Loading***")
+                console.log("___LLM Loading___")
 
                 const isVisionModelActive = ChatService.isAVisionModelActive()
                 
