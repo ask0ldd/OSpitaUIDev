@@ -3,7 +3,7 @@
 /* eslint-disable no-unused-private-class-members */
 import IAIAgentPartialParams from "../interfaces/params/IAIAgentPartialParams.js"
 import { IAIModelParams } from "../interfaces/params/IAIModelParams.js"
-import { ICompletionResponse } from "../interfaces/responses/ICompletionResponse.js"
+import TAgentReturnValue from "../interfaces/TAgentReturnValue.js"
 import { ProgressTracker } from "./AIAgentChain.js"
 import { AIModel } from "./AIModel.js"
 import Mediator from "./Mediator.js"
@@ -13,14 +13,14 @@ export class AIAgent extends AIModel implements Observer {
 
     // !!! user should be able to add a regex verifying the quality of the output
 
-    #id : string
+    readonly #id : string
     #name : string
     #type : 'system' | 'user_created' = "user_created"
     #favorite : boolean = false
     #targetFilesNames : string[] = []
     #webSearchEconomy: boolean = false
     #observers : (AIAgent | Mediator | ProgressTracker)[] = []
-    #onUpdate?: (state: string, systemPrompt? : string) => Promise<ICompletionResponse | string | void>
+    #onUpdate?: (state: string, systemPrompt? : string) => Promise<TAgentReturnValue | void>
 
     constructor({
         id = "",
@@ -181,7 +181,7 @@ export class AIAgent extends AIModel implements Observer {
         )
     }
 
-    onUpdate(callback : (state: string) => Promise<ICompletionResponse | string | void >){
+    onUpdate(callback : (state: string) => Promise<TAgentReturnValue | void >){
         /*const boundCallback = (state : string) => {
             return callback.call(this, state)
         }*/
@@ -253,9 +253,9 @@ export class AIAgent extends AIModel implements Observer {
     }
 
     // Observer methods / observer[0] -> AIAgent, observer[1] -> ProgressTracker
-    async update(response: string): Promise<ICompletionResponse | string | void> {
+    async update(response: string): Promise<TAgentReturnValue | void> {
         try {
-            let result: ICompletionResponse | string | void
+            let result: TAgentReturnValue | void
     
             // if the onUpdate callback has been defined, use it
             if (this.#onUpdate) {
@@ -275,7 +275,7 @@ export class AIAgent extends AIModel implements Observer {
         }
     }
 
-    async defaultAskLLMCallback(query : string) : Promise<ICompletionResponse | string | void>{
+    async defaultAskLLMCallback(query : string) : Promise<TAgentReturnValue | void>{
         try{
             const response = await this.ask(query)
             // if there is no observer listening to this agent (last agent of the chain)
@@ -299,7 +299,7 @@ export class AIAgent extends AIModel implements Observer {
 
     // notify the next agent in the chain
     // & the chainProgressTracker
-    async notifyObservers(response : ICompletionResponse | string) : Promise<ICompletionResponse | string | void> {
+    async notifyObservers(response : TAgentReturnValue) : Promise<TAgentReturnValue | void> {
         this.#observers.forEach(observer => {
             if(observer instanceof ProgressTracker) observer.update(response)
         })
