@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ICompletionResponse } from "../interfaces/responses/ICompletionResponse";
-import TAgentReturnValue from "../interfaces/TAgentReturnValue";
+import { ICompletionResponse } from "../interfaces/responses/OllamaResponseTypes";
 import AgentService from "../services/API/AgentService";
 import { isCompletionResponse } from "../utils/typeguards";
 import { AIAgent } from "./AIAgent";

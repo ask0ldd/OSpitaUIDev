@@ -1,5 +1,5 @@
 import IMediatorUpdateParams from "../interfaces/params/IMediatorUpdateParams";
-import { ICompletionResponse } from "../interfaces/responses/ICompletionResponse";
+import { ICompletionResponse } from "../interfaces/responses/OllamaResponseTypes";
 import { AIAgent } from "./AIAgent";
 import { ProgressTracker } from "./AIAgentChain";
 import { Observer } from "./Observer";

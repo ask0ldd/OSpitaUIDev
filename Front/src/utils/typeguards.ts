@@ -1,4 +1,4 @@
-import { ICompletionResponse } from "../interfaces/responses/ICompletionResponse";
+import { ICompletionResponse } from "../interfaces/responses/OllamaResponseTypes";
 
 // typeGuard
 export function isCompletionResponse(data: unknown): data is ICompletionResponse {

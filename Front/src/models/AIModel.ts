@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-private-class-members */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ICompletionResponse } from "../interfaces/responses/ICompletionResponse"
 import { IEmbeddingResponse } from "../interfaces/responses/IEmbeddingResponse"
 import { IAIModelParams } from "../interfaces/params/IAIModelParams"
 import visionModelsClues from "../constants/VisionModelsClues"
+import { ICompletionResponse } from "../interfaces/responses/OllamaResponseTypes"
 
 /**
  * @class AIModel
