@@ -27,15 +27,7 @@ const defaultContextValue: ServicesContextType = {
   comfyUIService : new ComfyUIService(),
 };
 
-export const ServicesContext = createContext<ServicesContextType>({
-  agentService: new AgentService(),
-  promptService: new PromptService(),
-  webSearchService: new WebSearchService(),
-  ttsService : new TTSService(),
-  imageService : new ImageService(),
-  characterService : new CharacterService(),
-  comfyUIService : new ComfyUIService()
-});
+export const ServicesContext = createContext<ServicesContextType>(defaultContextValue);
 
 interface ServicesProviderProps {
   children: ReactNode;
