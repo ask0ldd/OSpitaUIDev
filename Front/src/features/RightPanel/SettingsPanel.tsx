@@ -1,22 +1,61 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import AINodesChain from "../../models/nodes/AINodesChain"
 import { AIAgentNew } from "../../models/nodes/AIAgentNew"
 import DocProcessorService from "../../services/DocProcessorService"
 import { useServices } from "../../hooks/useServices"
+import ComfyUIWorkflowBuilder from "../../utils/ComfyUIWorkflowBuilder"
 
 function SettingsPanel(){
 
     const firstLoad = useRef(true)
 
     const { comfyUIService } = useServices()
+    const [imagesFilename, setImagesFilename] = useState<string[]>([])
+    const [images, setImages] = useState<string[]>([])
 
     useEffect(() => {
+        async function effect(){
+            setImagesFilename([])
+            const history = await comfyUIService.getHistory()
+            if(history == null) return
+            for (const [key, value] of Object.entries(history)) {
+                setImagesFilename(imagesFilename => {
+                    const newImages = [...imagesFilename]
+                    const imageFilename = history[key].outputs[9].images[0].filename
+                    if(!newImages.includes(imageFilename)) newImages.push(history[key].outputs[9].images[0].filename)
+                    return newImages
+                })
+            }
+            /*const imagesBlobs = []
+            for(const imageFilename of imagesFilename){
+                imagesBlobs.push(await comfyUIService.viewImage({filename : imageFilename, subfolder : '', type : 'output'}) ?? "")
+            }
+
+            setImages(imagesBlobs)*/
+        }
+
+        effect()
+
+    }, [])
+
+    useEffect(() => {
+        async function effect(){
+            setImages([])
+            const imagesBlobs = []
+            for(const imageFilename of imagesFilename){
+                imagesBlobs.push(await comfyUIService.viewImage({filename : imageFilename, subfolder : '', type : 'output'}) ?? "")
+            }
+            setImages(imagesBlobs)
+        }
+        effect()
+    }, [imagesFilename])
+
+    /*useEffect(() => {
         if(firstLoad.current == false) return
 
         async function effect(){
 
-            await comfyUIService.queuePrompt()
             const agentWriter = new AIAgentNew({name : "agentWriter", modelName : 'llama3.2:3b', systemPrompt : 'write a 50 lines short story with this theme : '})
             const agentSummarizer = new AIAgentNew({name : "agentSummarizer", modelName : 'llama3.2:3b', systemPrompt : 'summarize the following story in 5 lines : '})
             agentWriter.addObserver(agentSummarizer)
@@ -32,13 +71,25 @@ function SettingsPanel(){
         effect()
 
         firstLoad.current = false
-    }, [])
+    }, [])*/
+
+    async function handleClick(){
+        await comfyUIService.queuePrompt(new ComfyUIWorkflowBuilder().setPrompt("a 3d top isometric view of the eiffel tower with red grass").setResolution(512, 512).setRandomSeed().build())
+        // comfyUIService.WSSendWorkflow(new ComfyUIWorkflowBuilder().setPrompt("a 3d top isometric view of the eiffel tower").setResolution(512, 512).build())
+        /*const img = await comfyUIService.viewImage({
+            "filename": "ComfyUI_00022_.png",
+            "subfolder": "",
+            "type": "output"
+        })
+        console.log(img)*/
+    }
 
     return(
         <article className='comingSoonContainer'>
-            <span className='comingSoon' style={{textAlign:'center', width:'100%'}}>
+            <span className='comingSoon' style={{textAlign:'center', width:'100%'}} onClick={handleClick}>
                 Coming Soon
             </span>
+            {images.map((image : string, index : number) => (<img key={index + "-comfyimg"} style={{width:'100px'}} src={image}/>))}
         </article>
     )
 }
