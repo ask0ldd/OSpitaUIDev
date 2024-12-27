@@ -44,7 +44,7 @@ function SettingsPanel(){
             setImages([])
             const imagesBlobs = []
             for(const imageFilename of imagesFilename){
-                imagesBlobs.push(await comfyUIService.viewImage({filename : imageFilename, subfolder : '', type : 'output'}) ?? "")
+                imagesBlobs.push(await comfyUIService.viewImage({filename : imageFilename}) ?? "")
             }
             setImages(imagesBlobs)
         }
@@ -74,7 +74,7 @@ function SettingsPanel(){
     }, [])*/
 
     async function handleClick(){
-        await comfyUIService.queuePrompt(new ComfyUIWorkflowBuilder().setPrompt("a 3d top isometric view of the eiffel tower with red grass").setResolution(512, 512).setRandomSeed().build())
+        await comfyUIService.queuePrompt(new ComfyUIWorkflowBuilder().setPrompt("a 3d top isometric view of the eiffel tower with red grass").setBatchSize(1).setResolution(256, 256).setRandomSeed().build())
         // comfyUIService.WSSendWorkflow(new ComfyUIWorkflowBuilder().setPrompt("a 3d top isometric view of the eiffel tower").setResolution(512, 512).build())
         /*const img = await comfyUIService.viewImage({
             "filename": "ComfyUI_00022_.png",

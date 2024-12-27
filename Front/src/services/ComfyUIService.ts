@@ -52,25 +52,30 @@ class ComfyUIService {
       }
     }
 
-    WSSendWorkflow(workflow: IComfyWorkflow) {
+    /*WSSendWorkflow(workflow: IComfyWorkflow) {
       const message = {
         type: 'execute',
         data: {
           prompt: workflow,
-          client_id: this.#name /*generateClientId()*/
+          client_id: this.#name
         }
       }
       this.#ws.send(JSON.stringify(message))
-    }
+    }*/
     
 
-    /*async fetchGeneratedImage(filename: string): Promise<Blob> {
-      const response = await fetch(`http://localhost:8188/view?filename=${filename}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch image');
+    async fetchGeneratedImage(filename: string): Promise<Blob | void> {
+      try{
+        const response = await fetch(`http://${this.#serverAddress}/view?filename=${filename}`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch image')
+        }
+        return await response.blob()
+      }catch(error){
+          console.error("Error fetching image : ", error)
+          return void 0
       }
-      return await response.blob();
-    }*/
+    }
 
     generateUniqueName(): string {
         const timestamp = Date.now().toString(36);
@@ -79,19 +84,6 @@ class ComfyUIService {
     }
 
     async queuePrompt(workflow : IComfyWorkflow){
-        // const socket = new WebSocket(`ws://http://${this.#serverAddress}/ws?clientId=${this.#name}`)
-        /*const body = {
-            prompt : {
-                ...ComfyUIBaseWorkflow,
-                "6" : {
-                    ...ComfyUIBaseWorkflow[6],
-                    inputs : {
-                        ...ComfyUIBaseWorkflow[6].inputs,
-                        text : prompt
-                    }
-                }
-            }
-        }*/
         const body = {client_id : this.#name, prompt : {...workflow}}
 
         const response = await fetch(`http://${this.#serverAddress}/prompt`, {
@@ -109,7 +101,7 @@ class ComfyUIService {
         if(response.ok) return await response.json()
     }
 
-    async viewImage({ filename, subfolder, type } : { filename: string, subfolder: string, type: string }) : Promise<string | void>{
+    async viewImage({ filename, subfolder = "", type = "output" } : { filename: string, subfolder?: string, type?: string }) : Promise<string | void>{
         try{
             const response = await fetch(`http://${this.#serverAddress}/view?` + encodeURI(new URLSearchParams({ filename, subfolder, type }).toString()))
             const imageBlob = await response.blob()
