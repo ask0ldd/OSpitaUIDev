@@ -38,4 +38,5 @@ trailer.mp4
 back/images/*.*
 !/back/images/.gitkeep
 back/deprecated
-
+back/images/generated/*.*
+!/back/images/generated/.gitkeep
