@@ -120,8 +120,8 @@ app.put('/character/settings', saveCharacterSettings(db))
 app.put('/character/model', updateCharacterModel(db))
 
 // images
-const upload = initImageStorage()
-app.post('/upload', upload.single('image'), uploadImage(db))
+const imageStorage = initImageStorage()
+app.post('/upload', imageStorage.single('image'), uploadImage(db))
 app.get('/images', getAllImages(db))
 // app.get('/image/byFilename/:filename', getImageByFilename(db))
 app.use('/images', express.static('images'))
@@ -138,6 +138,7 @@ function initImageStorage(){
   // images
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
+      if(req?.generated && req.generated == true) return cb(null, 'images/generated/')
       cb(null, 'images/')
     },
     filename: (req, file, cb) => {

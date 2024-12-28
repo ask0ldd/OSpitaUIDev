@@ -65,7 +65,7 @@ const deleteImageById = (db) => async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' })
     }
 }
-  
+ 
 module.exports = {
     getAllImages, uploadImage, deleteImageById
 }

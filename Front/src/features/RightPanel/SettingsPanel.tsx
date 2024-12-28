@@ -74,7 +74,7 @@ function SettingsPanel(){
     }, [])*/
 
     async function handleClick(){
-        await comfyUIService.queuePrompt(new ComfyUIWorkflowBuilder().setPrompt("a 3d top isometric view of the eiffel tower with red grass").setBatchSize(1).setResolution(256, 256).setRandomSeed().build())
+        await comfyUIService.queuePrompt(new ComfyUIWorkflowBuilder().setPrompt("an abstract 3d logo rendered with cinema 4d containing a sphere and particles effects"/*"a 3d top isometric view of the eiffel tower with red grass"*/).setBatchSize(1).setResolution(256, 256).setRandomSeed().build())
         // comfyUIService.WSSendWorkflow(new ComfyUIWorkflowBuilder().setPrompt("a 3d top isometric view of the eiffel tower").setResolution(512, 512).build())
         /*const img = await comfyUIService.viewImage({
             "filename": "ComfyUI_00022_.png",
