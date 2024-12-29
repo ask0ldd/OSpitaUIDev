@@ -1,23 +1,21 @@
 const fs = require('fs')
 const prompts = require('./constants/prompts.js')
 const agents = require('./constants/agents.js')
-const { savePrompt, getPromptById, getPromptByName, getAllPrompts, updatePromptById, updatePromptByName, deletePromptById } = require('./controllers/prompt.controller.js')
-const { saveAgent, updateAgentByName, updateAgentById, getAgentById, getAgentByName, getAllAgents, deleteAgentByName, updateAgentsConfig } = require('./controllers/agent.controller.js')
+const { promptRouter, promptsRouter } = require('./routes/prompt.routes.js')
+const { agentRouter, agentsRouter } = require('./routes/agent.routes.js');
+const { conversationRouter, conversationsRouter } = require('./routes/conversation.routes.js');
 const { getAllDocs, getDocsChunksBySimilarity, saveEmbeddings, deleteDocumentEmbeddings } = require('./controllers/doc.controller.js')
-const { saveConversation, getAllConversations, getConversationById, deleteConversationById, updateConversationById } = require('./controllers/conversation.controller.js')
 const { getScrapedDatas } = require('./controllers/scraping.controller.js')
 const { getAllCharacters, saveCharacterSettings, getCharacterSettings, SETTINGS_FILE, initCharacterSettings, updateCharacterModel } = require('./controllers/character.controller.js')
 const { uploadImage, getAllImages, deleteImageById } = require('./controllers/image.controller.js')
 const { getAllYamlAsJson } = require('./services/yaml.service.js')
 // const { getTTSaudio } = require('./controllers/tts.controller.js')
 const express = require('express')
-const multer = require('multer')
-const path = require('path')
 const cors = require('cors')
 const loki = require("lokijs")
 const LokiFSAdapter = require("lokijs/src/loki-fs-structured-adapter")
 const VectorDatabase = require('./models/VectorDatabase.js')
-
+const { initImageStorage } = require('./services/storage.service.js');
 
 const app = express()
 const PORT = process.env.PORT || 5174
@@ -81,23 +79,12 @@ app.get('/ping', (req, res) => {
 
 app.post('/scrape', getScrapedDatas())
 
-// defining the AIAgents related routes
-app.post('/agent', saveAgent(db))
-app.put('/agents/config', updateAgentsConfig(db))
-app.put('/agent/byName/:name', updateAgentByName(db))
-app.put('/agent/byId/:id', updateAgentById(db))
-app.get('/agent/byName/:name', getAgentByName(db))
-app.get('/agents', getAllAgents(db))
-app.delete('/agent/byName/:name', deleteAgentByName(db))
-
-// defining the Prompts related routes
-app.post('/prompt', savePrompt(db))
-app.get('/prompt/byId/:id', getPromptById(db))
-app.put('/prompt/byId/:id', updatePromptById(db))
-app.put('/prompt/byName/:name', updatePromptByName(db))
-app.get('/prompt/byName/:name', getPromptByName(db))
-app.get('/prompts', getAllPrompts(db))
-app.delete('/prompt/byId/:id', deletePromptById(db))
+app.use('/agent', agentRouter(db))
+app.use('/agents', agentsRouter(db))
+app.use('/prompt', promptRouter(db))
+app.use('/prompts', promptsRouter(db))
+app.use('/conversation', conversationRouter(db))
+app.use('/conversations', conversationsRouter(db))
 
 // defining Documents related routes
 app.post('/embeddings', saveEmbeddings(vdb))
@@ -105,12 +92,6 @@ app.get('/docs', getAllDocs(vdb))
 app.post('/docs/bySimilarity', getDocsChunksBySimilarity(vdb))
 app.delete('/doc/byName/:name', deleteDocumentEmbeddings(vdb))
 
-// conversations
-app.post('/conversation', saveConversation(db))
-app.get('/conversations', getAllConversations(db))
-app.get('/conversation/byId/:id', getConversationById(db))
-app.put('/conversation/byId/:id', updateConversationById(db))
-app.delete('/conversation/byId/:id', deleteConversationById(db))
 // app.post('/tts/generate', getTTSaudio)
 
 // characters
@@ -126,25 +107,3 @@ app.get('/images', getAllImages(db))
 // app.get('/image/byFilename/:filename', getImageByFilename(db))
 app.use('/images', express.static('images'))
 app.delete('/image/byId/:id', deleteImageById(db))
-
-function removeCollections(){
-  const collectionNames = db.listCollections().map(col => col.name)
-  collectionNames.forEach(name => {
-    db.removeCollection(name)
-  })
-}
-
-function initImageStorage(){
-  // images
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      if(req?.generated && req.generated == true) return cb(null, 'images/generated/')
-      cb(null, 'images/')
-    },
-    filename: (req, file, cb) => {
-      cb(null, Date.now() + path.extname(file.originalname))
-    }
-  })
-  // Create upload middleware
-  return multer({ storage: storage })
-}
