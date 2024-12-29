@@ -81,7 +81,7 @@ function SettingsPanel(){
             const imageBlob = await comfyUIService.fetchGeneratedImage(filename)
             if(!imageBlob) return
             const formData = new FormData()
-            formData.append("image", imageBlob, filename)
+            formData.append("image", imageBlob, "generated_" + filename)
             formData.append("generated", "true")
             imageService.upload(formData)
             // console.log((message as ExecutedMessage).data.output.images[0].filename)

@@ -16,12 +16,13 @@ const loki = require("lokijs")
 const LokiFSAdapter = require("lokijs/src/loki-fs-structured-adapter")
 const VectorDatabase = require('./models/VectorDatabase.js')
 const { initImageStorage } = require('./services/storage.service.js');
+const { removeCollections } = require('./services/db.service.js');
 
 const app = express()
 const PORT = process.env.PORT || 5174
 
 function databaseInit() {
-    // removeCollections()
+    // removeCollections(db)
     if (db.getCollection("prompts") === null) {
       db.addCollection("prompts")
     }
