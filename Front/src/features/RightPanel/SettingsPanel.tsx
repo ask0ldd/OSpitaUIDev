@@ -5,12 +5,13 @@ import { AIAgentNew } from "../../models/nodes/AIAgentNew"
 import DocProcessorService from "../../services/DocProcessorService"
 import { useServices } from "../../hooks/useServices"
 import ComfyUIWorkflowBuilder from "../../utils/ComfyUIWorkflowBuilder"
+import { ExecutedMessage, TWSMessage } from "../../interfaces/TWSMessageType"
 
 function SettingsPanel(){
 
     const firstLoad = useRef(true)
 
-    const { comfyUIService } = useServices()
+    const { comfyUIService, imageService } = useServices()
     const [imagesFilename, setImagesFilename] = useState<string[]>([])
     const [images, setImages] = useState<string[]>([])
 
@@ -44,7 +45,7 @@ function SettingsPanel(){
             setImages([])
             const imagesBlobs = []
             for(const imageFilename of imagesFilename){
-                imagesBlobs.push(await comfyUIService.viewImage({filename : imageFilename}) ?? "")
+                imagesBlobs.push(await comfyUIService.getImageAsBase64String({filename : imageFilename}) ?? "")
             }
             setImages(imagesBlobs)
         }
@@ -74,6 +75,17 @@ function SettingsPanel(){
     }, [])*/
 
     async function handleClick(){
+        comfyUIService.initSocket()
+        comfyUIService.onWorkflowExecuted(async (message : TWSMessage) => {
+            const filename = (message as ExecutedMessage).data.output.images[0].filename
+            const imageBlob = await comfyUIService.fetchGeneratedImage(filename)
+            if(!imageBlob) return
+            const formData = new FormData()
+            formData.append("image", imageBlob, filename)
+            formData.append("generated", "true")
+            imageService.upload(formData)
+            // console.log((message as ExecutedMessage).data.output.images[0].filename)
+        })
         await comfyUIService.queuePrompt(new ComfyUIWorkflowBuilder().setPrompt("an abstract 3d logo rendered with cinema 4d containing a sphere and particles effects"/*"a 3d top isometric view of the eiffel tower with red grass"*/).setBatchSize(1).setResolution(256, 256).setRandomSeed().build())
         // comfyUIService.WSSendWorkflow(new ComfyUIWorkflowBuilder().setPrompt("a 3d top isometric view of the eiffel tower").setResolution(512, 512).build())
         /*const img = await comfyUIService.viewImage({
