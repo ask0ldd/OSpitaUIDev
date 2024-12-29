@@ -6,27 +6,50 @@ import { ExecutedMessage, ExecutingMessage, ExecutionErrorMessage, ProgressMessa
 class ComfyUIService {
     readonly #name : string
     #serverAddress = "127.0.0.1:8188"
-    #ws : WebSocket
+    #ws! : WebSocket
+    #messagesCallbacks: { [key: string]: ((message: TWSMessage) => void)[] } = {}
+    #workflowExecutedCallbacks : ((message: TWSMessage) => void)[] = []
 
     constructor(){
         this.#name = this.generateUniqueName()
-        this.#ws = new WebSocket('ws://127.0.0.1:8188/ws?clientId=' + this.#name)
+    }
 
-        this.#ws.onmessage = (event) => {
-          const message = JSON.parse(event.data);
-          this.handleWSMessage(message);
-        }
-        
-        this.#ws.onerror = (error) => {
-          console.error('WebSocket error:', error);
-        }
-        
-        this.#ws.onclose = () => {
-          console.log('Disconnected from ComfyUI WebSocket');
-        }
+    initSocket(){
+      this.#ws = new WebSocket('ws://127.0.0.1:8188/ws?clientId=' + this.#name)
+
+      this.#ws.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        this.handleWSMessage(message);
+      }
+      
+      this.#ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      }
+      
+      this.#ws.onclose = () => {
+        console.log('Disconnected from ComfyUI WebSocket');
+      }
+    }
+
+    on(messageType: WSMessageType, callback: (message: TWSMessage) => void) {
+      if (!this.#messagesCallbacks[messageType]) {
+          this.#messagesCallbacks[messageType] = [];
+      }
+      this.#messagesCallbacks[messageType].push(callback);
+    }
+
+    onWorkflowExecuted(callback: (message: TWSMessage) => void){
+      this.#workflowExecutedCallbacks.push(callback)
     }
 
     handleWSMessage(message: TWSMessage) {
+
+      // Execute registered callbacks for this message type
+      /*const callbacks = this.#messagesCallbacks[message.type]
+      if (callbacks) {
+          callbacks.forEach(callback => callback(message))
+      }*/
+
       switch (message.type) {
         case 'execution_start':
           console.log('Workflow execution started')
@@ -38,7 +61,9 @@ class ComfyUIService {
           console.log('Progress:', Math.round((message as ProgressMessage).data.value / (message as ProgressMessage).data.max * 100), '%')
           break
         case 'executed':
+          this.#workflowExecutedCallbacks.forEach(callback => callback(message))
           console.log('Node executed:', (message as ExecutedMessage).data.node)
+          console.log(JSON.stringify(message))
           break
         case 'execution_cached':
           console.log('Execution cached')
@@ -47,7 +72,7 @@ class ComfyUIService {
           console.error('Execution error:', (message as ExecutionErrorMessage).data.exception_message)
           break
         case 'execution_complete':
-          console.log('Workflow execution completed')
+          console.log('Workflow execution completed', JSON.stringify(message))
           break
       }
     }
@@ -101,7 +126,7 @@ class ComfyUIService {
         if(response.ok) return await response.json()
     }
 
-    async viewImage({ filename, subfolder = "", type = "output" } : { filename: string, subfolder?: string, type?: string }) : Promise<string | void>{
+    async getImageAsBase64String({ filename, subfolder = "", type = "output" } : { filename: string, subfolder?: string, type?: string }) : Promise<string | void>{
         try{
             const response = await fetch(`http://${this.#serverAddress}/view?` + encodeURI(new URLSearchParams({ filename, subfolder, type }).toString()))
             const imageBlob = await response.blob()
@@ -131,6 +156,8 @@ class ComfyUIService {
 export default ComfyUIService
 
 // a nice hotel room looking like a 3d render with a haussmanian touch and red walls
+
+type WSMessageType = "execution_start" | "executing" | "progress" | "executed" | "execution_cached" | "execution_error" | "execution_complete"
 
 interface PromptInput {
     seed: number;
