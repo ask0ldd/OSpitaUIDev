@@ -280,7 +280,7 @@ export class AIModel{
      * @returns {string} The request body for the AI model.
      * @description Builds the request body for the AI model with the given prompt and other parameters.
      */
-    #buildRequest({prompt, stream} : {prompt : string, stream : boolean}) : string {
+    #buildRequest({prompt, stream, outputFormat} : {prompt : string, stream : boolean, outputFormat? : string}) : string {
         const baseRequest : IBaseOllamaRequest = {
             "model": this.#modelName,
             "stream": stream,
@@ -288,6 +288,16 @@ export class AIModel{
             "prompt": prompt,
             "context" : [...this.#context],
         }
+
+        /* https://ollama.com/blog/structured-outputs
+        const request = outputFormat ? {...baseRequest,
+            "format" : {
+                "type": "object",
+                "properties": outputFormat
+            },
+            "required" : [output]
+        } : baseRequest*/
+
         const requestWithOptions = {...baseRequest, 
             "options": this.getPartialOptions()
         }

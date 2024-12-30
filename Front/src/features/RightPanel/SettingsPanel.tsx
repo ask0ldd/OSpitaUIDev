@@ -6,16 +6,29 @@ import DocProcessorService from "../../services/DocProcessorService"
 import { useServices } from "../../hooks/useServices"
 import ComfyUIWorkflowBuilder from "../../utils/ComfyUIWorkflowBuilder"
 import { ExecutedMessage, TWSMessage } from "../../interfaces/TWSMessageType"
+import { IImage } from "../../interfaces/IImage"
+import ImagePreview from "../LeftPanel/ImagePreview"
 
 function SettingsPanel(){
 
     const firstLoad = useRef(true)
 
     const { comfyUIService, imageService } = useServices()
-    const [imagesFilename, setImagesFilename] = useState<string[]>([])
-    const [images, setImages] = useState<string[]>([])
+    // const [imagesFilename, setImagesFilename] = useState<string[]>([])
+    const [images, setImages] = useState<IImage[]>([])
+    const [hoveredImage, setHoveredImage] = useState<IImage | null>()
 
-    useEffect(() => {
+    useEffect(()=>{
+        if(!firstLoad.current) return
+        refreshImages()
+    }, [])
+
+    async function refreshImages(){
+        const imgs = await imageService.getAllGeneratedImages()
+        setImages(imgs ?? [])
+    }
+
+    /*useEffect(() => {
         async function effect(){
             setImagesFilename([])
             const history = await comfyUIService.getHistory()
@@ -28,12 +41,6 @@ function SettingsPanel(){
                     return newImages
                 })
             }
-            /*const imagesBlobs = []
-            for(const imageFilename of imagesFilename){
-                imagesBlobs.push(await comfyUIService.viewImage({filename : imageFilename, subfolder : '', type : 'output'}) ?? "")
-            }
-
-            setImages(imagesBlobs)*/
         }
 
         effect()
@@ -50,7 +57,7 @@ function SettingsPanel(){
             setImages(imagesBlobs)
         }
         effect()
-    }, [imagesFilename])
+    }, [imagesFilename])*/
 
     /*useEffect(() => {
         if(firstLoad.current == false) return
@@ -77,16 +84,19 @@ function SettingsPanel(){
     async function handleClick(){
         comfyUIService.initSocket()
         comfyUIService.onWorkflowExecuted(async (message : TWSMessage) => {
+            console.log("trigger")
             const filename = (message as ExecutedMessage).data.output.images[0].filename
             const imageBlob = await comfyUIService.fetchGeneratedImage(filename)
             if(!imageBlob) return
             const formData = new FormData()
             formData.append("image", imageBlob, "generated_" + filename)
             formData.append("generated", "true")
-            imageService.upload(formData)
-            // console.log((message as ExecutedMessage).data.output.images[0].filename)
+            await imageService.upload(formData)
+            comfyUIService.resetOnEventsCallbacks()
+            comfyUIService.disconnect()
+            refreshImages()
         })
-        await comfyUIService.queuePrompt(new ComfyUIWorkflowBuilder().setPrompt("an abstract 3d logo rendered with cinema 4d containing a sphere and particles effects"/*"a 3d top isometric view of the eiffel tower with red grass"*/).setBatchSize(1).setResolution(256, 256).setRandomSeed().build())
+        await comfyUIService.queuePrompt(new ComfyUIWorkflowBuilder().setPrompt("an abstract 3d logo rendered with cinema 4d containing a sphere and particles effects"/*"a 3d top isometric view of the eiffel tower with red grass"*/).setBatchSize(1).setResolution(512, 512).setRandomSeed().build())
         // comfyUIService.WSSendWorkflow(new ComfyUIWorkflowBuilder().setPrompt("a 3d top isometric view of the eiffel tower").setResolution(512, 512).build())
         /*const img = await comfyUIService.viewImage({
             "filename": "ComfyUI_00022_.png",
@@ -96,12 +106,35 @@ function SettingsPanel(){
         console.log(img)*/
     }
 
+    async function handleDownloadClick(e : React.MouseEvent){
+        // console.log((e.target as HTMLImageElement).src)
+        try {
+            const response = await fetch((e.target as HTMLImageElement).src)
+            const blob = await response.blob()
+            const url = window.URL.createObjectURL(blob)
+            const link = document.createElement('a')
+            link.href = url
+            link.download = 'image.jpg'
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+          } catch (error) {
+            console.error('Error downloading image:', error)
+          }
+    }
+
+    function handleMouseOverPicture(index : number){
+        setHoveredImage(images[index] ?? null)
+    }
+
     return(
         <article className='comingSoonContainer'>
             <span className='comingSoon' style={{textAlign:'center', width:'100%'}} onClick={handleClick}>
                 Coming Soon
             </span>
-            {images.map((image : string, index : number) => (<img key={index + "-comfyimg"} style={{width:'100px'}} src={image}/>))}
+            <div style={{display:'flex', width:'100%', flexWrap:'wrap'}}>
+                {images.map((image : IImage, index : number) => (<img onClick={handleDownloadClick} onMouseEnter={() => handleMouseOverPicture(index)} onMouseOut={() => setHoveredImage(null)} key={index + "-comfyimg"} style={{display:'flex', width:'30%', flexGrow:'1', maxWidth:'33.33%'}} src={'backend/images/generated/' + image.filename}/>))}
+            </div>
         </article>
     )
 }
