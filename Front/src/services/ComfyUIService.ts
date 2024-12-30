@@ -31,6 +31,10 @@ class ComfyUIService {
       }
     }
 
+    disconnect(){
+      this.#ws.close()
+    }
+
     on(messageType: WSMessageType, callback: (message: TWSMessage) => void) {
       if (!this.#messagesCallbacks[messageType]) {
           this.#messagesCallbacks[messageType] = [];
@@ -40,6 +44,11 @@ class ComfyUIService {
 
     onWorkflowExecuted(callback: (message: TWSMessage) => void){
       this.#workflowExecutedCallbacks.push(callback)
+    }
+
+    resetOnEventsCallbacks(){
+      this.#workflowExecutedCallbacks = []
+      this.#messagesCallbacks = {}
     }
 
     handleWSMessage(message: TWSMessage) {
