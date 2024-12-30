@@ -3,7 +3,8 @@ const uploadImage = (db) => async (req, res) => {
         if (!req.file) {
             return res.status(400).send('No file uploaded.');
         }
-        const imagesCollection = db.getCollection('images')
+        // generated images & vision images don't go into the same collection
+        const imagesCollection = req.body?.generated ? db.getCollection('generatedImages') : db.getCollection('images')
         if (!imagesCollection) {
             throw new Error('The images collection does not exist in the database.')
         }
@@ -36,6 +37,16 @@ const getAllImages = (db) => async (req, res) => {
     }
 }
 
+const getAllGeneratedImages = (db) => async (req, res) => {
+    try {
+        return res.setHeader("Access-Control-Allow-Origin", "*").status(200).json(db.getCollection("generatedImages").find())
+    } catch (error) {
+        console.error("Error retrieving images:", error)
+        res.status(500).json({ message: 'An error occurred while retrieving images.' })
+    }
+}
+
+
 const deleteImageById = (db) => async (req, res) => {
     const imageId = req.params.id
     if (!imageId) {
@@ -67,5 +78,5 @@ const deleteImageById = (db) => async (req, res) => {
 }
  
 module.exports = {
-    getAllImages, uploadImage, deleteImageById
+    getAllImages, uploadImage, deleteImageById, getAllGeneratedImages
 }
