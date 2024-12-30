@@ -75,4 +75,23 @@ export default class ImageService{
         }
     }
 
+    async getAllGeneratedImages(){
+        try {
+            const response = await fetch("/backend/generated", {
+                method: "GET",
+                headers: { "Content-Type": "application/json", }
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            return await response.json()
+            
+        } catch (error) {
+            console.error("Error fetching images list : ", error)
+            return undefined
+        }
+    }
+
 }
