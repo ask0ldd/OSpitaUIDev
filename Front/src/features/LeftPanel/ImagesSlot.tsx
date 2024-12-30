@@ -18,15 +18,15 @@ function ImagesSlot({active, setActiveSlot, isWebSearchActivated, setWebSearchAc
   const hasBeenInit = useRef(false)
   useEffect(()=>{
     const fetchImages = async () => {
-      const images = await imageService.getAll()
-      setImages(images ?? [])
+      const imgs = await imageService.getAll()
+      setImages(imgs ?? [])
     }
     if(!hasBeenInit.current) fetchImages()
   }, [])
 
   async function refreshImages(){
-    const images = await imageService.getAll()
-    setImages(images ?? [])
+    const imgs = await imageService.getAll()
+    setImages(imgs ?? [])
   }
 
   async function handleFileSelect(e : React.ChangeEvent<HTMLInputElement>){
