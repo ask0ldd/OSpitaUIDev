@@ -158,7 +158,8 @@ class ComfyUIService {
     }
 
     async getPrompt(promptId : string) {
-        fetch(`http://${this.#serverAddress}/history?` + promptId)
+        const response = await fetch(`http://${this.#serverAddress}/history?` + promptId)
+        console.log(await response.json())
     }
 }
 
