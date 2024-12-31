@@ -1,8 +1,8 @@
 const { promptRouter, promptsRouter } = require('./routes/prompt.routes.js')
 const { agentRouter, agentsRouter } = require('./routes/agent.routes.js');
+const { docRouter, docsRouter, embeddingsRouter } = require('./routes/doc.routes.js')
 const { characterRouter, charactersRouter } = require('./routes/character.routes.js')
 const { conversationRouter, conversationsRouter } = require('./routes/conversation.routes.js');
-const { getAllDocs, getDocsChunksBySimilarity, saveEmbeddings, deleteDocumentEmbeddings } = require('./controllers/doc.controller.js')
 const { getScrapedDatas } = require('./controllers/scraping.controller.js')
 const { uploadImage, getAllImages, deleteImageById, getAllGeneratedImages } = require('./controllers/image.controller.js')
 // const { getTTSaudio } = require('./controllers/tts.controller.js')
@@ -55,12 +55,15 @@ app.use('/conversation', conversationRouter(db))
 app.use('/conversations', conversationsRouter(db))
 app.use('/character', characterRouter(db))
 app.use('/characters', charactersRouter(db))
+app.use('/docs', docsRouter(vdb))
+app.use('/doc', docRouter(vdb))
+app.use('/embeddings', embeddingsRouter(vdb))
 
 // defining Documents related routes
-app.post('/embeddings', saveEmbeddings(vdb))
+/*app.post('/embeddings', saveEmbeddings(vdb))
 app.get('/docs', getAllDocs(vdb))
 app.post('/docs/bySimilarity', getDocsChunksBySimilarity(vdb))
-app.delete('/doc/byName/:name', deleteDocumentEmbeddings(vdb))
+app.delete('/doc/byName/:name', deleteDocumentEmbeddings(vdb))*/
 
 // app.post('/tts/generate', getTTSaudio)
 
