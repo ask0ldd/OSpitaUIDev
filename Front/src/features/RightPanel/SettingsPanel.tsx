@@ -28,37 +28,6 @@ function SettingsPanel(){
     }
 
     /*useEffect(() => {
-        async function effect(){
-            setImagesFilename([])
-            const history = await comfyUIService.getHistory()
-            if(history == null) return
-            for (const [key, value] of Object.entries(history)) {
-                setImagesFilename(imagesFilename => {
-                    const newImages = [...imagesFilename]
-                    const imageFilename = history[key].outputs[9].images[0].filename
-                    if(!newImages.includes(imageFilename)) newImages.push(history[key].outputs[9].images[0].filename)
-                    return newImages
-                })
-            }
-        }
-
-        effect()
-
-    }, [])
-
-    useEffect(() => {
-        async function effect(){
-            setImages([])
-            const imagesBlobs = []
-            for(const imageFilename of imagesFilename){
-                imagesBlobs.push(await comfyUIService.getImageAsBase64String({filename : imageFilename}) ?? "")
-            }
-            setImages(imagesBlobs)
-        }
-        effect()
-    }, [imagesFilename])*/
-
-    /*useEffect(() => {
         if(firstLoad.current == false) return
 
         async function effect(){
@@ -96,7 +65,7 @@ function SettingsPanel(){
             comfyUIService.disconnect()
             refreshImages()
         })
-        await comfyUIService.queuePrompt(new ComfyUIWorkflowBuilder().setPrompt("an abstract 3d logo rendered with cinema 4d containing a sphere and particles effects"/*"a 3d top isometric view of the eiffel tower with red grass"*/).setBatchSize(1).setResolution(512, 512).setRandomSeed().build())
+        await comfyUIService.queuePrompt(new ComfyUIWorkflowBuilder().setPrompt("an abstract 3d logo rendered with cinema 4d containing a sphere and particles effects"/*"a 3d top isometric view of the eiffel tower with red grass"*/).setBatchSize(1).setResolution(256, 256).setRandomSeed().build())
         // comfyUIService.WSSendWorkflow(new ComfyUIWorkflowBuilder().setPrompt("a 3d top isometric view of the eiffel tower").setResolution(512, 512).build())
         /*const img = await comfyUIService.viewImage({
             "filename": "ComfyUI_00022_.png",
