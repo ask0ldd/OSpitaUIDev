@@ -84,7 +84,11 @@ class ComfyUIWorkflowBuilder {
 
     findLatentImageNodeKey() : string | undefined {
         for(const nodeKey in this.#workflow){
-            if(typeof this.#workflow[nodeKey] === 'object' && this.#workflow[nodeKey].inputs.batch_size != null) {
+            if(typeof this.#workflow[nodeKey] === 'object' 
+                && this.#workflow[nodeKey].inputs.batch_size != null
+                && this.#workflow[nodeKey].inputs.height != null
+                && this.#workflow[nodeKey].inputs.width != null
+            ) {
                 console.log(nodeKey)
                 return nodeKey
             }
@@ -95,7 +99,9 @@ class ComfyUIWorkflowBuilder {
 
     findCheckpointNodeKey() : string | undefined {
         for(const nodeKey in this.#workflow){
-            if(typeof this.#workflow[nodeKey] === 'object' && this.#workflow[nodeKey].inputs.ckpt_name != null) {
+            if(typeof this.#workflow[nodeKey] === 'object' 
+                && this.#workflow[nodeKey].inputs.ckpt_name != null
+            ) {
                 console.log(nodeKey)
                 return nodeKey
             }
@@ -106,7 +112,14 @@ class ComfyUIWorkflowBuilder {
 
     findKSamplerNodeKey() : string | undefined {
         for(const nodeKey in this.#workflow){
-            if(typeof this.#workflow[nodeKey] === 'object' && this.#workflow[nodeKey].inputs.seed != null) {
+            if(typeof this.#workflow[nodeKey] === 'object' 
+                && this.#workflow[nodeKey].inputs.seed != null
+                && this.#workflow[nodeKey].inputs.steps != null
+                && this.#workflow[nodeKey].inputs.cfg != null
+                && this.#workflow[nodeKey].inputs.denoise != null
+                && this.#workflow[nodeKey].inputs.scheduler != null
+                && this.#workflow[nodeKey].inputs.sampler_name != null
+            ) {
                 console.log(nodeKey)
                 return nodeKey
             }
