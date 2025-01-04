@@ -1,14 +1,24 @@
-/* eslint-disable no-unused-private-class-members */
-import { ComfyUIBaseWorkflow } from "../constants/ComfyUIBaseWorkflow"
-import { IComfyWorkflow } from "../interfaces/IComfyWorkflow"
-import ComfyUIWorkflow from "../models/ComfyUIWorkflow"
+import { IComfyWorkflow } from "../interfaces/IComfyWorkflow";
 
-class ComfyUIWorkflowBuilder {
+export default class ComfyUIWorkflow {
     #workflow : IComfyWorkflow
-    constructor(){
-        this.#workflow = {...ComfyUIBaseWorkflow}
-        this.setRandomSeed()
-        return this
+    constructor(workflow : IComfyWorkflow){
+        this.#workflow = workflow
+    }
+
+    get(){
+        return this.#workflow
+    }
+
+    countNodes(){
+        if(typeof this.#workflow !== "object") return 0
+        return Object.keys(this.#workflow).length
+    }
+
+    getPrompt() : string | undefined{
+        const positivePromptNodeKey = this.findPositivePromptNodeKey()
+        if(positivePromptNodeKey == null) return undefined
+        return this.#workflow[positivePromptNodeKey].inputs.text == null ? undefined : this.#workflow[positivePromptNodeKey].inputs.text as string
     }
 
     setPrompt(prompt : string){
@@ -21,6 +31,12 @@ class ComfyUIWorkflowBuilder {
         return this
     }
 
+    getResolution() : [string, string] | undefined{
+        const latentImageNodeKey = this.findLatentImageNodeKey()
+        if(latentImageNodeKey == null) return undefined
+        return this.#workflow[latentImageNodeKey].inputs.width == null || this.#workflow[latentImageNodeKey].inputs.height == null ? undefined : [this.#workflow[latentImageNodeKey].inputs.width as string, this.#workflow[latentImageNodeKey].inputs.height as string]
+    }
+
     setResolution(width : number, height : number){
         const latentImageNodeKey = this.findLatentImageNodeKey()
         if(latentImageNodeKey == null) return this
@@ -30,6 +46,12 @@ class ComfyUIWorkflowBuilder {
         workflowCopy[latentImageNodeKey].inputs.height = height
         this.#workflow = {...workflowCopy}
         return this
+    }
+
+    getNegativeKeywords() : string | undefined{
+        const negativePromptNodeKey = this.findNegativePromptNodeKey()
+        if(negativePromptNodeKey == null) return undefined
+        return this.#workflow[negativePromptNodeKey].inputs.text == null ? undefined : this.#workflow[negativePromptNodeKey].inputs.text as string
     }
 
     setNegativeKeywords(keywordsList : string){
@@ -58,6 +80,12 @@ class ComfyUIWorkflowBuilder {
         return this
     }
 
+    getSeed() : string | undefined{
+        const kSamplerNodeKey = this.findKSamplerNodeKey()
+        if(kSamplerNodeKey == null) return undefined
+        return this.#workflow[kSamplerNodeKey].inputs.seed == null ? undefined : this.#workflow[kSamplerNodeKey].inputs.seed as string
+    }
+
     setSeed(seed : number){
         const kSamplerNodeKey = this.findKSamplerNodeKey()
         if(kSamplerNodeKey == null) return this
@@ -68,6 +96,12 @@ class ComfyUIWorkflowBuilder {
         return this
     }
 
+    getBatchSize() : string | undefined{
+        const latentImageNodeKey = this.findLatentImageNodeKey()
+        if(latentImageNodeKey == null) return undefined
+        return this.#workflow[latentImageNodeKey].inputs.batch_size == null ? undefined : this.#workflow[latentImageNodeKey].inputs.batch_size as string
+    }
+
     setBatchSize(size : number){
         const latentImageNodeKey = this.findLatentImageNodeKey()
         if(latentImageNodeKey == null) return this
@@ -75,11 +109,6 @@ class ComfyUIWorkflowBuilder {
         workflowCopy[latentImageNodeKey].inputs.batch_size = size
         this.#workflow = {...workflowCopy}
         return this
-    }
-
-    build() : ComfyUIWorkflow{
-        return new ComfyUIWorkflow(this.#workflow)
-        // return this.#workflow
     }
 
     findLatentImageNodeKey() : string | undefined {
@@ -129,5 +158,3 @@ class ComfyUIWorkflowBuilder {
         return undefined
     }
 }
-
-export default ComfyUIWorkflowBuilder
