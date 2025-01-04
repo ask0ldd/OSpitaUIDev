@@ -35,12 +35,21 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
             }
             setConversationsListState(conversations || [])
         }
-        if (!hasBeenInit.current) fetchConversations()
+        
+        try{
+            if (!hasBeenInit.current) fetchConversations()
+        }catch(error){
+            console.error(error)
+        }
     }, [])
 
     async function refreshConversations(){
-        const conversations = await ConversationService.getAll()
-        setConversationsListState(conversations || [])
+        try{
+            const conversations = await ConversationService.getAll()
+            setConversationsListState(conversations || [])
+        }catch(error){
+            console.error(error)
+        }
     }
 
     function closeDeletionConfirm(){
@@ -85,27 +94,31 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
     }
 
     async function handleDeleteConversation(id : number) : Promise<void>{
-        // if the conversation is the active one, abort the streaming process in case it is currently active
-        if(id == activeConversationId) {
-            ChatService.abortAgentLastRequest()
-            webSearchService.abortLastRequest()
-        }
+        try{
+            // if the conversation is the active one, abort the streaming process in case it is currently active
+            if(id == activeConversationId) {
+                ChatService.abortAgentLastRequest()
+                webSearchService.abortLastRequest()
+            }
 
-        const conversations = await ConversationService.getAll()
-        if(conversations == null) return
-        if(conversations.length > 1) {
-            ConversationService.deleteById(id)
-            setTargetForDeletionId(-1)
             const conversations = await ConversationService.getAll()
-            await refreshConversations()
             if(conversations == null) return
-            setActiveConversationId({value : conversations[0].$loki})
-            dispatch({type : ActionType.SET_CONVERSATION, payload : conversations[0]})
-        }
-        if(conversations.length == 1){
-            ConversationService.deleteById(id)
-            setTargetForDeletionId(-1)
-            handleNewConversation()
+            if(conversations.length > 1) {
+                ConversationService.deleteById(id)
+                setTargetForDeletionId(-1)
+                const conversations = await ConversationService.getAll()
+                await refreshConversations()
+                if(conversations == null) return
+                setActiveConversationId({value : conversations[0].$loki})
+                dispatch({type : ActionType.SET_CONVERSATION, payload : conversations[0]})
+            }
+            if(conversations.length == 1){
+                ConversationService.deleteById(id)
+                setTargetForDeletionId(-1)
+                handleNewConversation()
+            }
+        }catch(error){
+            console.error(error)
         }
 
         // deleting the first one and only conversation
