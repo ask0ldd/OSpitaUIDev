@@ -16,7 +16,7 @@ class CharacterService{
             
         } catch (error) {
             console.error("Error fetching characters list : ", error)
-            return undefined
+            throw error
         }
     }
 
@@ -35,7 +35,7 @@ class CharacterService{
             
         } catch (error) {
             console.error("Error fetching character settings : ", error)
-            return undefined
+            throw error
         }
     }
 

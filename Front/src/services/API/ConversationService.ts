@@ -63,7 +63,7 @@ export default class ConversationService{
             
         } catch (error) {
             console.error("Error fetching conversations list : ", error)
-            return undefined
+            throw error
         }
     }
 
