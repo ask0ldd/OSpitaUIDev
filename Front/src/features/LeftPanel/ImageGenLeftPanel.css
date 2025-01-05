@@ -1,0 +1,20 @@
+article .galleryContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  width: 100%;
+  margin-top: 0.75rem;
+  /*height: calc(100vh - 74px);*/
+
+  & > img {
+    display: flex;
+    flex: 1 1 calc((100% - 0.75rem) / 4);
+    box-sizing: border-box;
+    /*flex: 1 1 100%;*/
+    max-width: calc((100% - 0.75rem) / 4);
+    aspect-ratio: 1 / 1;
+    border: 1px solid var(--input-border-color);
+    object-fit: cover;
+    cursor: pointer;
+  }
+}
