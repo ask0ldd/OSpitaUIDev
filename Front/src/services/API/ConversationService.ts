@@ -29,6 +29,7 @@ export default class ConversationService{
         }
     }
 
+    // getById<T extends IConversationWithId>(conversationId: T['$loki']): Promise<T | undefined>
     static async getById(conversationId : number) : Promise<IConversationWithId | undefined>{
         try {
             const response = await fetch("/backend/conversation/byId/" + conversationId, {

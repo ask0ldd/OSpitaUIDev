@@ -1,11 +1,13 @@
-type MessageType = 
+/* export type MessageType = 
   | 'execution_start'
   | 'executing'
   | 'progress'
   | 'executed'
   | 'execution_cached'
   | 'execution_error'
-  | 'execution_complete';
+  | 'execution_complete';*/
+
+export type WSMessageType = "execution_start" | "executing" | "progress" | "executed" | "execution_cached" | "execution_error" | "execution_complete"
 
 type TOutput = {
  "images" : [{ filename : string, subfolder : string, type : string}]
@@ -13,7 +15,7 @@ type TOutput = {
 
 // Define interfaces for each message type
 export interface BaseMessage {
-  type: MessageType;
+  type: WSMessageType;
 }
 
 export interface ExecutingMessage extends BaseMessage {
