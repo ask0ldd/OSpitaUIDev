@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { IComfyWorkflow } from "../interfaces/IComfyWorkflow";
-import { ExecutedMessage, ExecutingMessage, ExecutionErrorMessage, ProgressMessage, TWSMessage } from "../interfaces/TWSMessageType";
+import { ExecutedMessage, ExecutingMessage, ExecutionErrorMessage, ProgressMessage, TWSMessage, WSMessageType } from "../interfaces/TWSMessageType";
 
 /* eslint-disable no-unused-private-class-members */
 class ComfyUIService {
@@ -64,21 +64,25 @@ class ComfyUIService {
           console.log('Workflow execution started')
           break
         case 'executing':
-          console.log('Executing node:', (message as ExecutingMessage).data.node)
+          if("data" in message && "node" in message.data) 
+            console.log('Executing node:', message.data.node)
           break
         case 'progress':
-          console.log('Progress:', Math.round((message as ProgressMessage).data.value / (message as ProgressMessage).data.max * 100), '%')
+          if("data" in message && "value" in message.data && "max" in message.data) 
+            console.log('Progress:', Math.round(message .data.value / message.data.max * 100), '%')
           break
         case 'executed':
           this.#workflowExecutedCallbacks.forEach(callback => callback(message))
-          console.log('Node executed:', (message as ExecutedMessage).data.node)
+          if("data" in message && "node" in message.data) 
+            console.log('Node executed:', message.data.node)
           console.log(JSON.stringify(message))
           break
         case 'execution_cached':
           console.log('Execution cached')
           break
         case 'execution_error':
-          console.error('Execution error:', (message as ExecutionErrorMessage).data.exception_message)
+          if("data" in message && "exception_message" in message.data)
+            console.error('Execution error:', message.data.exception_message)
           break
         case 'execution_complete':
           console.log('Workflow execution completed', JSON.stringify(message))
@@ -167,7 +171,7 @@ export default ComfyUIService
 
 // a nice hotel room looking like a 3d render with a haussmanian touch and red walls
 
-type WSMessageType = "execution_start" | "executing" | "progress" | "executed" | "execution_cached" | "execution_error" | "execution_complete"
+// type WSMessageType = "execution_start" | "executing" | "progress" | "executed" | "execution_cached" | "execution_error" | "execution_complete"
 
 interface PromptInput {
     seed: number;
