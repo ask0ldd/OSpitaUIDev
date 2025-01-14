@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import RightMenu from './RightMenu'
 import './RightPanel3.css'
+import GalleryPanel from './GalleryPanel'
 
 function ImageGenRightPanel(){
 
@@ -15,9 +16,10 @@ function ImageGenRightPanel(){
     return(
         <aside className="rightDrawer">
             <RightMenu handleMenuItemClick={handleMenuItemClick} isStreaming={false}/>
-            <article className='settingsFormContainer'>
+            {/*<article className='settingsFormContainer'>
                 <label>Active Workflow</label>
-            </article>
+            </article>*/}
+            <GalleryPanel/>
         </aside>
     )
 }
