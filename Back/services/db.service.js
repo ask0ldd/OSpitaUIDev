@@ -9,6 +9,9 @@ function databaseInit(db) {
     if (db.getCollection("prompts") === null) {
       db.addCollection("prompts")
     }
+    if (db.getCollection("imagePrompts") === null) {
+      db.addCollection("imagePrompts")
+    }
     if (db.getCollection("agents") === null) {
         db.addCollection("agents")
     }
