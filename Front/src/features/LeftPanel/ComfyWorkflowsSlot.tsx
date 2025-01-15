@@ -1,11 +1,30 @@
+import { useEffect, useState } from "react";
 import usePagination from "../../hooks/usePagination";
+import { useServices } from "../../hooks/useServices";
 import DefaultSlotButtonsGroup from "./DefaultSlotButtonsGroup";
+import { IComfyWorklowResponse } from "../../interfaces/responses/IComfyWorklowResponse";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 function ComfyWorkflowsSlot(){
 
+    const { workflowService } = useServices()
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const worklowsList : any[] = []
+    const [worklowsList, setWorkflowsList] = useState<IComfyWorklowResponse[]>([])
+
+    useEffect(() => {
+        async function getWorkflows(){
+            try {
+                const workflows = await workflowService.getAll()
+                setWorkflowsList(workflows || [])
+            } catch (error) {
+                console.error('Error fetching workflows list:', error)
+                setWorkflowsList([])
+            }
+        }
+
+        getWorkflows()
+    }, [])
 
     const itemsPerPage = 8;
 
