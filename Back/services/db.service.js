@@ -3,14 +3,19 @@ const prompts = require('../constants/prompts.js')
 const agents = require('../constants/agents.js')
 const { SETTINGS_FILE } = require('../controllers/character.controller.js')
 const { getAllYamlAsJson } = require('../services/yaml.service.js')
+const comfyUIDefaultWorkflow = require('../constants/comfyUIDefaultWorkflow.js')
 
 function databaseInit(db) {
     // removeCollections(db)
     if (db.getCollection("prompts") === null) {
       db.addCollection("prompts")
     }
-    if (db.getCollection("imagePrompts") === null) {
-      db.addCollection("imagePrompts")
+    if (db.getCollection("imagegen-prompts") === null) {
+      db.addCollection("imagegen-prompts")
+    }
+    db.removeCollection("imagegen-workflows")
+    if (db.getCollection("imagegen-workflows") === null) {
+      db.addCollection("imagegen-workflows")
     }
     if (db.getCollection("agents") === null) {
         db.addCollection("agents")
@@ -36,6 +41,7 @@ function databaseInit(db) {
     if(db.getCollection("prompts").find().length == 0) prompts.forEach(prompt => db.getCollection("prompts").insert(prompt))
     if(db.getCollection("agents").find().length == 0) agents.forEach(agent => db.getCollection("agents").insert(agent))
     if(db.getCollection("characters").find().length == 0) getAllYamlAsJson().forEach(character => db.getCollection("characters").insert(character))
+    if(db.getCollection("imagegen-workflows").find().length == 0) db.getCollection("imagegen-workflows").insert({name : "defaultFluxDev", workflow : comfyUIDefaultWorkflow})
     // myCollection.on('insert', function(input) { input.id = input.$loki; })
 }
 
