@@ -16,6 +16,8 @@ import mockRunningModelsInfos from '../../__mocks__/mockRunningModelsInfos';
 import AIAgentChain from '../../models/AIAgentChain';
 import mockLLMResponse from '../../__mocks__/mockLLMResponse';
 import AgentService from '../../services/API/AgentService';
+import mockConversationsList from '../../__mocks__/mockConversationsList';
+import ConversationService from '../../services/API/ConversationService';
 
 const MockedRouter = () => (
     <MemoryRouter>
@@ -41,6 +43,7 @@ describe('Given I am on the Chat page', () => {
         vi.spyOn(AIAgentChain, 'process').mockResolvedValue(mockLLMResponse)
         vi.spyOn(DocService, 'getAll').mockResolvedValue(mockRAGDocumentsList)
         vi.spyOn(PromptService.prototype, 'getAll').mockResolvedValue(mockPromptsList)
+        vi.spyOn(ConversationService, 'getAll').mockResolvedValue([mockConversationsList[0], mockConversationsList[1], mockConversationsList[2]])
         vi.stubGlobal('speechSynthesis', {
             getVoices: vi.fn().mockReturnValue(mockVoices),
         });
