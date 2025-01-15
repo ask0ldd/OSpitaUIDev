@@ -1,11 +1,32 @@
+import { useState, useRef, useEffect } from "react";
 import usePagination from "../../hooks/usePagination";
+import { useServices } from "../../hooks/useServices";
+import IPromptResponse from "../../interfaces/responses/IPromptResponse";
 import DefaultSlotButtonsGroup from "./DefaultSlotButtonsGroup";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 function ComfyPromptsSlot(){
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const promptsList : any[] = []
+    const { imagePromptService } = useServices()
+
+    const [promptsList, setPromptsList] = useState<IPromptResponse[]>([])
+
+    const hasBeenInit = useRef(false)
+    useEffect(() => {
+        async function getWorkflows(){
+            try {
+                const prompts = await imagePromptService.getAll()
+                setPromptsList(prompts || [])
+            } catch (error) {
+                console.error('Error fetching workflows list:', error)
+                setPromptsList([])
+            } finally{
+                hasBeenInit.current = true
+            }
+        }
+
+        if(hasBeenInit.current == false) getWorkflows()
+    }, [hasBeenInit.current])
 
     const itemsPerPage = 5;
 

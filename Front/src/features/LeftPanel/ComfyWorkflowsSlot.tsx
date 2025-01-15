@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import usePagination from "../../hooks/usePagination";
 import { useServices } from "../../hooks/useServices";
 import DefaultSlotButtonsGroup from "./DefaultSlotButtonsGroup";
@@ -9,9 +9,9 @@ function ComfyWorkflowsSlot(){
 
     const { workflowService } = useServices()
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [worklowsList, setWorkflowsList] = useState<IComfyWorklowResponse[]>([])
+    const [workflowsList, setWorkflowsList] = useState<IComfyWorklowResponse[]>([])
 
+    const hasBeenInit = useRef(false)
     useEffect(() => {
         async function getWorkflows(){
             try {
@@ -20,19 +20,21 @@ function ComfyWorkflowsSlot(){
             } catch (error) {
                 console.error('Error fetching workflows list:', error)
                 setWorkflowsList([])
+            } finally{
+                hasBeenInit.current = true
             }
         }
 
-        getWorkflows()
-    }, [])
+        if(hasBeenInit.current == false) getWorkflows()
+    }, [hasBeenInit.current])
 
     const itemsPerPage = 8;
 
-    const { handlePageChange, activePage } = usePagination(itemsPerPage, () => worklowsList.length)
+    const { handlePageChange, activePage } = usePagination(itemsPerPage, () => workflowsList.length)
 
     function nBlankConversationSlotsNeededAsFillers() : number{
-        if (activePage * itemsPerPage + itemsPerPage < worklowsList.length) return 0
-        return activePage * itemsPerPage + itemsPerPage - worklowsList.length
+        if (activePage * itemsPerPage + itemsPerPage < workflowsList.length) return 0
+        return activePage * itemsPerPage + itemsPerPage - workflowsList.length
     }
 
     function handleOpenEditWorkflowFormClick(WorkflowName : string) : void {
@@ -51,7 +53,7 @@ function ComfyWorkflowsSlot(){
                 WORKFLOWS
             </h3>
             <ul>
-                {worklowsList.slice(activePage * itemsPerPage, activePage * itemsPerPage + itemsPerPage).map((workflow, index) => (<li key={"workflow" + index + activePage * itemsPerPage} onClick={() => handleOpenEditWorkflowFormClick(workflow.name)}>{workflow.name}</li>))}
+                {workflowsList.slice(activePage * itemsPerPage, activePage * itemsPerPage + itemsPerPage).map((workflow, index) => (<li key={"workflow" + index + activePage * itemsPerPage} onClick={() => handleOpenEditWorkflowFormClick(workflow.name)}>{workflow.name}</li>))}
                 {
                     nBlankConversationSlotsNeededAsFillers() > 0 && Array(nBlankConversationSlotsNeededAsFillers()).fill("").map((_,id) => (<li className='fillerItem' key={"blank"+id}></li>))
                 }
