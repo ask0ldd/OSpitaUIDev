@@ -13,6 +13,8 @@ import PromptService from '../../services/API/PromptService';
 import mockPromptsList from '../../__mocks__/mockPromptsList';
 import mockRunningModelsInfos from '../../__mocks__/mockRunningModelsInfos';
 import AgentService from '../../services/API/AgentService';
+import mockConversationsList from '../../__mocks__/mockConversationsList';
+import ConversationService from '../../services/API/ConversationService';
 
 const MockedRouter = () => (
     <MemoryRouter>
@@ -36,6 +38,8 @@ describe('Given I am on the Chat page', () => {
         vi.spyOn(AgentService.prototype, 'getAgentByName').mockResolvedValue(mockAgentsList[0])
         vi.spyOn(DocService, 'getAll').mockResolvedValue(mockRAGDocumentsList)
         vi.spyOn(PromptService.prototype, 'getAll').mockResolvedValue(mockPromptsList)
+        // ConversationService.getAll = vi.fn().mockResolvedValue(mockConversationsList)
+        vi.spyOn(ConversationService, 'getAll').mockResolvedValue([mockConversationsList[0], mockConversationsList[1], mockConversationsList[2]])
         vi.stubGlobal('speechSynthesis', {
             getVoices: vi.fn().mockReturnValue(mockVoices),
         });
