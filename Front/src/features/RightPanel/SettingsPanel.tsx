@@ -49,7 +49,7 @@ function SettingsPanel(){
         firstLoad.current = false
     }, [])*/
 
-    async function handleClick(){
+    /*async function handleClick(){
         comfyUIService.initSocket()
         comfyUIService.onWorkflowExecuted(async (message : TWSMessage) => {
             console.log("trigger")
@@ -65,18 +65,21 @@ function SettingsPanel(){
             comfyUIService.disconnect()
             refreshImages()
         })
-        const workflow = new ComfyUIWorkflowBuilder().setPrompt("an abstract 3d logo rendered with cinema 4d containing a sphere and particles effects"/*"a 3d top isometric view of the eiffel tower with red grass"*/).setBatchSize(1).setResolution(256, 256).setRandomSeed().build()
+        const workflow = new ComfyUIWorkflowBuilder().setPrompt("an abstract 3d logo rendered with cinema 4d containing a sphere and particles effects").setBatchSize(1).setResolution(256, 256).setRandomSeed().build()
         await comfyUIService.queuePrompt(workflow.get())
-        // comfyUIService.WSSendWorkflow(new ComfyUIWorkflowBuilder().setPrompt("a 3d top isometric view of the eiffel tower").setResolution(512, 512).build())
-        /*const img = await comfyUIService.viewImage({
-            "filename": "ComfyUI_00022_.png",
-            "subfolder": "",
-            "type": "output"
-        })
-        console.log(img)*/
-    }
+    }*/
 
-    async function handleDownloadClick(e : React.MouseEvent){
+    /*"a 3d top isometric view of the eiffel tower with red grass"*/
+
+    // comfyUIService.WSSendWorkflow(new ComfyUIWorkflowBuilder().setPrompt("a 3d top isometric view of the eiffel tower").setResolution(512, 512).build())
+    /*const img = await comfyUIService.viewImage({
+        "filename": "ComfyUI_00022_.png",
+        "subfolder": "",
+        "type": "output"
+    })
+    console.log(img)*/
+
+    /*async function handleDownloadClick(e : React.MouseEvent){
         // console.log((e.target as HTMLImageElement).src)
         try {
             const response = await fetch((e.target as HTMLImageElement).src)
@@ -91,19 +94,19 @@ function SettingsPanel(){
           } catch (error) {
             console.error('Error downloading image:', error)
           }
-    }
+    }*/
 
-    function handleMouseOverPicture(index : number){
+    /*function handleMouseOverPicture(index : number){
         setHoveredImage(images[index] ?? null)
-    }
+    }*/
 
     return(
         <article className='comingSoonContainer'>
-            <span className='comingSoon' style={{textAlign:'center', width:'100%'}} onClick={handleClick}>
+            <span className='comingSoon' style={{textAlign:'center', width:'100%'}}>
                 Coming Soon
             </span>
             <div style={{display:'flex', width:'100%', flexWrap:'wrap'}}>
-                {images.map((image : IImage, index : number) => (<img onClick={handleDownloadClick} onMouseEnter={() => handleMouseOverPicture(index)} onMouseOut={() => setHoveredImage(null)} key={index + "-comfyimg"} style={{display:'flex', width:'30%', flexGrow:'1', maxWidth:'33.33%'}} src={'backend/images/generated/' + image.filename}/>))}
+                {images.map((image : IImage, index : number) => (<img onMouseOut={() => setHoveredImage(null)} key={index + "-comfyimg"} style={{display:'flex', width:'30%', flexGrow:'1', maxWidth:'33.33%'}} src={'backend/images/generated/' + image.filename}/>))}
             </div>
         </article>
     )
