@@ -1,4 +1,4 @@
-import { IImage } from "../../interfaces/IImage"
+import { IImage } from "../../../interfaces/IImage"
 
 class GeneratedImagesService{
     async getAll() : Promise<IImage[] | undefined>{
