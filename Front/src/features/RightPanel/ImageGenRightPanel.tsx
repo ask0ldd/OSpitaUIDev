@@ -2,8 +2,9 @@ import { useNavigate } from 'react-router-dom'
 import RightMenu from './RightMenu'
 import './RightPanel3.css'
 import GalleryPanel from './GalleryPanel'
+import { IImage } from '../../interfaces/IImage'
 
-function ImageGenRightPanel(){
+function ImageGenRightPanel({images} : {images : IImage[]}){
 
     const navigate = useNavigate()
 
@@ -19,7 +20,7 @@ function ImageGenRightPanel(){
             {/*<article className='settingsFormContainer'>
                 <label>Active Workflow</label>
             </article>*/}
-            <GalleryPanel/>
+            <GalleryPanel images={images}/>
         </aside>
     )
 }

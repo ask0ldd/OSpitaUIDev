@@ -9,6 +9,7 @@ class ComfyUIService {
     #ws! : WebSocket
     #messagesCallbacks: { [key: string]: ((message: TWSMessage) => void)[] } = {}
     #workflowExecutedCallbacks : ((message: TWSMessage) => void)[] = []
+    #lastPrompt = ""
 
     constructor(){
         this.#name = this.generateUniqueName()
@@ -164,6 +165,14 @@ class ComfyUIService {
     async getPrompt(promptId : string) {
         const response = await fetch(`http://${this.#serverAddress}/history?` + promptId)
         console.log(await response.json())
+    }
+
+    getLastPrompt(){
+      return this.#lastPrompt
+    }
+
+    setLastPrompt(prompt : string){
+      this.#lastPrompt = prompt
     }
 }
 

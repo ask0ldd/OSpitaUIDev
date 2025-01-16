@@ -3,6 +3,7 @@ import { IImage } from "../../interfaces/IImage"
 export default class ImageService{
     async upload(formData : FormData): Promise<IImage | undefined>{
         try{
+            // !!!!!!! check formdata content
             const response = await fetch('backend/upload', {
                 method: 'POST',
                 body: formData

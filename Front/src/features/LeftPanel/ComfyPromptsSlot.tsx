@@ -54,7 +54,7 @@ function ComfyPromptsSlot(){
             <ul>
                 {promptsList.slice(activePage * itemsPerPage, activePage * itemsPerPage + itemsPerPage).map((prompt, index) => (<li key={"prompt" + index + activePage * itemsPerPage} onClick={() => handleOpenEditPromptFormClick(prompt.name)}>{prompt.name}</li>))}
                 {
-                    nBlankConversationSlotsNeededAsFillers() > 0 && Array(nBlankConversationSlotsNeededAsFillers()).fill("").map((_,id) => (<li className='fillerItem' key={"blank"+id}></li>))
+                    nBlankConversationSlotsNeededAsFillers() > 0 && Array(nBlankConversationSlotsNeededAsFillers()).fill("").map((_,id) => (<li className='fillerItem' key={"blankprompt-"+id}></li>))
                 }
             </ul>
             <div className='buttonsContainer'>
