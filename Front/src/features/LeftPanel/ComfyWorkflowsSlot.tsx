@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import usePagination from "../../hooks/usePagination";
 import { useServices } from "../../hooks/useServices";
 import DefaultSlotButtonsGroup from "./DefaultSlotButtonsGroup";
@@ -10,23 +10,26 @@ function ComfyWorkflowsSlot(){
     const { workflowService } = useServices()
 
     const [workflowsList, setWorkflowsList] = useState<IComfyWorklowResponse[]>([])
+    const [error, setError] = useState<string | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
 
-    const hasBeenInit = useRef(false)
     useEffect(() => {
         async function getWorkflows(){
             try {
                 const workflows = await workflowService.getAll()
                 setWorkflowsList(workflows || [])
+                setError(null)
             } catch (error) {
-                console.error('Error fetching workflows list:', error)
+                console.error('Error fetching workflows list : ', error)
+                setError(`Error fetching workflows list: ${error instanceof Error ? error.message : String(error)}`)
                 setWorkflowsList([])
             } finally{
-                hasBeenInit.current = true
+                setIsLoading(false)
             }
         }
 
-        if(hasBeenInit.current == false) getWorkflows()
-    }, [hasBeenInit.current])
+        getWorkflows()
+    }, [])
 
     const itemsPerPage = 8;
 
@@ -55,7 +58,7 @@ function ComfyWorkflowsSlot(){
             <ul>
                 {workflowsList.slice(activePage * itemsPerPage, activePage * itemsPerPage + itemsPerPage).map((workflow, index) => (<li key={"workflow" + index + activePage * itemsPerPage} onClick={() => handleOpenEditWorkflowFormClick(workflow.name)}>{workflow.name}</li>))}
                 {
-                    nBlankConversationSlotsNeededAsFillers() > 0 && Array(nBlankConversationSlotsNeededAsFillers()).fill("").map((_,id) => (<li className='fillerItem' key={"blank"+id}></li>))
+                    nBlankConversationSlotsNeededAsFillers() > 0 && Array(nBlankConversationSlotsNeededAsFillers()).fill("").map((_,id) => (<li className='fillerItem' key={"blankworkflow-"+id}></li>))
                 }
             </ul>
             <div className='buttonsContainer'>

@@ -5,16 +5,12 @@ import { useServices } from '../../hooks/useServices'
 import { IImage } from '../../interfaces/IImage'
 import DefaultSlotButtonsGroup from '../LeftPanel/DefaultSlotButtonsGroup'
 
-function GalleryPanel() {
-    
-    const firstLoad = useRef(true)
+function GalleryPanel({images} : {images : IImage[]}) {
 
     const [searchTerm, setSearchTerm] = useState<string>("")
 
-    const { comfyUIService, imageService } = useServices()
     // const [imagesFilename, setImagesFilename] = useState<string[]>([])
-    const [images, setImages] = useState<IImage[]>([])
-    const [hoveredImage, setHoveredImage] = useState<IImage | null>()
+    /*const [hoveredImage, setHoveredImage] = useState<IImage | null>()
 
     useEffect(()=>{
         if(!firstLoad.current) return
@@ -24,10 +20,10 @@ function GalleryPanel() {
     async function refreshImages(){
         const imgs = await imageService.getAllGeneratedImages()
         setImages(imgs ?? [])
-    }
+    }*/
 
     function handleMouseOverPicture(index : number){
-        setHoveredImage(images[index] ?? null)
+        // setHoveredImage(images[index] ?? null)
     }
 
     async function handleDownloadClick(e : React.MouseEvent){
@@ -79,7 +75,7 @@ function GalleryPanel() {
                 </div>
             </div>
             <div className='galleryContainer'>
-                {images.map((image : IImage, index : number) => (<img onClick={handleDownloadClick} onMouseEnter={() => handleMouseOverPicture(index)} onMouseOut={() => setHoveredImage(null)} key={index + "-comfyimg"} src={'backend/images/generated/' + image.filename}/>))}
+                {images.map((image : IImage, index : number) => (<img onClick={handleDownloadClick} onMouseEnter={() => handleMouseOverPicture(index)} key={index + "-comfyimg"} src={'backend/images/generated/' + image.filename}/>))}
                 {
                     nVignettesToFillRow(images.length) > 0 && Array(nVignettesToFillRow(images.length)).fill("").map((_,id) => (<div title="emptySlot" className='fillerMiniature' key={"blank"+id}></div>))
                 }
