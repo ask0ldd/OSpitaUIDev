@@ -69,8 +69,12 @@ class ComfyUIService {
             console.log('Executing node:', message.data.node)
           break
         case 'progress':
-          if("data" in message && "value" in message.data && "max" in message.data) 
-            console.log('Progress:', Math.round(message .data.value / message.data.max * 100), '%')
+          if("data" in message && "value" in message.data && "max" in message.data)
+          {
+            const percentage = Math.round(message.data.value / message.data.max * 100)
+            this.#messagesCallbacks["progress"].forEach(callback => callback(message))
+            console.log('Progress:', percentage, '%')
+          }
           break
         case 'executed':
           this.#workflowExecutedCallbacks.forEach(callback => callback(message))
