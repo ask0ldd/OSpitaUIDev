@@ -22,7 +22,8 @@ class GeneratedImagesService{
 
     async upload(formData : FormData): Promise<IImage | undefined>{
         try{
-            formData.append("generated", "true")
+            // !!!!!!! check formdata content
+            // formData.append("generated", "true")
             const response = await fetch('backend/upload', {
                 method: 'POST',
                 body: formData
