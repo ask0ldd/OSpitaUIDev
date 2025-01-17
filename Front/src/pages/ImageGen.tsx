@@ -1,28 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-irregular-whitespace */
-import { useState, useEffect, useRef, MutableRefObject } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ComfyUIBaseWorkflow } from '../constants/ComfyUIBaseWorkflow'
 import { basePreset } from '../features/CustomSelect/presets/basePreset'
 import Select, { IOption } from '../features/CustomSelect/Select'
 import ImageGenLeftPanel from '../features/LeftPanel/ImageGenLeftPanel'
 import ImageGenRightPanel from '../features/RightPanel/ImageGenRightPanel'
 import { useServices } from '../hooks/useServices'
-import { IImage } from '../interfaces/IImage'
 import { TWSMessage, ExecutedMessage } from '../interfaces/TWSMessageType'
 import '../style/Chat.css'
 import '../style/ImageGen.css'
 import ComfyUIWorkflowBuilder from '../utils/ComfyUIWorkflowBuilder'
+import IGeneratedImage from '../interfaces/IGeneratedImage'
 
 
 function ImageGen(){
 
     const { comfyUIService, imageService } = useServices()
 
-    const [images, setImages] = useState<IImage[]>([])
-    const [hoveredImage, setHoveredImage] = useState<IImage | null>()
+    const [images, setImages] = useState<IGeneratedImage[]>([])
+    const [hoveredImage, setHoveredImage] = useState<IGeneratedImage | null>()
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const [textareaValue, setTextareaValue] = useState("")
+    const [progress, setProgress] = useState(0)
 
     useEffect(()=>{
         refreshImages()
@@ -35,6 +36,11 @@ function ImageGen(){
 
     async function handleClick(){
         comfyUIService.initSocket()
+        comfyUIService.on("progress", (message : TWSMessage) => {
+            if("data" in message && "value" in message.data && "max" in message.data){
+                setProgress(Math.round(message.data.value / message.data.max * 100))
+            }
+        })
         comfyUIService.onWorkflowExecuted(async (message : TWSMessage) => {
             console.log("trigger")
             comfyUIService.getPrompt((message as ExecutedMessage).data.prompt_id)
@@ -49,6 +55,7 @@ function ImageGen(){
             comfyUIService.resetOnEventsCallbacks()
             comfyUIService.disconnect()
             refreshImages()
+            setProgress(0)
         })
         // const workflow = new ComfyUIWorkflowBuilder().setPrompt("an abstract 3d logo rendered with cinema 4d containing a sphere and particles effects"/*"a 3d top isometric view of the eiffel tower with red grass"*/).setBatchSize(1).setResolution(256, 256).setRandomSeed().build()
         if(textareaRef.current && textareaRef.current?.value) {
@@ -69,7 +76,7 @@ function ImageGen(){
             <ImageGenLeftPanel/>
             <main style={{height:'100vh', maxHeight:'100vh', overflow:'hidden'}}>
                 <div className='topIGContainer'>
-                    <div className='topBar'>Follow our tutorial to install ComfyUI & the required tools</div>
+                    <div className='topBar'>Loading the model can take a few minutes, so please be patient...</div>
                 </div>
                 <div className='bodyTextBotBarContainer'>
                     <div id="workflowContainer" style={{
@@ -93,7 +100,11 @@ function ImageGen(){
                     </div>
                     <textarea ref={textareaRef} className='positivePrompt' style={{ flex: '0 0 auto'}} rows={5} onInput={(e) => setTextareaValue((e.target as HTMLTextAreaElement).value)} value={textareaValue}/>
                     <div className='progressSendContainer'>
-                        <div className='progressBar'>0 %</div>
+                        <div className='progressBarContainer'>
+                            <div className='progressBar' style={{width:progress+'%'}}>
+                                {progress ? progress + ' %' : ''}
+                            </div>
+                        </div>
                         <button className="sendButton purpleShadow" onClick={handleClick}>Generate Image</button>
                     </div>
                 </div>

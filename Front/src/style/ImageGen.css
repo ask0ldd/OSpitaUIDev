@@ -103,18 +103,32 @@ main {
       }
     }
 
-    .progressBar {
+    .progressBarContainer {
       display: flex;
       flex: 1 1 100%;
       height: 100%;
-      justify-content: center;
       align-items: center;
-      background: hsl(245, 27%, 63%);
+      background: hsl(245, 20%, 43%);
       border: 1px solid hsl(245, 23%, 58%);
-      box-shadow: 0 1px 0px #fff;
+      box-shadow: 0 1px 0px #fff, inset 0 1px 4px #00000077;
       width: 100%;
       border-radius: 6px;
       color: #fff;
+
+      .progressBar {
+        width: 50%;
+        height: 100%;
+        background: url("../assets/progressstripes.png"),
+          var(--purple-button-color);
+        background-repeat: repeat-x;
+        background-size: auto 100%;
+        animation: moveBackground 15s linear infinite;
+        box-shadow: inset 0 1px 3px #ffffff55, inset 0 -1px 4px #00000055,
+          3px 0 6px #6d48c155;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
     }
   }
 }
