@@ -8,20 +8,25 @@ async function search(query){
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36')
 
   // Navigate to the Google search page
-  await page.goto(`https://www.google.com/search?q=${query}`)
+  // await page.goto(`https://www.google.com/search?q=${encodeURIComponent(query)}&num=10&output=search`) // google
+
+ await page.goto(`https://duckduckgo.com/?t=h_&q=${encodeURIComponent(query)}&ia=web`)
 
   // Wait for the page to load
-  await page.waitForSelector('.g')
+  // await page.waitForSelector('.g') // google
+  await page.waitForSelector('li[data-layout="organic"]')
 
   // Extract the search results
-  const results = await page.$$('.g')
+  // const results = await page.$$('.g') // google
+  const results = await page.$$('li[data-layout="organic"]')
   const output = []
 
   for (let i = 0; i < results.length && i < 10; i++) {
     const result = results[i]
-    const title = await result.$eval('h3', (element) => element.textContent)
-    const url = await result.$eval('a', (element) => element.href)
-    // const snippet = await result.$eval('.IsZvec', (element) => element.textContent);
+    // const title = await result.$eval('h3', (element) => element.textContent) // google
+    // const url = await result.$eval('a', (element) => element.href) // google
+    const title = await result.$eval('h2', (element) => element.textContent)
+    const url = await result.$eval('h2 a', (element) => element.href)
 
     output.push({
       title,
