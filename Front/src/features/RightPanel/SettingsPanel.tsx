@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useRef, useState } from "react"
-import AINodesChain from "../../models/nodes/AINodesChain"
-import { AIAgentNew } from "../../models/nodes/AIAgentNew"
-import DocProcessorService from "../../services/DocProcessorService"
 import { useServices } from "../../hooks/useServices"
-import ComfyUIWorkflowBuilder from "../../utils/ComfyUIWorkflowBuilder"
-import { ExecutedMessage, TWSMessage } from "../../interfaces/TWSMessageType"
 import { IImage } from "../../interfaces/IImage"
+import { text } from "stream/consumers"
+import { AIAgentNew } from "../../models/nodes/AIAgentNew"
+import AINodesChain from "../../models/nodes/AINodesChain"
+import DocProcessorService from "../../services/DocProcessorService"
 
 function SettingsPanel(){
 
@@ -27,7 +26,7 @@ function SettingsPanel(){
         setImages(imgs ?? [])
     }
 
-    /*useEffect(() => {
+    useEffect(() => {
         if(firstLoad.current == false) return
 
         async function effect(){
@@ -38,76 +37,22 @@ function SettingsPanel(){
             const agentsChain = new AINodesChain({startNode : agentWriter, endNode : agentSummarizer})
             const result = agentsChain.process("heroic fantasy")
            
-            const semanticChunks = await DocProcessorService.semanticChunking(text, 0.7)
+            /*const semanticChunks = await DocProcessorService.semanticChunking(text, 0.7)
 
             console.log(JSON.stringify(semanticChunks))
-            console.log(semanticChunks.length)
+            console.log(semanticChunks.length)*/
         }
 
         effect()
 
         firstLoad.current = false
-    }, [])*/
-
-    /*async function handleClick(){
-        comfyUIService.initSocket()
-        comfyUIService.onWorkflowExecuted(async (message : TWSMessage) => {
-            console.log("trigger")
-            comfyUIService.getPrompt((message as ExecutedMessage).data.prompt_id)
-            const filename = (message as ExecutedMessage).data.output.images[0].filename
-            const imageBlob = await comfyUIService.fetchGeneratedImage(filename)
-            if(!imageBlob) return
-            const formData = new FormData()
-            formData.append("image", imageBlob, "generated_" + filename)
-            formData.append("generated", "true")
-            await imageService.upload(formData)
-            comfyUIService.resetOnEventsCallbacks()
-            comfyUIService.disconnect()
-            refreshImages()
-        })
-        const workflow = new ComfyUIWorkflowBuilder().setPrompt("an abstract 3d logo rendered with cinema 4d containing a sphere and particles effects").setBatchSize(1).setResolution(256, 256).setRandomSeed().build()
-        await comfyUIService.queuePrompt(workflow.get())
-    }*/
-
-    /*"a 3d top isometric view of the eiffel tower with red grass"*/
-
-    // comfyUIService.WSSendWorkflow(new ComfyUIWorkflowBuilder().setPrompt("a 3d top isometric view of the eiffel tower").setResolution(512, 512).build())
-    /*const img = await comfyUIService.viewImage({
-        "filename": "ComfyUI_00022_.png",
-        "subfolder": "",
-        "type": "output"
-    })
-    console.log(img)*/
-
-    /*async function handleDownloadClick(e : React.MouseEvent){
-        // console.log((e.target as HTMLImageElement).src)
-        try {
-            const response = await fetch((e.target as HTMLImageElement).src)
-            const blob = await response.blob()
-            const url = window.URL.createObjectURL(blob)
-            const link = document.createElement('a')
-            link.href = url
-            link.download = 'image.jpg'
-            document.body.appendChild(link)
-            link.click()
-            document.body.removeChild(link)
-          } catch (error) {
-            console.error('Error downloading image:', error)
-          }
-    }*/
-
-    /*function handleMouseOverPicture(index : number){
-        setHoveredImage(images[index] ?? null)
-    }*/
+    }, [])
 
     return(
         <article className='comingSoonContainer'>
             <span className='comingSoon' style={{textAlign:'center', width:'100%'}}>
                 Coming Soon
             </span>
-            <div style={{display:'flex', width:'100%', flexWrap:'wrap'}}>
-                {images.map((image : IImage, index : number) => (<img onMouseOut={() => setHoveredImage(null)} key={index + "-comfyimg"} style={{display:'flex', width:'30%', flexGrow:'1', maxWidth:'33.33%'}} src={'backend/images/generated/' + image.filename}/>))}
-            </div>
         </article>
     )
 }
