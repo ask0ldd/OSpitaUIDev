@@ -114,12 +114,14 @@ main {
       width: 100%;
       border-radius: 6px;
       color: #fff;
+      overflow: hidden;
 
       .progressBar {
         width: 50%;
         height: 100%;
         background: url("../assets/progressstripes.png"),
           var(--purple-button-color);
+        /*linear-gradient(to bottom, #39f8cf, #39f8f8);*/
         background-repeat: repeat-x;
         background-size: auto 100%;
         animation: moveBackground 15s linear infinite;

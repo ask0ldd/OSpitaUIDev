@@ -1,3 +1,4 @@
+import IGeneratedImage from "../../interfaces/IGeneratedImage"
 import { IImage } from "../../interfaces/IImage"
 
 export default class ImageService{
@@ -76,7 +77,7 @@ export default class ImageService{
         }
     }
 
-    async getAllGeneratedImages(){
+    async getAllGeneratedImages() : Promise<IGeneratedImage[] | undefined>{
         try {
             const response = await fetch("/backend/generated", {
                 method: "GET",

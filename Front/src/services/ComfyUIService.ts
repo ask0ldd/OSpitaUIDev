@@ -33,6 +33,7 @@ class ComfyUIService {
     }
 
     disconnect(){
+      this.resetOnEventsCallbacks()
       this.#ws.close()
     }
 

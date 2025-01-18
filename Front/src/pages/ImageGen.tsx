@@ -13,6 +13,7 @@ import '../style/Chat.css'
 import '../style/ImageGen.css'
 import ComfyUIWorkflowBuilder from '../utils/ComfyUIWorkflowBuilder'
 import IGeneratedImage from '../interfaces/IGeneratedImage'
+import ImagePreview from '../features/LeftPanel/ImagePreview'
 
 
 function ImageGen(){
@@ -34,6 +35,14 @@ function ImageGen(){
         setImages(imgs || [])
     }
 
+    function createImageFormData(blob : Blob, filename : string) : FormData{
+        const formData = new FormData()
+        formData.append("image", blob, "generated_" + filename)
+        formData.append("generated", "true")
+        formData.append("prompt", textareaRef.current?.value ?? "")
+        return formData
+    }
+
     async function handleClick(){
         comfyUIService.initSocket()
         comfyUIService.on("progress", (message : TWSMessage) => {
@@ -42,17 +51,12 @@ function ImageGen(){
             }
         })
         comfyUIService.onWorkflowExecuted(async (message : TWSMessage) => {
-            console.log("trigger")
-            comfyUIService.getPrompt((message as ExecutedMessage).data.prompt_id)
+            // comfyUIService.getPrompt((message as ExecutedMessage).data.prompt_id)
             const filename = (message as ExecutedMessage).data.output.images[0].filename
             const imageBlob = await comfyUIService.fetchGeneratedImage(filename)
             if(!imageBlob) return
-            const formData = new FormData()
-            formData.append("image", imageBlob, "generated_" + filename)
-            formData.append("generated", "true")
-            formData.append("prompt", textareaRef.current?.value ?? "")
+            const formData = createImageFormData(imageBlob, filename)
             await imageService.upload(formData)
-            comfyUIService.resetOnEventsCallbacks()
             comfyUIService.disconnect()
             refreshImages()
             setProgress(0)
@@ -62,6 +66,7 @@ function ImageGen(){
             const workflow = new ComfyUIWorkflowBuilder().setPrompt(textareaRef.current.value).setBatchSize(1).setResolution(256, 256).setRandomSeed().build()
             await comfyUIService.queuePrompt(workflow.get())
         }
+        setTextareaValue("")
         // comfyUIService.WSSendWorkflow(new ComfyUIWorkflowBuilder().setPrompt("a 3d top isometric view of the eiffel tower").setResolution(512, 512).build())
         /*const img = await comfyUIService.viewImage({
             "filename": "ComfyUI_00022_.png",
@@ -76,7 +81,7 @@ function ImageGen(){
             <ImageGenLeftPanel/>
             <main style={{height:'100vh', maxHeight:'100vh', overflow:'hidden'}}>
                 <div className='topIGContainer'>
-                    <div className='topBar'>Loading the model can take a few minutes, so please be patient...</div>
+                    <div className='topBar'>At the beginning of each session, loading the model can take a few minutes. Please be patient...</div>
                 </div>
                 <div className='bodyTextBotBarContainer'>
                     <div id="workflowContainer" style={{
@@ -109,7 +114,8 @@ function ImageGen(){
                     </div>
                 </div>
             </main>
-            <ImageGenRightPanel images={images}/>
+            <ImageGenRightPanel images={images} setHoveredImage={setHoveredImage}/>
+            {hoveredImage && <ImagePreview imageSrc={'backend/images/generated/' + hoveredImage.filename}/>}
         </div>
     )
 }

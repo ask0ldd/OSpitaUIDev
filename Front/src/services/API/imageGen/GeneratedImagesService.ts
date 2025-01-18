@@ -3,7 +3,7 @@ import { IImage } from "../../../interfaces/IImage"
 class GeneratedImagesService{
     async getAll() : Promise<IImage[] | undefined>{
         try {
-            const response = await fetch("/backend/generatedimages", {
+            const response = await fetch("/backend/generated", {
                 method: "GET",
                 headers: { "Content-Type": "application/json", }
             })
