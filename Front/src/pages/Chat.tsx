@@ -68,7 +68,10 @@ function Chat() {
 
     // Main textarea management
     const { setTextareaValue, textareaRef } = useMainTextAreaStore()
-    useKeyboardListener(textareaRef, handlePressEnterKey, activeConversationId.value, activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context || [])
+    function isConversationsHistoryEmpty(){
+        return !(activeConversationStateRef.current.history?.length > 0)
+    }
+    useKeyboardListener(textareaRef, handlePressEnterKey, activeConversationId.value, isConversationsHistoryEmpty() ? activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context : [])
 
     // Modal management
     // Handles modal visibility and content switching
@@ -377,7 +380,7 @@ function Chat() {
 
             <div className="stickyBottomContainer">
                 <CustomTextarea/>
-                {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]}
+                {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={isConversationsHistoryEmpty() ? activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1] : undefined}
                     isStreaming={isStreaming} 
                     selfClose={setIsFollowUpQuestionsClosed} isFollowUpQuestionsClosed={isFollowUpQuestionsClosed}/>}
                 
@@ -389,10 +392,10 @@ function Chat() {
                         </div>
                     </div>
                     <div className="infosBottomContainer" onClick={() => console.log(JSON.stringify(lastRAGResultsRef.current))}>
-                        <div>Model Loading : { (nanosecondsToSeconds(activeConversationStateRef.current.inferenceStats?.modelLoadingDuration || 0)).toFixed(2) } s</div>
-                        <div className="infoItemDisappearLowWidth">Prompt : { Math.min(100, ((activeConversationStateRef.current.inferenceStats?.promptTokensEval || 0) / nanosecondsToSeconds((activeConversationStateRef.current.inferenceStats?.promptEvalDuration || 1)))).toFixed(2) } tk/s</div>
-                        <div className="infoItemDisappearLowWidth">Inference : { ((activeConversationStateRef.current.inferenceStats?.tokensGenerated || 0) / nanosecondsToSeconds((activeConversationStateRef.current.inferenceStats?.inferenceDuration || 1))).toFixed(2) } tk/s</div>
-                        <div>Full Process : { (nanosecondsToSeconds(activeConversationStateRef.current.inferenceStats?.wholeProcessDuration || 0)).toFixed(2) } s</div>
+                        <div>Model Loading : { (nanosecondsToSeconds(activeConversationStateRef.current.inferenceStats?.modelLoadingDuration ?? 0)).toFixed(2) } s</div>
+                        <div className="infoItemDisappearLowWidth">Prompt : { Math.min(100, ((activeConversationStateRef.current.inferenceStats?.promptTokensEval ?? 0) / nanosecondsToSeconds((activeConversationStateRef.current.inferenceStats?.promptEvalDuration ?? 1)))).toFixed(2) } tk/s</div>
+                        <div className="infoItemDisappearLowWidth">Inference : { ((activeConversationStateRef.current.inferenceStats?.tokensGenerated ?? 0) / nanosecondsToSeconds((activeConversationStateRef.current.inferenceStats?.inferenceDuration ?? 1))).toFixed(2) } tk/s</div>
+                        <div>Full Process : { (nanosecondsToSeconds(activeConversationStateRef.current.inferenceStats?.wholeProcessDuration ?? 0)).toFixed(2) } s</div>
                     </div>
                     <button title="top of the page" className="goTopButton purpleShadow" onClick={handleScrollToTopClick}>
                         <svg style={{transform:'translateY(1px)'}} height="20" viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">

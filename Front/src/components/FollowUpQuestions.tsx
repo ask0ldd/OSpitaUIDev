@@ -25,6 +25,7 @@ const FollowUpQuestions = React.memo(({historyElement, isStreaming, selfClose, i
     }
 
     function handleRefreshFUpClick(){
+        if(historyElement == null) return
         if(ChatService.isAVisionModelActive()) return
         ChatService.abortAgentLastRequest()
         generateFollowUpQuestions(historyElement.question)
@@ -57,6 +58,7 @@ ${question}`
         let response: string[] = [];
     
         try {
+            if(historyElement == null) return
             const threeQuestions = await ChatService.askForFollowUpQuestions(prompt, historyElement.context || []);
             response = JSON.parse(threeQuestions);
         } catch (error) {
@@ -99,7 +101,7 @@ ${question}`
 export default FollowUpQuestions;
 
 interface IProps{
-    historyElement : IConversationElement
+    historyElement : IConversationElement | undefined
     isStreaming : boolean
     selfClose : (bool : boolean) => void
     isFollowUpQuestionsClosed : boolean
