@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom'
-import RightMenu from './RightMenu'
 import './RightPanel3.css'
 import GalleryPanel from './GalleryPanel'
-import { IImage } from '../../interfaces/IImage'
+import IGeneratedImage from '../../interfaces/IGeneratedImage'
+import ImageGenRightMenu from './ImageGenRightMenu'
 
-function ImageGenRightPanel({images} : {images : IImage[]}){
+function ImageGenRightPanel({images, setHoveredImage} : IProps){
 
     const navigate = useNavigate()
 
@@ -16,13 +16,18 @@ function ImageGenRightPanel({images} : {images : IImage[]}){
 
     return(
         <aside className="rightDrawer">
-            <RightMenu handleMenuItemClick={handleMenuItemClick} isStreaming={false}/>
+            <ImageGenRightMenu handleMenuItemClick={handleMenuItemClick} isStreaming={false}/>
             {/*<article className='settingsFormContainer'>
                 <label>Active Workflow</label>
             </article>*/}
-            <GalleryPanel images={images}/>
+            <GalleryPanel images={images} setHoveredImage={setHoveredImage}/>
         </aside>
     )
 }
 
 export default ImageGenRightPanel
+
+interface IProps{
+    images : IGeneratedImage[]
+    setHoveredImage : React.Dispatch<React.SetStateAction<IGeneratedImage | null | undefined>>
+}

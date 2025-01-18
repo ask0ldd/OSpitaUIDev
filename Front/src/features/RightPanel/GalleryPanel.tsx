@@ -1,29 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import './GalleryPanel.css'
-import { useRef, useState, useEffect } from 'react'
-import { useServices } from '../../hooks/useServices'
-import { IImage } from '../../interfaces/IImage'
+import { useState } from 'react'
 import DefaultSlotButtonsGroup from '../LeftPanel/DefaultSlotButtonsGroup'
+import IGeneratedImage from '../../interfaces/IGeneratedImage'
 
-function GalleryPanel({images} : {images : IImage[]}) {
+function GalleryPanel({images, setHoveredImage} : IProps) {
 
     const [searchTerm, setSearchTerm] = useState<string>("")
 
-    // const [imagesFilename, setImagesFilename] = useState<string[]>([])
-    /*const [hoveredImage, setHoveredImage] = useState<IImage | null>()
-
-    useEffect(()=>{
-        if(!firstLoad.current) return
-        refreshImages()
-    }, [])
-
-    async function refreshImages(){
-        const imgs = await imageService.getAllGeneratedImages()
-        setImages(imgs ?? [])
-    }*/
+    /*useEffect(() => {
+        console.table(images)
+    }, [images])*/
 
     function handleMouseOverPicture(index : number){
-        // setHoveredImage(images[index] ?? null)
+        setHoveredImage(images[index] ?? null)
     }
 
     async function handleDownloadClick(e : React.MouseEvent){
@@ -75,7 +65,7 @@ function GalleryPanel({images} : {images : IImage[]}) {
                 </div>
             </div>
             <div className='galleryContainer'>
-                {images.map((image : IImage, index : number) => (<img onClick={handleDownloadClick} onMouseEnter={() => handleMouseOverPicture(index)} key={index + "-comfyimg"} src={'backend/images/generated/' + image.filename}/>))}
+                {images.filter(image => image?.prompt?.toLowerCase().includes(searchTerm.toLowerCase()) ?? true).map((image : IGeneratedImage, index : number) => (<img onClick={handleDownloadClick} onMouseOut={() => setHoveredImage(null)} onMouseEnter={() => handleMouseOverPicture(index)} key={index + "-comfyimg"} src={'backend/images/generated/' + image.filename}/>))}
                 {
                     nVignettesToFillRow(images.length) > 0 && Array(nVignettesToFillRow(images.length)).fill("").map((_,id) => (<div title="emptySlot" className='fillerMiniature' key={"blank"+id}></div>))
                 }
@@ -99,3 +89,8 @@ function nVignettesToFillRow(nImages : number){
 }
 
 export default GalleryPanel
+
+interface IProps{
+    images : IGeneratedImage[]
+    setHoveredImage : React.Dispatch<React.SetStateAction<IGeneratedImage | null | undefined>>
+}
