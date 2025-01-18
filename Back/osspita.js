@@ -23,7 +23,7 @@ const adapter = new LokiFSAdapter()
 const db = new loki('sandbox.db', { 
   adapter : adapter,
   autoload: true,
-  autoloadCallback : () => databaseInit(db),
+  autoloadCallback : async () => await databaseInit(db),
   autosave: true, 
   autosaveInterval: 4000
 })
@@ -31,8 +31,6 @@ const db = new loki('sandbox.db', {
 const vdb = new VectorDatabase("./embeddings.db")
 vdb.start()
 vdb.clearDB()
-
-console.log(db.listCollections())
 
 app.use(cors())
 app.use(express.json({ limit: '50mb' }))

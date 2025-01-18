@@ -4,12 +4,12 @@ const uploadImage = (db) => async (req, res) => {
             return res.status(400).send('No file uploaded.');
         }
         // generated images & vision images don't go into the same collection
-        const imagesCollection = req.body?.generated ? db.getCollection('generatedImages') : db.getCollection('images')
+        const imagesCollection = req.body?.generated && req.body?.prompt ? db.getCollection('generatedImages') : db.getCollection('images')
         if (!imagesCollection) {
             throw new Error('The images collection does not exist in the database.')
         }
 
-        const image = await imagesCollection.insert({ filename : req.file.filename })
+        const image = req.body?.generated && req.body?.prompt ? await imagesCollection.insert({ filename : req.file.filename, prompt : req.body.prompt }) : await imagesCollection.insert({ filename : req.file.filename })
 
         db.saveDatabase((err) => {
             if (err) {

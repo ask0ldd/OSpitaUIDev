@@ -5,7 +5,7 @@ const { SETTINGS_FILE } = require('../controllers/character.controller.js')
 const { getAllYamlAsJson } = require('../services/yaml.service.js')
 const comfyUIDefaultWorkflow = require('../constants/comfyUIDefaultWorkflow.js')
 
-function databaseInit(db) {
+async function databaseInit(db) {
     // removeCollections(db)
     if (db.getCollection("prompts") === null) {
       db.addCollection("prompts")
@@ -13,27 +13,28 @@ function databaseInit(db) {
     if (db.getCollection("imagegen-prompts") === null) {
       db.addCollection("imagegen-prompts")
     }
-    db.removeCollection("imagegen-workflows")
+    // await db.removeCollection("imagegen-workflows")
     if (db.getCollection("imagegen-workflows") === null) {
       db.addCollection("imagegen-workflows")
     }
     if (db.getCollection("agents") === null) {
-        db.addCollection("agents")
+      db.addCollection("agents")
     }
     if (db.getCollection("docs") === null) {
-        db.addCollection("docs")
+      db.addCollection("docs")
     }
     if (db.getCollection("images") === null) {
       db.addCollection("images")
     }
+    // await db.removeCollection("generatedImages")
     if (db.getCollection("generatedImages") === null) {
-        db.addCollection("generatedImages")
+      db.addCollection("generatedImages")
     }
-    // db.removeCollection("conversations")
+    // await db.removeCollection("conversations")
     if (db.getCollection("conversations") === null) {
       db.addCollection("conversations")
     }
-    db.removeCollection("characters")
+    await db.removeCollection("characters")
     if (db.getCollection("characters") === null) {
       db.addCollection("characters")
     }
@@ -43,9 +44,10 @@ function databaseInit(db) {
     if(db.getCollection("characters").find().length == 0) getAllYamlAsJson().forEach(character => db.getCollection("characters").insert(character))
     if(db.getCollection("imagegen-workflows").find().length == 0) db.getCollection("imagegen-workflows").insert({name : "defaultFluxDev", workflow : comfyUIDefaultWorkflow})
     // myCollection.on('insert', function(input) { input.id = input.$loki; })
+    console.log(db.listCollections())
 }
 
-function removeCollections(db){
+async function removeCollections(db){
     const collectionNames = db.listCollections().map(col => col.name)
     collectionNames.forEach(name => {
       db.removeCollection(name)
