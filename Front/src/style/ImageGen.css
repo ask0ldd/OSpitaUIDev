@@ -35,38 +35,93 @@ main {
     row-gap: 12px;
   }
 
-  .workflowJSONContainer {
+  .workflowJSONnTitleContainer {
+    border: 1px solid #b4bddf;
     display: flex;
     width: 50%;
     max-width: 50%;
-    flex-shrink: 0;
-    background: linear-gradient(to bottom, #6a5081, #5b4d7d);
     color: #e0d8ee;
-    justify-content: left;
-    align-items: flex-start;
-    text-align: left;
-    padding: 1rem;
-    border-radius: 6px 0 0 6px;
-    flex: 1;
-    overflow-y: auto;
+    border-radius: 6px 0 0 0;
     font-size: 14px;
-    scrollbar-width: thin;
+    overflow: hidden;
+    flex-direction: column;
+
+    .leftTitle {
+      height: 2.5rem;
+      width: 100%;
+      color: rgba(132, 144, 179, 0.933);
+      font-size: 16px;
+      font-weight: 500;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(
+        to bottom,
+        #ffffff66,
+        var(--base-container-background-color)
+      );
+    }
+
+    .workflowJSONContainer {
+      display: flex;
+      width: 100%;
+      flex-shrink: 0;
+      background: linear-gradient(to bottom, #6a5081, #5b4d7d);
+      color: #e0d8ee;
+      justify-content: left;
+      align-items: flex-start;
+      text-align: left;
+      padding: 1rem;
+      flex: 1;
+      overflow-y: auto;
+      font-size: 14px;
+      scrollbar-width: thin;
+    }
   }
 
-  .workflowTableContainer {
-    width: 50%;
-    max-width: 50%;
-    flex-shrink: 0;
-    background: #e2e6f3;
+  .workflowTablenTitleContainer {
     border: 1px solid #b4bddf;
     border-left: none;
-    flex: 1;
-    overflow-y: auto;
-    border-radius: 0 6px 6px 0;
     display: flex;
+    width: 50%;
+    max-width: 50%;
+    color: #e0d8ee;
+    border-radius: 0 6px 0 0;
+    font-size: 14px;
+    overflow: hidden;
     flex-direction: column;
-    padding: 1rem;
-    scrollbar-width: thin;
+
+    .rightTitle {
+      height: 2.5rem;
+      width: 100%;
+      color: rgba(132, 144, 179, 0.933);
+      font-size: 16px;
+      font-weight: 500;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(
+        to bottom,
+        #ffffff66,
+        var(--base-container-background-color)
+      );
+    }
+
+    .workflowTableContainer {
+      background: #e2e6f3;
+      border-left: none;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      scrollbar-width: thin;
+      border-top: 1px solid #b4bddf;
+      height: 100%;
+
+      li {
+        color: #252525;
+      }
+    }
   }
 
   textarea.positivePrompt {
