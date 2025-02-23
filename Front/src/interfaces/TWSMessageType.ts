@@ -18,6 +18,11 @@ export interface BaseMessage {
   type: WSMessageType;
 }
 
+export interface ExecutionStartMessage extends BaseMessage {
+  type: 'execution_start';
+  data: { prompt_id : string };
+}
+
 export interface ExecutingMessage extends BaseMessage {
   type: 'executing';
   data: { node: string, display_node : string, prompt_id : string, };
@@ -44,4 +49,5 @@ export type TWSMessage =
   | ExecutingMessage
   | ProgressMessage
   | ExecutedMessage
+  | ExecutionStartMessage
   | ExecutionErrorMessage;

@@ -64,6 +64,7 @@ class ComfyUIService {
       switch (message.type) {
         case 'execution_start':
           console.log('Workflow execution started')
+          if(Array.isArray(this.#messagesCallbacks["execution_start"])) this.#messagesCallbacks["execution_start"].forEach(callback => callback(message))
           break
         case 'executing':
           if("data" in message && "node" in message.data) 
@@ -73,7 +74,7 @@ class ComfyUIService {
           if("data" in message && "value" in message.data && "max" in message.data)
           {
             const percentage = Math.round(message.data.value / message.data.max * 100)
-            this.#messagesCallbacks["progress"].forEach(callback => callback(message))
+            if(Array.isArray(this.#messagesCallbacks["progress"])) this.#messagesCallbacks["progress"].forEach(callback => callback(message))
             console.log('Progress:', percentage, '%')
           }
           break

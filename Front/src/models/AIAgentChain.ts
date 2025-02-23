@@ -76,7 +76,7 @@ export default class AIAgentChain{
         return this.#agents.length === 0
     }
 
-    static async process(query : string) : Promise<ICompletionResponse | void>{
+    static async process(query : string) : Promise<ICompletionResponse | void>{ // !!! should be able to pass a callback that would deal with the result
         try{
             this.progressTracker.reset()
             console.log("Starting chain process...")
@@ -91,7 +91,7 @@ export default class AIAgentChain{
         }
     }
 
-    // build the relationship between the agents part of the same chain
+    // build the relationship between the chained agents
     static buildAgentsLinks(progressTracker ?: ProgressTracker) : AIAgent | undefined{
         if(this.#agents.length == 0) return undefined
         this.#agents.forEach((agent, index)=>{
