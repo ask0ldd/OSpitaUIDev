@@ -5,7 +5,7 @@ import IPromptResponse from "../../interfaces/responses/IPromptResponse";
 import DefaultSlotButtonsGroup from "./DefaultSlotButtonsGroup";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-function ComfyPromptsSlot(){
+function ComfyPromptsSlot({memoizedSetModalStatus, selectedPromptNameRef} : IProps){
 
     const { imagePromptService } = useServices()
 
@@ -38,12 +38,12 @@ function ComfyPromptsSlot(){
     }
 
     function handleOpenEditPromptFormClick(promptName : string) : void {
-        // selectedPromptNameRef.current = promptName
-        // memoizedSetModalStatus({visibility : true, contentId : "formEditPrompt"})
+        selectedPromptNameRef.current = promptName
+        memoizedSetModalStatus({visibility : true, contentId : "formEditImageGenPrompt"})
     }
 
     function handleOpenNewPromptFormClick() : void {
-        // memoizedSetModalStatus({visibility : true, contentId : "formNewPrompt"})
+        memoizedSetModalStatus({visibility : true, contentId : "formNewImageGenPrompt"})
     }
     
     return(
@@ -78,3 +78,11 @@ function nVignettesToFillRow(nImages : number){
 }
 
 export default ComfyPromptsSlot
+
+interface IProps{
+    memoizedSetModalStatus: ({ visibility, contentId }: {
+        visibility: boolean;
+        contentId?: string;
+    }) => void
+    selectedPromptNameRef: React.MutableRefObject<string>
+}
