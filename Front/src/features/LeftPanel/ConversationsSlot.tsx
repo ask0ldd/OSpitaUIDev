@@ -6,14 +6,16 @@ import { ActionType, TAction } from "../../hooks/useActiveConversationReducer"
 import { useServices } from "../../hooks/useServices.ts"
 import DefaultSlotButtonsGroup from "./DefaultSlotButtonsGroup.tsx"
 import ConversationService from "../../services/API/ConversationService.ts"
+import { useOptionsContext } from "../../hooks/context/useOptionsContext.ts"
 
-export function ConversationsSlot({activeConversationId, setActiveConversationId, dispatch} : IProps){
+export function ConversationsSlot({dispatch} : IProps){
     
     const [conversationsListState, setConversationsListState] = useState<IConversationWithId[]>([]) 
     const [activePage, setActivePage] = useState<number>(0)
     const [targetForDeletionId, setTargetForDeletionId] = useState<number>(-1)
 
     const { webSearchService } = useServices()
+    const { setActiveConversationId, activeConversationId } = useOptionsContext()
 
     const hasBeenInit = useRef(false)
     useEffect(() => {
@@ -78,7 +80,10 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
     }
 
     async function handleSetActiveConversation(id : number) : Promise<void>{
+        // Abort any ongoing streaming when switching conversations
         ChatService.abortAgentLastRequest()
+        // setIsStreaming(false)
+        // setTextareaValue("")
         refreshConversations()
         const conversation = await ConversationService.getById(id)
         if(conversation == null) return
@@ -96,7 +101,7 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
     async function handleDeleteConversation(id : number) : Promise<void>{
         try{
             // if the conversation is the active one, abort the streaming process in case it is currently active
-            if(id == activeConversationId) {
+            if(id == activeConversationId.value) {
                 ChatService.abortAgentLastRequest()
                 webSearchService.abortLastRequest()
             }
@@ -158,7 +163,7 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
             </h3>
             <ul style={{minHeight : '118px'}}>
                 {getFilteredConversations().map((conversation, id) => 
-                    conversation.$loki != activeConversationId ?
+                    conversation.$loki != activeConversationId.value ?
                     <li title={conversation.lastModelUsed || "no model assigned yet"} onClick={() => handleSetActiveConversation(conversation.$loki)} key={"conversation" + activePage*3+id} role="button">
                         {conversation.history[0]?.question.substring(0, 45) || conversation.name}
                         <svg className="arrow" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg">
@@ -208,8 +213,8 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
 }
 
 interface IProps{
-    activeConversationId : number
-    setActiveConversationId : ({value} : {value : number}) => void
+    /*activeConversationId : number
+    setActiveConversationId : ({value} : {value : number}) => void*/
     dispatch : React.Dispatch<TAction>
     // activeConversationState : IConversation
 }
