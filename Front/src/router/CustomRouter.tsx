@@ -3,6 +3,7 @@ import Chat from "../pages/Chat";
 import Installation from "../pages/Installation";
 import { ServicesProvider } from "../context/ServicesContext";
 import ImageGen from "../pages/ImageGen";
+import { OptionsProvider } from "../context/OptionsContext";
 
 function CustomRouter() {
 
@@ -11,12 +12,14 @@ function CustomRouter() {
           v7_startTransition: true, v7_relativeSplatPath: true,
         }}>
           <ServicesProvider>
-            <Routes>
-              <Route path="/" element={<Installation />} />
-              <Route path="/chat" element={<Chat/>} />
-              <Route path="/imagegen" element={<ImageGen/>} />
-              <Route path="*" element={<Installation />} />
-            </Routes>
+            <OptionsProvider>
+              <Routes>
+                <Route path="/" element={<Installation />} />
+                <Route path="/chat" element={<Chat/>} />
+                <Route path="/imagegen" element={<ImageGen/>} />
+                <Route path="*" element={<Installation />} />
+              </Routes>
+            </OptionsProvider>
           </ServicesProvider>
         </BrowserRouter>
       );

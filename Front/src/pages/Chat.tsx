@@ -13,8 +13,6 @@ import LeftPanel from "../features/LeftPanel/LeftPanel";
 import RightPanel from "../features/RightPanel/RightPanel";
 import LoadedModelInfosBar from "../components/LoadedModelInfosBar";
 import useModalManager from "../hooks/useModalManager";
-import { useStreamingState } from "../hooks/useStreamingState";
-import { useWebSearchState } from "../hooks/useWebSearchState";
 import { FormPromptSettings } from "../features/Modal/FormPromptSettings";
 import { IInferenceStats } from "../interfaces/IConversation";
 import ErrorAlert from "../features/Modal/ErrorAlert";
@@ -39,6 +37,8 @@ import Snackbar from "../components/Snackbar";
 import { TRightMenuOptions } from "../interfaces/TRightMenuOptions";
 import FormCharacterSettings from "../features/Modal/FormCharacterSettings";
 import { isAbortError } from "../utils/typeguards";
+import { useStreamingState } from "../hooks/useStreamingState";
+import { useOptionsContext } from "../hooks/context/useOptionsContext";
 
 function Chat() {
 
@@ -48,6 +48,7 @@ function Chat() {
 
     const { getSelectedImages } = useImagesStore()
     const { webSearchService, imageService } = useServices();
+    const { activeConversationId } = useOptionsContext()
 
     const { AIAgentsList, triggerAIAgentsListRefresh } = useFetchAgentsList()
     
@@ -56,7 +57,7 @@ function Chat() {
     // Active Conversation Management
     // Manages the state and context of the current active conversation
     // Used for displaying chat history and handling conversation selection
-    const { activeConversationId, setActiveConversationId, dispatch, activeConversationStateRef } = useActiveConversationReducer({name : "First Conversation", history : [], lastAgentUsed  : "", lastModelUsed : ""});
+    const { dispatch, activeConversationStateRef } = useActiveConversationReducer({name : "First Conversation", history : [], lastAgentUsed  : "", lastModelUsed : ""});
 
     // Auto-scroll Reference
     // Ref used to enable auto-scrolling feature during response streaming
@@ -81,12 +82,13 @@ function Chat() {
     // Used by the modal to populate the prompt form
     const selectedPromptNameRef = useRef("")
 
-    const {isWebSearchActivated, isWebSearchActivatedRef, setWebSearchActivated} = useWebSearchState()
+    // !!!ddd const {isWebSearchActivated, isWebSearchActivatedRef, setWebSearchActivated} = useWebSearchState()
+    const {isWebSearchActivated, isWebSearchActivatedRef, setWebSearchActivated} =useOptionsContext()
     const [isFollowUpQuestionsClosed, setIsFollowUpQuestionsClosed] = useState<boolean>(false)
 
     const {activeMenuItem, setActiveMenuItem, activeMenuItemRef} = useRightMenu()
 
-    // Effect hook for handling conversation switches
+    // Handling conversation switches
     // Aborts ongoing streaming, resets UI state, and loads the selected conversation
     useEffect(() => {
         // Abort any ongoing streaming when switching conversations
@@ -355,11 +357,7 @@ function Chat() {
         {/* key={"lp-" + forceLeftPanelRefresh} */}
         <LeftPanel 
             forceLeftPanelRefresh={forceLeftPanelRefresh} 
-            isWebSearchActivated={isWebSearchActivated}
-            setWebSearchActivated={setWebSearchActivated}
             activeConversationStateRef={activeConversationStateRef} 
-            activeConversationId={activeConversationId.value} 
-            setActiveConversationId={setActiveConversationId} 
             dispatch={dispatch} 
             memoizedSetModalStatus={memoizedSetModalStatus} 
             selectedPromptNameRef={selectedPromptNameRef}/>
