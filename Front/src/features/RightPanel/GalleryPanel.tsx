@@ -77,8 +77,7 @@ function GalleryPanel({images, setHoveredImage} : IProps) {
                     </svg>
                     Selected images
                 </div>
-                <DefaultSlotButtonsGroup handlePageChange={handlePageChange}>
-                </DefaultSlotButtonsGroup>
+                <DefaultSlotButtonsGroup handlePageChange={handlePageChange}/>
             </div>
         </article>
     )

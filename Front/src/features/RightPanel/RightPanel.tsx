@@ -177,15 +177,28 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
 
     if(activeMenuItemRef.current == "chain") return(
         <aside className="rightDrawer">
-            <RightMenu handleMenuItemClick={handleMenuItemClick} isStreaming={isStreaming}/>
-            <ChainPanel activeMenuItemRef={activeMenuItemRef} AIAgentsList={AIAgentsList} currentChain={currentChain} setCurrentChain={setCurrentChain} isStreaming={isStreaming} memoizedSetModalStatus={memoizedSetModalStatus}/>
+            <RightMenu 
+                handleMenuItemClick={handleMenuItemClick} 
+                isStreaming={isStreaming}/>
+            <ChainPanel 
+                activeMenuItemRef={activeMenuItemRef} 
+                AIAgentsList={AIAgentsList} 
+                currentChain={currentChain} 
+                setCurrentChain={setCurrentChain} 
+                isStreaming={isStreaming} 
+                memoizedSetModalStatus={memoizedSetModalStatus}/>
         </aside>
     )
 
     if(activeMenuItemRef.current == "roleplay") return(
         <aside className="rightDrawer">
-            <RightMenu handleMenuItemClick={handleMenuItemClick} isStreaming={isStreaming}/>
-            <RoleplayPanel activeMenuItemRef={activeMenuItemRef} isStreaming={isStreaming} memoizedSetModalStatus={memoizedSetModalStatus}/>
+            <RightMenu 
+                handleMenuItemClick={handleMenuItemClick} 
+                isStreaming={isStreaming}/>
+            <RoleplayPanel 
+                activeMenuItemRef={activeMenuItemRef} 
+                isStreaming={isStreaming} 
+                memoizedSetModalStatus={memoizedSetModalStatus}/>
         </aside>
     )
 
