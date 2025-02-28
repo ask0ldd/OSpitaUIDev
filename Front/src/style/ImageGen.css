@@ -48,6 +48,7 @@ main {
 
     .leftTitle {
       height: 2.5rem;
+      flex-shrink: 0;
       width: 100%;
       color: rgba(132, 144, 179, 0.933);
       font-size: 16px;
@@ -93,6 +94,7 @@ main {
 
     .rightTitle {
       height: 2.5rem;
+      flex-shrink: 0;
       width: 100%;
       color: rgba(132, 144, 179, 0.933);
       font-size: 16px;

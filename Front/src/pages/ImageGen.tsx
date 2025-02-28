@@ -98,7 +98,7 @@ function ImageGen(){
             <ImageGenLeftPanel memoizedSetModalStatus={memoizedSetModalStatus} forceLeftPanelRefresh={forceLeftPanelRefresh} selectedPromptNameRef={selectedPromptNameRef}/>
             <main style={{height:'100vh', maxHeight:'100vh', overflow:'hidden'}}>
                 <div className='topIGContainer'>
-                    <div className='topBar' style={progress > 0 ? {border:'1px solid red'} : {}}>At the beginning of each session, loading the model can take a few minutes. Please be patient...</div>
+                    <div className='topBar' style={progress > 0 ? {border:'1px solid red'} : {}}>At the beginning of each session, loading the model can take 5 to 10 minutes. Please be patient...</div>
                 </div>
                 <div className='bodyTextBotBarContainer'>
                     <div id="workflowContainer" style={{
