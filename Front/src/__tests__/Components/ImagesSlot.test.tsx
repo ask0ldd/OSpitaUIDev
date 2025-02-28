@@ -21,10 +21,13 @@ import { IImage } from '../../interfaces/IImage';
 import { IConversationWithId } from '../../interfaces/IConversation';
 import ConversationService from '../../services/API/ConversationService';
 import mockConversationsList from '../../__mocks__/mockConversationsList';
+import { OptionsProvider } from '../../context/OptionsContext';
 
 const MockedRouter = () => (
     <MemoryRouter>
-      <Chat />
+        <OptionsProvider>
+            <Chat />
+        </OptionsProvider>
     </MemoryRouter>
 );
 

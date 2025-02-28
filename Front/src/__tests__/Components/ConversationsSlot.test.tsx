@@ -18,10 +18,13 @@ import { ChatService } from '../../services/ChatService';
 import { WebSearchService } from '../../services/WebSearchService';
 import AgentService from '../../services/API/AgentService';
 import ConversationService from '../../services/API/ConversationService';
+import { OptionsProvider } from '../../context/OptionsContext';
 
 const MockedRouter = () => (
     <MemoryRouter>
-      <Chat />
+        <OptionsProvider>
+            <Chat />
+        </OptionsProvider>
     </MemoryRouter>
 );
 
