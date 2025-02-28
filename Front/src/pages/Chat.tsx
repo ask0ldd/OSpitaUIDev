@@ -34,11 +34,10 @@ import { useScrollbar } from "../hooks/useScrollbar";
 import ConversationService from "../services/API/ConversationService";
 import ScrapedPage from "../models/ScrapedPage";
 import Snackbar from "../components/Snackbar";
-import { TRightMenuOptions } from "../interfaces/TRightMenuOptions";
 import FormCharacterSettings from "../features/Modal/FormCharacterSettings";
 import { isAbortError } from "../utils/typeguards";
-import { useStreamingState } from "../hooks/useStreamingState";
 import { useOptionsContext } from "../hooks/context/useOptionsContext";
+import { useStreamingContext } from "../hooks/context/useStreamingContext";
 
 function Chat() {
 
@@ -48,11 +47,10 @@ function Chat() {
 
     const { getSelectedImages } = useImagesStore()
     const { webSearchService, imageService } = useServices();
-    const { activeConversationId } = useOptionsContext()
+    const { activeConversationId, activeMode, setActiveMode } = useOptionsContext()
+    const { isStreaming, setIsStreaming, isStreamingRef } = useStreamingContext()
 
     const { AIAgentsList, triggerAIAgentsListRefresh } = useFetchAgentsList()
-    
-    const { isStreaming, isStreamingRef, setIsStreaming } = useStreamingState()
 
     // Active Conversation Management
     // Manages the state and context of the current active conversation
@@ -83,7 +81,7 @@ function Chat() {
     const selectedPromptNameRef = useRef("")
 
     // !!!ddd const {isWebSearchActivated, isWebSearchActivatedRef, setWebSearchActivated} = useWebSearchState()
-    const {isWebSearchActivated, isWebSearchActivatedRef, setWebSearchActivated} =useOptionsContext()
+    const {isWebSearchActivated, isWebSearchActivatedRef, setWebSearchActivated} = useOptionsContext()
     const [isFollowUpQuestionsClosed, setIsFollowUpQuestionsClosed] = useState<boolean>(false)
 
     const {activeMenuItem, setActiveMenuItem, activeMenuItemRef} = useRightMenu()
@@ -100,8 +98,7 @@ function Chat() {
 
     const lastRAGResultsRef = useRef<IRAGChunkResponse[] | null>(null)
 
-    
-    const [activeMode, setActiveMode] = useState<TRightMenuOptions | "web" | "rag">("agent")
+    // !!! move to context
     useEffect(() => {
         if(activeMenuItemRef.current == "agent" && !isWebSearchActivated) {
             setActiveMode("agent")
@@ -369,17 +366,15 @@ function Chat() {
             <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
                 {<ChatHistory 
                     activeConversationState={activeConversationStateRef.current} 
-                    isStreaming={isStreaming} 
                     setTextareaValue={setTextareaValue} 
                     regenerateLastAnswer={regenerateLastAnswer}
                     activeConversationId={activeConversationId.value}
-                    />}
+                />}
             </div>
 
             <div className="stickyBottomContainer">
                 <CustomTextarea/>
                 {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={isConversationsHistoryEmpty() ? activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1] : undefined}
-                    isStreaming={isStreaming} 
                     selfClose={setIsFollowUpQuestionsClosed} isFollowUpQuestionsClosed={isFollowUpQuestionsClosed}/>}
                 
                 <div className="sendStatsWebSearchContainer">
@@ -414,10 +409,19 @@ function Chat() {
             </div>
         </main>
 
-        <RightPanel memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList} isStreaming={isStreaming} activeMenuItemRef={activeMenuItemRef} setActiveMenuItem={setActiveMenuItem}/>
+        <RightPanel 
+            memoizedSetModalStatus={memoizedSetModalStatus} 
+            AIAgentsList={AIAgentsList} 
+            activeMenuItemRef={activeMenuItemRef} 
+            setActiveMenuItem={setActiveMenuItem}
+        />
         
         {modalVisibility && 
-            <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus} width= { modalContentId != "formUploadFile" ? "100%" : "560px"}>
+            <Modal 
+                modalVisibility={modalVisibility} 
+                memoizedSetModalStatus={memoizedSetModalStatus} 
+                width= { modalContentId != "formUploadFile" ? "100%" : "560px"}
+            >
                 {{
                     'formEditAgent' : <FormAgentSettings role={"edit"} memoizedSetModalStatus={memoizedSetModalStatus} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>,
                     'formEditCharacter' : <FormCharacterSettings memoizedSetModalStatus={memoizedSetModalStatus}/>,

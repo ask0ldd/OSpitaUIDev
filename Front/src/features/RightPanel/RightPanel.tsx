@@ -16,8 +16,9 @@ import AICharacter from '../../models/AICharacter.ts'
 import RoleplayPanel from './RoleplayPanel.tsx'
 import { TRightMenuOptions } from '../../interfaces/TRightMenuOptions.ts'
 import SettingsPanel from './SettingsPanel.tsx'
+import { useStreamingContext } from '../../hooks/context/useStreamingContext.ts'
 
-const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreaming, activeMenuItemRef, setActiveMenuItem} : IProps) => {
+const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, activeMenuItemRef, setActiveMenuItem} : IProps) => {
 
     // retrieved for the ollama api
     const modelsList = useFetchModelsList()
@@ -25,6 +26,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
     const { deselectAllImages } = useImagesStore()
 
     const { webSearchService, agentService } = useServices()
+    const { isStreaming } = useStreamingContext()
 
     // useEffect(() => {console.log("right panel render")}) 
 
@@ -333,7 +335,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
     )
 }, (prevProps, nextProps) => {
     // refresh AIAgentsList or isStreaming change
-    return (JSON.stringify(prevProps.AIAgentsList.map(agent => agent.asString())) === JSON.stringify(nextProps.AIAgentsList.map(agent => agent.asString())) && prevProps.isStreaming === nextProps.isStreaming && prevProps.activeMenuItemRef.current === nextProps.activeMenuItemRef.current)
+    return (JSON.stringify(prevProps.AIAgentsList.map(agent => agent.asString())) === JSON.stringify(nextProps.AIAgentsList.map(agent => agent.asString())) && prevProps.activeMenuItemRef.current === nextProps.activeMenuItemRef.current)
 })
 
 export default RightPanel
@@ -341,7 +343,6 @@ export default RightPanel
 interface IProps{
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
     AIAgentsList: AIAgent[]
-    isStreaming : boolean
     activeMenuItemRef : React.MutableRefObject<TRightMenuOptions>
     setActiveMenuItem : (menuItem: TRightMenuOptions) => void
 }
