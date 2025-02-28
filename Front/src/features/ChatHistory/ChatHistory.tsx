@@ -6,9 +6,8 @@ import { useEffect, useRef } from "react"
 import { IConversation } from "../../interfaces/IConversation"
 import React from "react"
 import { useServices } from "../../hooks/useServices.ts"
-import { useStreamingContext } from "../../hooks/context/useStreamingContext.ts"
 
-const ChatHistory = React.memo(({activeConversationState, setTextareaValue, regenerateLastAnswer} : IProps) => {
+const ChatHistory = React.memo(({activeConversationState, setTextareaValue, regenerateLastAnswer, isStreaming} : IProps) => {
 
   // useEffect(() => console.log("chat history render"))
 
@@ -18,7 +17,6 @@ const ChatHistory = React.memo(({activeConversationState, setTextareaValue, rege
   // const TTS = useTTS()
 
   const { ttsService } = useServices()
-  const { isStreaming } = useStreamingContext()
 
   // setting up an observer that keep scrolling to the bottom of the chat window
   // when some new streamed text is added to the conversation
@@ -136,7 +134,10 @@ const ChatHistory = React.memo(({activeConversationState, setTextareaValue, rege
   if(JSON.stringify(prevProps.activeConversationState.history) != JSON.stringify(nextProps.activeConversationState.history)) return false
   // refresh when isStreaming is equal to true and props changes
   if(prevProps.regenerateLastAnswer != nextProps.regenerateLastAnswer) return false
-  return true
+  // refresh when isStreaming is equal to true and props changes
+  if(prevProps.isStreaming == true) return false
+  // refresh when isStreaming changes
+  return prevProps.isStreaming === nextProps.isStreaming
 })
 
 export default ChatHistory
@@ -145,5 +146,5 @@ interface IProps{
   activeConversationState : IConversation
   setTextareaValue : (text : string) => void
   regenerateLastAnswer : () => void
-  activeConversationId : number
+  isStreaming : boolean
 }
