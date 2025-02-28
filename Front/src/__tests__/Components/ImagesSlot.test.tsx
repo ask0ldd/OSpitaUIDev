@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/react/dont-cleanup-after-each'
-import Chat from '../../pages/Chat';
 import { OllamaService } from '../../services/OllamaService';
 import { render, screen, waitFor, act, cleanup } from '@testing-library/react';
 import {describe, beforeEach, vi, expect, test, afterEach } from 'vitest';
@@ -18,18 +16,9 @@ import { userEvent } from '@testing-library/user-event';
 import { mockImagesList, mockImagesList2 } from '../../__mocks__/mockImagesList';
 import ImageService from '../../services/API/ImageService';
 import { IImage } from '../../interfaces/IImage';
-import { IConversationWithId } from '../../interfaces/IConversation';
 import ConversationService from '../../services/API/ConversationService';
 import mockConversationsList from '../../__mocks__/mockConversationsList';
-import { OptionsProvider } from '../../context/OptionsContext';
-
-const MockedRouter = () => (
-    <MemoryRouter>
-        <OptionsProvider>
-            <Chat />
-        </OptionsProvider>
-    </MemoryRouter>
-);
+import { MockedRouter } from '../../__mocks__/mockedRouter';
 
 const mockVoices = [
     { name: 'Voice 1', lang: 'en-US' },

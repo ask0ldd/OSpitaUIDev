@@ -1,7 +1,5 @@
-import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/react/dont-cleanup-after-each'
 import { userEvent } from '@testing-library/user-event'
-import Chat from '../../pages/Chat';
 import { OllamaService } from '../../services/OllamaService';
 import { render, screen, waitFor, act, cleanup } from '@testing-library/react';
 import {describe, beforeEach, vi, expect, test, afterEach } from 'vitest';
@@ -18,15 +16,7 @@ import mockLLMResponse from '../../__mocks__/mockLLMResponse';
 import AgentService from '../../services/API/AgentService';
 import mockConversationsList from '../../__mocks__/mockConversationsList';
 import ConversationService from '../../services/API/ConversationService';
-import { OptionsProvider } from '../../context/OptionsContext';
-
-const MockedRouter = () => (
-    <MemoryRouter>
-        <OptionsProvider>
-            <Chat />
-        </OptionsProvider>
-    </MemoryRouter>
-);
+import { MockedRouter } from '../../__mocks__/mockedRouter';
 
 const mockVoices = [
     { name: 'Voice 1', lang: 'en-US' },

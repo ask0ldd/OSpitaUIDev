@@ -368,7 +368,7 @@ function Chat() {
                     activeConversationState={activeConversationStateRef.current} 
                     setTextareaValue={setTextareaValue} 
                     regenerateLastAnswer={regenerateLastAnswer}
-                    activeConversationId={activeConversationId.value}
+                    isStreaming={isStreaming}
                 />}
             </div>
 
