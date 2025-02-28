@@ -15,10 +15,13 @@ import mockRunningModelsInfos from '../../__mocks__/mockRunningModelsInfos';
 import AgentService from '../../services/API/AgentService';
 import mockConversationsList from '../../__mocks__/mockConversationsList';
 import ConversationService from '../../services/API/ConversationService';
+import { OptionsProvider } from '../../context/OptionsContext';
 
 const MockedRouter = () => (
     <MemoryRouter>
-      <Chat />
+        <OptionsProvider>
+            <Chat />
+        </OptionsProvider>
     </MemoryRouter>
 );
 
