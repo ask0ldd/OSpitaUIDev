@@ -6,14 +6,16 @@ import { ChatService } from '../services/ChatService'
 import { IConversationElement } from '../interfaces/IConversation'
 import React from 'react'
 import { useMainTextAreaStore } from '../hooks/stores/useMainTextAreaStore'
+import { useStreamingContext } from '../hooks/context/useStreamingContext'
 
-const FollowUpQuestions = React.memo(({historyElement, isStreaming, selfClose, isFollowUpQuestionsClosed} : IProps) => {
+const FollowUpQuestions = React.memo(({historyElement, selfClose, isFollowUpQuestionsClosed} : IProps) => {
 
     // useEffect(() => {console.log("fup questions render")})
 
     const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([])
 
     const { textareaRef, setTextareaValue} = useMainTextAreaStore()
+    const { isStreaming } = useStreamingContext()
 
     function handleFollowUpQuestionClick(text : string){
         textareaRef.current?.focus()
@@ -94,15 +96,12 @@ ${question}`
             </div>
         </div>
     )
-}, (prevProps, nextProps) => {
-    return prevProps.isStreaming === nextProps.isStreaming;
 })
 
 export default FollowUpQuestions;
 
 interface IProps{
     historyElement : IConversationElement | undefined
-    isStreaming : boolean
     selfClose : (bool : boolean) => void
     isFollowUpQuestionsClosed : boolean
 }

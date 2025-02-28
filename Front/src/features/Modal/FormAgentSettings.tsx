@@ -294,15 +294,6 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
 
             </section> }
 
-            {/*<div onClick={() => setActiveOptionsSet(activeOptionsSet == 0 ? 1 : 0)} className="advancedBar" style={{gridArea: 'advancedBar'}}>
-                <div style={{display:'flex', textAlign:'left', width:'100%'}}>
-                    <span>Advanced Options</span>
-                    <svg style={{marginLeft:'auto'}} width="26px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 8L12.2278 14.7343C12.108 14.8739 11.892 14.8739 11.7722 14.7343L6 8" fill="none" stroke="#373737" strokeWidth="2" strokeLinecap="round"/>
-                    </svg>
-                </div>
-            </div>*/}
-
             { activeOptionsSet == 1 && <hr style={{gridArea : 'baseBar', marginTop:'2rem', marginBottom:'0.5rem', border:'none', borderBottom:'1px dashed #37373766'}}/>}
 
             { activeOptionsSet == 1 && <section style={{gridArea:'set2'}} className="settingsSet2">
@@ -320,18 +311,6 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                     value={formValues.topP}
                     onChange={(e) => setFormValues(formValues => ({...formValues, topP : e.target.value === '' ? 0 : parseFloat(e.target.value)}))}
                     />
-                    {/*<div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
-                        <div className="sliderbarContainer">
-                            <div className="sliderTrack">
-                                <div className="slider" style={{marginLeft:'180px'}}>
-                                    <img src={picots} alt="picots" className="sliderPicots"/>
-                                </div>
-                            </div>
-                            <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
-                                <span>Top-P</span><span>{formValues.topP}</span>
-                            </div>
-                        </div>
-                    </div>*/}
                     <FormSlider ariaLabel="labelTopP" label="Top-P" value={formValues.topP !== undefined ? formValues.topP : 0} onValueChange={(e) => setFormValues(formValues => ({...formValues, topP : e[0]}))} min={LLMParameters.topP.min} max={LLMParameters.topP.max} step={LLMParameters.topP.step} />
                 </div>
                 <div/>
@@ -345,18 +324,6 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                         step={LLMParameters.topK.step} min={LLMParameters.topK.min} max={LLMParameters.topK.max} 
                         onChange={(e) => setFormValues(formValues => ({...formValues, topK : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
-                    {/*<div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
-                        <div className="sliderbarContainer">
-                            <div className="sliderTrack">
-                                <div className="slider" style={{marginLeft:'80px'}}>
-                                    <img src={picots} alt="picots" className="sliderPicots"/>
-                                </div>
-                            </div>
-                            <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
-                                <span>Top-K</span><span>{formValues.topK}</span>
-                            </div>
-                        </div>
-                    </div>*/}
                     <FormSlider ariaLabel="labelTopK" label="Top-K" value={formValues.topK !== undefined ? formValues.topK : 40} onValueChange={(e) => setFormValues(formValues => ({...formValues, topK : e[0]}))} min={LLMParameters.topK.min} max={LLMParameters.topK.max} step={LLMParameters.topK.step} />
                 </div>
 
@@ -388,18 +355,6 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                         step={LLMParameters.seed.step} min={LLMParameters.seed.min} max={LLMParameters.seed.max}
                         onChange={(e) => setFormValues(formValues => ({...formValues, seed : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
-                    {/*<div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
-                        <div className="sliderbarContainer">
-                            <div className="sliderTrack">
-                                <div className="slider" style={{marginLeft:'0px'}}>
-                                    <img src={picots} alt="picots" className="sliderPicots"/>
-                                </div>
-                            </div>
-                            <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
-                                <span>Seed</span><span>{formValues.seed}</span>
-                            </div>
-                        </div>
-                    </div>*/}
                     <FormSlider ariaLabel="labelSeed" label="Seed" value={formValues.seed !== undefined ? formValues.seed : 0} onValueChange={(e) => setFormValues(formValues => ({...formValues, seed : e[0]}))} min={LLMParameters.seed.min} max={LLMParameters.seed.max} step={LLMParameters.seed.step} />
                 </div>
 
@@ -417,18 +372,6 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                     value={formValues.repeatLastN}
                     onChange={(e) => setFormValues(formValues => ({...formValues, repeatLastN : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
-                    {/*<div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
-                        <div className="sliderbarContainer">
-                            <div className="sliderTrack">
-                                <div className="slider" style={{marginLeft:'60px'}}>
-                                    <img src={picots} alt="picots" className="sliderPicots"/>
-                                </div>
-                            </div>
-                            <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
-                                <span>Repeat Last N</span><span>{formValues.repeatLastN}</span>
-                            </div>
-                        </div>
-                    </div>*/}
                     <FormSlider ariaLabel="labelRepeatLastN" label="Repeat Last N" value={formValues.repeatLastN !== undefined ? formValues.repeatLastN : 64} onValueChange={(e) => setFormValues(formValues => ({...formValues, repeatLastN : e[0]}))} min={LLMParameters.repeatLastN.min} max={LLMParameters.repeatLastN.max} step={LLMParameters.repeatLastN.step} />
                 </div>
                 <div/>
@@ -453,7 +396,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
             </div>
 
             <div style={{gridArea:'z', display:'flex', columnGap:'12px', marginTop:'1.5rem'}}>
-                { (role == "create" && activeOptionsSet == 0) && <button style={{width:'50%', marginLeft:'auto'}} onClick={handleSwitchOptionsSetClick} className="cancelButton purpleShadow">Next</button>}
+                { (role == "create" && activeOptionsSet == 0) && <button style={{width:'50%', marginLeft:'auto'}} onClick={handleSwitchOptionsSetClick} className="saveButton purpleShadow">Next</button>}
                 { (role == "create" && activeOptionsSet == 1) && <button style={{width:'50%', marginLeft:'auto'}} onClick={handleSaveClick} className="saveButton purpleShadow">Save</button>}
                 { role == "edit" && <button onClick={handleSwitchOptionsSetClick} className="cancelButton purpleShadow">More Settings</button>}
                 { role == "edit" && <button onClick={handleSaveClick} className="saveButton purpleShadow">Save</button>}
