@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { IRAGDocument } from "../../interfaces/IRAGDocument";
 import { useFetchDocsList } from "../../hooks/useFetchDocsList.ts";
 import { ChatService } from "../../services/ChatService";
@@ -10,7 +10,7 @@ import { useOptionsContext } from "../../hooks/context/useOptionsContext.ts";
 
 export default function DocumentsSlot({memoizedSetModalStatus, active, setActiveSlot} : IProps){
 
-    const {isWebSearchActivated, setWebSearchActivated} = useOptionsContext()
+    const {isWebSearchActivated, setWebSearchActivated, setActiveMode} = useOptionsContext()
 
     const units = ["B", "KB", "MB", "GB"]
 
@@ -26,10 +26,10 @@ export default function DocumentsSlot({memoizedSetModalStatus, active, setActive
     const filterInputRef = useRef<HTMLInputElement>(null)
     const searchInputRef = useRef<HTMLInputElement>(null)
 
-    function handleToolChange (tool: "search" | "filter") : void {
+    const handleToolChange = useCallback((tool: "search" | "filter") => {
         setActiveTool(tool);
         if (tool === "filter") setSearchTerm("");
-    };
+    }, []);
 
     useEffect(() => {
         if (activeTool === "search" && searchInputRef.current) {
@@ -62,6 +62,11 @@ export default function DocumentsSlot({memoizedSetModalStatus, active, setActive
             ChatService.removeDocFromRAGTargets(doc.filename) 
         }
         setDocsList(newDocs)
+        if(newDocs.find(doc => doc.selected)) {
+            setActiveMode("rag")
+        } else {
+            setActiveMode("agent")
+        }
         setWebSearchActivated(false)
     }
 
@@ -79,9 +84,12 @@ export default function DocumentsSlot({memoizedSetModalStatus, active, setActive
         setDocsList(docsListRef.current.filter(doc => !docsToDeleteNames.includes(doc.filename)))
     }
 
-    function handleOpenUploadFileFormClick() : void {
-        memoizedSetModalStatus({visibility : true, contentId : "formUploadFile"})
-    }
+    const handleOpenUploadFileFormClick = useCallback(() => {
+        memoizedSetModalStatus({
+            visibility : true, 
+            contentId : "formUploadFile"
+        })
+    }, [])
 
     useEffect(() => {
         if(active == false) {
@@ -100,7 +108,7 @@ export default function DocumentsSlot({memoizedSetModalStatus, active, setActive
       </article>        
     )
 
-    // filter the docs by the search term
+    // filter the docs by the search term !!! memo?
     const filteredDocuments = docsListRef.current
         .filter(doc => doc.filename.toLowerCase().includes(searchTerm.toLowerCase()))
         .slice(activePage * itemsPerPage, (activePage + 1) * itemsPerPage)

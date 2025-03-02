@@ -28,7 +28,7 @@ export function ConversationsSlot({dispatch} : IProps){
                     history: [],
                     lastAgentUsed: "",
                     lastModelUsed: "",
-                });
+                })
                 conversations = await ConversationService.getAll()
             }
             if(conversations?.length && conversations.length > 0) {
