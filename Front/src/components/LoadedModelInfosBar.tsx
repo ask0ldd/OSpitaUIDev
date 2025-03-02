@@ -78,6 +78,8 @@ const LoadedModelInfosBar = React.memo(({ hasStreamingEnded } : IProps) => {
 
 export default LoadedModelInfosBar
 
+LoadedModelInfosBar.displayName = "LoadedModelInfosBar"
+
 // hover % allocation bar
 
 interface IRunningModelInfos{
