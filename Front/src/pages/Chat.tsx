@@ -25,7 +25,7 @@ import AIAgentChain from "../models/AIAgentChain";
 import AnswerFormatingService from "../services/AnswerFormatingService";
 import InferenceStatsFormatingService from "../services/InferenceStatsFormatingService";
 import { FormSelectChainAgent } from "../features/Modal/FormSelectChainAgent";
-import { useServices } from "../hooks/useServices";
+import { useServices } from "../hooks/context/useServices";
 import useRightMenu from "../hooks/useRightMenu";
 import { useImagesStore } from "../hooks/stores/useImagesStore";
 import { useMainTextAreaStore } from "../hooks/stores/useMainTextAreaStore";

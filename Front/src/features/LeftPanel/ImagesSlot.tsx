@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react"
 import { ChatService } from "../../services/ChatService";
 import ImagePreview from "./ImagePreview.tsx";
 import {useImagesStore } from "../../hooks/stores/useImagesStore.ts";
-import { useServices } from "../../hooks/useServices.ts";
+import { useServices } from "../../hooks/context/useServices.ts";
 import { useOptionsContext } from "../../hooks/context/useOptionsContext.ts";
 
 function ImagesSlot({active, setActiveSlot} : IProps){
