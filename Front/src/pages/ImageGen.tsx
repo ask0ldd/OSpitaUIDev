@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-irregular-whitespace */
-import { useState, useEffect, useRef } from 'react'
-import { ComfyUIBaseWorkflow } from '../constants/ComfyUIBaseWorkflow'
+import { useState, useEffect, useRef, useCallback } from 'react'
+/*import { ComfyUIBaseWorkflow } from '../constants/ComfyUIBaseWorkflow'
 import { basePreset } from '../features/CustomSelect/presets/basePreset'
-import Select, { IOption } from '../features/CustomSelect/Select'
+import Select, { IOption } from '../features/CustomSelect/Select'*/
 import ImageGenLeftPanel from '../features/LeftPanel/ImageGenLeftPanel'
 import ImageGenRightPanel from '../features/RightPanel/ImageGenRightPanel'
-import { useServices } from '../hooks/useServices'
+import { useServices } from '../hooks/context/useServices'
 import { TWSMessage, ExecutedMessage } from '../interfaces/TWSMessageType'
 import '../style/Chat.css'
+import '@xyflow/react/dist/style.css'
 import '../style/ImageGen.css'
 import ComfyUIWorkflowBuilder from '../utils/ComfyUIWorkflowBuilder'
 import IGeneratedImage from '../interfaces/IGeneratedImage'
@@ -18,6 +19,11 @@ import ErrorAlert from '../features/Modal/ErrorAlert'
 import { FormPromptSettings } from '../features/Modal/FormPromptSettings'
 import Modal from '../features/Modal/Modal'
 import useModalManager from '../hooks/useModalManager'
+import { ReactFlow, Background, BackgroundVariant, Controls, addEdge, Connection, Edge, useEdgesState, useNodesState, Node } from '@xyflow/react'
+import ResultNode from '../models/nodes/flow/ResultNode'
+import TextNode from '../models/nodes/flow/TextNode'
+import UpperCaseNode from '../models/nodes/flow/UpperCaseNode'
+import CheckpointLoaderNode from '../models/nodes/comfyFlow/CheckpointLoaderNode'
 
 
 function ImageGen(){
@@ -92,6 +98,24 @@ function ImageGen(){
         })
         console.log(img)*/
     }
+
+    const [nodes, setNodes, onNodesChange] = useNodesState<Node>(initNodes)
+    const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initEdges)
+
+    const onConnect = useCallback(
+      (connection : Connection) =>
+          setEdges(eds =>
+          addEdge<Edge>(connection, eds),
+          ),
+      [setEdges],
+    );
+
+    const nodeTypes = {
+        text : TextNode,
+        uppercase : UpperCaseNode,
+        result : ResultNode,
+        checkpointLoader : CheckpointLoaderNode,
+    }
     
     return(
         <div id="globalContainer" className="globalContainer">
@@ -107,24 +131,25 @@ function ImageGen(){
                         width: '100%',
                         flex: 1,
                         overflow: 'hidden',
+                        borderRadius : '6px',
+                        border: '1px solid #b4bddfaa',
                     }}>
-                        <div className='workflowJSONnTitleContainer'>
-                            <div className='leftTitle'>Active Workflow</div>
-                            <div className='workflowJSONContainer'>
-                                <pre>{JSON.stringify(ComfyUIBaseWorkflow, null, '  ')}</pre>
-                            </div>
-                        </div>
-                        <div className='workflowTablenTitleContainer'>
-                            <div className='rightTitle'>Customize Workflow (Coming Soon)</div>
-                            <div className='workflowTableContainer'>
-                                <Select 
-                                    options={['Coming Soon', ...extractProperties(ComfyUIBaseWorkflow)].splice(0, 10).map<IOption>(prop => ({label : prop, value : prop}))} 
-                                    id={'workflowSelect'} 
-                                    width={"100%"}
-                                    preset={{...basePreset.get(), selectBackgroundColor : '#fcfcfe'}}
-                                />
-                            </div>
-                        </div>
+                        <ReactFlow 
+                            nodes={nodes} 
+                            edges={edges}
+                            onNodesChange={onNodesChange}
+                            onEdgesChange={onEdgesChange}
+                            onConnect={onConnect}
+                            nodeTypes={nodeTypes}
+                            snapToGrid={true}
+                            defaultViewport={{ x: 0, y: 0, zoom: 1.5 }}
+                            fitView
+                            attributionPosition="bottom-left"
+                            style={{background:"#F9F9Fc", outline:'none'}}
+                        >
+                            <Background color="#333" variant={BackgroundVariant.Dots} />
+                            <Controls/>
+                        </ReactFlow>
                     </div>
                     <textarea ref={textareaRef} className='positivePrompt' style={{ flex: '0 0 auto'}} rows={5} onInput={(e) => setTextareaValue((e.target as HTMLTextAreaElement).value)} value={textareaValue}/>
                     <div className='progressSendContainer'>
@@ -181,4 +206,177 @@ const endsWithNumber = (text : string) => {
     return /\d$/.test(text)
 }
 
+export type TextNodeType = Node<{ text: string }, 'text'>;
+export type ResultNodeType = Node<{text: string}, 'result'>;
+export type UpperCaseNodeType = Node<{ text: string }, 'uppercase'>;
+export type CheckpointLoaderNodeType = Node<{ activeCheckpoint: string }, 'checkpointLoader'>;
+export type MyNodeType = TextNodeType | ResultNodeType | UpperCaseNodeType | CheckpointLoaderNodeType;
+
+const initNodes: MyNodeType[] = [
+    {
+      id: 'n1',
+      type: 'text',
+      data: {
+        text: 'hello',
+      },
+      position: { x: -100, y: -50 },
+    },
+    {
+      id: 'n2',
+      type: 'text',
+      data: {
+        text: 'world',
+      },
+      position: { x: 0, y: 100 },
+    },
+    {
+      id: 'n3',
+      type: 'uppercase',
+      data: { text: '' },
+      position: { x: 100, y: -100 },
+    },
+    {
+      id: 'n4',
+      type: 'result',
+      data: { text : ''},
+      position: { x: 300, y: -75 },
+    },
+    {
+        id: 'n5',
+        type: 'checkpointLoader',
+        data: { activeCheckpoint : ''},
+        position: { x: 300, y: 175 },
+    },
+]
+
+const initEdges : Edge[] = [
+    {
+        id : 'e1-3',
+        source : 'n1',
+        target : 'n3',
+    },
+    {
+        id : 'e3-4',
+        source : 'n3',
+        target : 'n4',
+    },
+    {
+        id : 'e2-4',
+        source : 'n2',
+        target : 'n4',
+    },
+]
+
 export default ImageGen
+
+/*
+const comfyUIDefaultWorkflow = {
+    "3": {
+      "inputs": {
+        "seed": 156680208700286,
+        "steps": 35,
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1,
+        "model": [
+          "4",
+          0
+        ],
+        "positive": [
+          "6",
+          0
+        ],
+        "negative": [
+          "7",
+          0
+        ],
+        "latent_image": [
+          "5",
+          0
+        ]
+      },
+      "class_type": "KSampler",
+      "_meta": {
+        "title": "KSampler"
+      }
+    },
+    "4": {
+      "inputs": {
+        "ckpt_name": "FLUX1\\flux1-dev-fp8.safetensors"
+      },
+      "class_type": "CheckpointLoaderSimple",
+      "_meta": {
+        "title": "Load Checkpoint"
+      }
+    },
+    "5": {
+      "inputs": {
+        "width": 512,
+        "height": 512,
+        "batch_size": 1
+      },
+      "class_type": "EmptyLatentImage",
+      "_meta": {
+        "title": "Empty Latent Image"
+      }
+    },
+    "6": {
+      "inputs": {
+        "text": "beautiful scenery nature glass bottle landscape, , purple galaxy bottle,",
+        "clip": [
+          "4",
+          1
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "CLIP Text Encode (Prompt)"
+      }
+    },
+    "7": {
+      "inputs": {
+        "text": "text, watermark",
+        "clip": [
+          "4",
+          1
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "CLIP Text Encode (Prompt)"
+      }
+    },
+    "8": {
+      "inputs": {
+        "samples": [
+          "3",
+          0
+        ],
+        "vae": [
+          "4",
+          2
+        ]
+      },
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE Decode"
+      }
+    },
+    "9": {
+      "inputs": {
+        "filename_prefix": "ComfyUI",
+        "images": [
+          "8",
+          0
+        ]
+      },
+      "class_type": "SaveImage",
+      "_meta": {
+        "title": "Save Image"
+      }
+    }
+  }
+
+  module.exports = comfyUIDefaultWorkflow
+*/
