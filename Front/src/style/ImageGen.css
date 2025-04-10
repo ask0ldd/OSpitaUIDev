@@ -172,9 +172,9 @@ main {
     font-size: 11px;
     justify-content: center;
     align-items: center;
-    border-bottom: 1px solid hsl(245, 20%, 52%);
+    border-bottom: 1px solid hsl(258, 45%, 45%);
     margin-bottom: 10px;
-    background-color: hsl(245, 20%, 52%);
+    background-color: hsl(258, 45%, 55%);
     font-weight: 500;
     padding: 1px 10px 0px 10px;
     border-radius: 4px 4px 0 0;
@@ -184,8 +184,8 @@ main {
   input {
     height: 25px;
     font-size: 12px;
-    background-color: hsl(0, 0%, 95%);
-    border-color: hsl(0, 0%, 92%);
+    background-color: #dee3ef66;
+    border-color: #dee3ef99;
     box-shadow: none;
     margin: 0 10px;
     padding: 0 5px;

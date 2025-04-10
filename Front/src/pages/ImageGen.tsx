@@ -24,6 +24,11 @@ import ResultNode from '../models/nodes/flow/ResultNode'
 import TextNode from '../models/nodes/flow/TextNode'
 import UpperCaseNode from '../models/nodes/flow/UpperCaseNode'
 import CheckpointLoaderNode from '../models/nodes/comfyFlow/CheckpointLoaderNode'
+import CLIPTextEncodeNode from '../models/nodes/comfyFlow/CLIPTextEncodeNode'
+import EmptyLatentImageNode from '../models/nodes/comfyFlow/EmptyLatentImageNode'
+import KSamplerNode from '../models/nodes/comfyFlow/KSamplerNode'
+import VAEDecodeNode from '../models/nodes/comfyFlow/VAEDecodeNode'
+import OutputNode from '../models/nodes/comfyFlow/OutputNode'
 
 
 function ImageGen(){
@@ -109,13 +114,6 @@ function ImageGen(){
           ),
       [setEdges],
     );
-
-    const nodeTypes = {
-        text : TextNode,
-        uppercase : UpperCaseNode,
-        result : ResultNode,
-        checkpointLoader : CheckpointLoaderNode,
-    }
     
     return(
         <div id="globalContainer" className="globalContainer">
@@ -145,7 +143,7 @@ function ImageGen(){
                             defaultViewport={{ x: 0, y: 0, zoom: 1.5 }}
                             fitView
                             attributionPosition="bottom-left"
-                            style={{background:"#F9F9Fc", outline:'none'}}
+                            style={{background:"#f1F3fa", outline:'none'}}
                         >
                             <Background color="#333" variant={BackgroundVariant.Dots} />
                             <Controls/>
@@ -206,177 +204,149 @@ const endsWithNumber = (text : string) => {
     return /\d$/.test(text)
 }
 
+const nodeTypes = {
+  text : TextNode,
+  uppercase : UpperCaseNode,
+  result : ResultNode,
+  checkpointLoader : CheckpointLoaderNode,
+  CLIPTextEncode : CLIPTextEncodeNode,
+  EmptyLatentImage : EmptyLatentImageNode,
+  KSampler : KSamplerNode,
+  VAEDecode : VAEDecodeNode,
+  Output : OutputNode,
+}
+
 export type TextNodeType = Node<{ text: string }, 'text'>;
 export type ResultNodeType = Node<{text: string}, 'result'>;
 export type UpperCaseNodeType = Node<{ text: string }, 'uppercase'>;
 export type CheckpointLoaderNodeType = Node<{ activeCheckpoint: string }, 'checkpointLoader'>;
-export type MyNodeType = TextNodeType | ResultNodeType | UpperCaseNodeType | CheckpointLoaderNodeType;
+export type CLIPTextEncodeNodeType = Node<{prompt: string}, 'CLIPTextEncode'>;
+export type EmptyLatentImageNodeType = Node<{width: number, height: number, batch_size: number}, 'EmptyLatentImage'>;
+export type KSamplerNodeType = Node<{id : string}, 'KSampler'>;
+export type VAEDecodeNodeType = Node<{id : string}, 'VAEDecode'>;
+export type OutputNodeType = Node<{id : string}, 'Output'>;
+export type MyNodeType = 
+  | TextNodeType 
+  | ResultNodeType 
+  | UpperCaseNodeType 
+  | CheckpointLoaderNodeType 
+  | CLIPTextEncodeNodeType 
+  | EmptyLatentImageNodeType 
+  | KSamplerNodeType
+  | VAEDecodeNodeType
+  | OutputNodeType;
+
+const dist = 250
 
 const initNodes: MyNodeType[] = [
     {
       id: 'n1',
-      type: 'text',
-      data: {
-        text: 'hello',
-      },
-      position: { x: -100, y: -50 },
+      type: 'checkpointLoader',
+      data: { activeCheckpoint : 'FLUX1\\flux1-dev-fp8.safetensors'},
+      position: { x: -2*dist, y: 0 },
     },
     {
       id: 'n2',
-      type: 'text',
-      data: {
-        text: 'world',
-      },
-      position: { x: 0, y: 100 },
+      type: 'CLIPTextEncode',
+      data: { prompt : 'Beautiful scenery'},
+      position : { x : -1*dist, y : 0}
+    },
+    {
+      id: 'n2-2',
+      type: 'CLIPTextEncode',
+      data: { prompt : 'Text, watermark'},
+      position : { x : -1*dist, y : 200}
     },
     {
       id: 'n3',
-      type: 'uppercase',
-      data: { text: '' },
-      position: { x: 100, y: -100 },
+      type: 'EmptyLatentImage',
+      data: { width : 512, height : 512, batch_size : 1},
+      position : { x : -1*dist, y : 400}
     },
     {
       id: 'n4',
-      type: 'result',
-      data: { text : ''},
-      position: { x: 300, y: -75 },
+      type : 'KSampler',
+      data : { id : ""},
+      position : { x:150, y:0},
     },
     {
-        id: 'n5',
-        type: 'checkpointLoader',
-        data: { activeCheckpoint : ''},
-        position: { x: 300, y: 175 },
+      id: 'n5',
+      type : 'VAEDecode',
+      data : { id : ""},
+      position : { x:dist+200, y:0},
+    },
+    {
+      id: 'n6',
+      type : 'Output',
+      data : { id : ""},
+      position : { x:dist+380, y:0},
     },
 ]
 
 const initEdges : Edge[] = [
     {
-        id : 'e1-3',
-        source : 'n1',
-        target : 'n3',
+      id:'e1-2',
+      source:'n1',
+      target:'n2',
+      sourceHandle: 'clip',
+      targetHandle: 'clip',
     },
     {
-        id : 'e3-4',
-        source : 'n3',
-        target : 'n4',
+      id:'e1-2-2',
+      source:'n1',
+      target:'n2-2',
+      sourceHandle: 'clip',
+      targetHandle: 'clip',
     },
     {
-        id : 'e2-4',
-        source : 'n2',
-        target : 'n4',
+      id:'e2-4',
+      source:'n2',
+      target:'n4',
+      sourceHandle: 'conditioning',
+      targetHandle: 'positive',
     },
+    {
+      id:'e2-2-4',
+      source:'n2-2',
+      target:'n4',
+      sourceHandle: 'conditioning',
+      targetHandle: 'negative',
+    },
+    {
+      id:'e3-4',
+      source:'n3',
+      target:'n4',
+      sourceHandle: 'latent',
+      targetHandle: 'latent_image',
+    },
+    {
+      id:'e4-5',
+      source:'n4',
+      target:'n5',
+      sourceHandle: 'latent',
+      targetHandle: 'samples',
+    },
+    {
+      id:'e1-4',
+      source:'n1',
+      target:'n4',
+      sourceHandle: 'model',
+      targetHandle: 'model',
+    },
+    {
+      id:'e1-5',
+      source:'n1',
+      target:'n5',
+      sourceHandle: 'vae',
+      targetHandle: 'vae',
+    },
+    {
+      id:'e5-6',
+      source:'n5',
+      target:'n6',
+      sourceHandle: 'image',
+      targetHandle: 'image',
+    }
 ]
 
 export default ImageGen
-
-/*
-const comfyUIDefaultWorkflow = {
-    "3": {
-      "inputs": {
-        "seed": 156680208700286,
-        "steps": 35,
-        "cfg": 1,
-        "sampler_name": "euler",
-        "scheduler": "simple",
-        "denoise": 1,
-        "model": [
-          "4",
-          0
-        ],
-        "positive": [
-          "6",
-          0
-        ],
-        "negative": [
-          "7",
-          0
-        ],
-        "latent_image": [
-          "5",
-          0
-        ]
-      },
-      "class_type": "KSampler",
-      "_meta": {
-        "title": "KSampler"
-      }
-    },
-    "4": {
-      "inputs": {
-        "ckpt_name": "FLUX1\\flux1-dev-fp8.safetensors"
-      },
-      "class_type": "CheckpointLoaderSimple",
-      "_meta": {
-        "title": "Load Checkpoint"
-      }
-    },
-    "5": {
-      "inputs": {
-        "width": 512,
-        "height": 512,
-        "batch_size": 1
-      },
-      "class_type": "EmptyLatentImage",
-      "_meta": {
-        "title": "Empty Latent Image"
-      }
-    },
-    "6": {
-      "inputs": {
-        "text": "beautiful scenery nature glass bottle landscape, , purple galaxy bottle,",
-        "clip": [
-          "4",
-          1
-        ]
-      },
-      "class_type": "CLIPTextEncode",
-      "_meta": {
-        "title": "CLIP Text Encode (Prompt)"
-      }
-    },
-    "7": {
-      "inputs": {
-        "text": "text, watermark",
-        "clip": [
-          "4",
-          1
-        ]
-      },
-      "class_type": "CLIPTextEncode",
-      "_meta": {
-        "title": "CLIP Text Encode (Prompt)"
-      }
-    },
-    "8": {
-      "inputs": {
-        "samples": [
-          "3",
-          0
-        ],
-        "vae": [
-          "4",
-          2
-        ]
-      },
-      "class_type": "VAEDecode",
-      "_meta": {
-        "title": "VAE Decode"
-      }
-    },
-    "9": {
-      "inputs": {
-        "filename_prefix": "ComfyUI",
-        "images": [
-          "8",
-          0
-        ]
-      },
-      "class_type": "SaveImage",
-      "_meta": {
-        "title": "Save Image"
-      }
-    }
-  }
-
-  module.exports = comfyUIDefaultWorkflow
-*/
