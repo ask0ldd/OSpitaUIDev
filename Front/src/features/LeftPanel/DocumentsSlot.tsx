@@ -7,10 +7,12 @@ import DocService from "../../services/API/DocService";
 import usePagination from "../../hooks/usePagination.ts";
 import DefaultSlotButtonsGroup from "./DefaultSlotButtonsGroup.tsx";
 import { useOptionsContext } from "../../hooks/context/useOptionsContext.ts";
+import { useServices } from "../../hooks/context/useServices.ts";
 
 export default function DocumentsSlot({memoizedSetModalStatus, active, setActiveSlot} : IProps){
 
     const {isWebSearchActivated, setWebSearchActivated, setActiveMode} = useOptionsContext()
+    const {chatService} = useServices()
 
     const units = ["B", "KB", "MB", "GB"]
 
@@ -56,10 +58,10 @@ export default function DocumentsSlot({memoizedSetModalStatus, active, setActive
         const doc = newDocs[targetFileIndex]
         doc.selected = !doc.selected
         if(doc.selected) { 
-            ChatService.setDocAsARAGTarget(doc.filename) 
+            chatService.setDocAsARAGTarget(doc.filename) 
         } 
         else { 
-            ChatService.removeDocFromRAGTargets(doc.filename) 
+            chatService.removeDocFromRAGTargets(doc.filename) 
         }
         setDocsList(newDocs)
         if(newDocs.find(doc => doc.selected)) {
@@ -93,7 +95,7 @@ export default function DocumentsSlot({memoizedSetModalStatus, active, setActive
 
     useEffect(() => {
         if(active == false) {
-            ChatService.clearRAGTargets()
+            chatService.clearRAGTargets()
             deselectAllDocs()
         }
     }, [active])

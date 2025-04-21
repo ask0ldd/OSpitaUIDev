@@ -14,7 +14,7 @@ export function ConversationsSlot({dispatch} : IProps){
     const [activePage, setActivePage] = useState<number>(0)
     const [targetForDeletionId, setTargetForDeletionId] = useState<number>(-1)
 
-    const { webSearchService } = useServices()
+    const { webSearchService, chatService } = useServices()
     const { setActiveConversationId, activeConversationId } = useOptionsContext()
 
     const hasBeenInit = useRef(false)
@@ -81,7 +81,7 @@ export function ConversationsSlot({dispatch} : IProps){
 
     async function handleSetActiveConversation(id : number) : Promise<void>{
         // Abort any ongoing streaming when switching conversations
-        ChatService.abortAgentLastRequest()
+        chatService.abortAgentLastRequest()
         // setIsStreaming(false)
         // setTextareaValue("")
         refreshConversations()
@@ -102,7 +102,7 @@ export function ConversationsSlot({dispatch} : IProps){
         try{
             // if the conversation is the active one, abort the streaming process in case it is currently active
             if(id == activeConversationId.value) {
-                ChatService.abortAgentLastRequest()
+                chatService.abortAgentLastRequest()
                 webSearchService.abortLastRequest()
             }
 

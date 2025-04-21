@@ -10,7 +10,7 @@ function ImagesSlot({active, setActiveSlot} : IProps){
 
   const {images, setImages, hoveredImage, selectedImagesIds, deselectAllImages, getSelectedImages, /*deleteSelectedImages, */toggleImageWithId, pushImage, setHoveredImage } = useImagesStore()
 
-  const {imageService} = useServices()
+  const {imageService, chatService} = useServices()
   const {isWebSearchActivated, setWebSearchActivated, setActiveMode} = useOptionsContext()
 
   const [isVisionModelActive, setIsVisionModelActive] = useState<boolean>(true)
@@ -63,7 +63,7 @@ function ImagesSlot({active, setActiveSlot} : IProps){
   }
 
   function handleImgClick(id : number){
-    if(ChatService.isAVisionModelActive() == false) {
+    if(chatService.isAVisionModelActive() == false) {
       setIsVisionModelActive(false)
       return deselectAllImages()
     }

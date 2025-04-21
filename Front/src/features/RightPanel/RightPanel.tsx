@@ -27,7 +27,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, activeMenu
     const { deselectAllImages } = useImagesStore()
     const { deselectAllDocs } = useFetchDocsList()
 
-    const { webSearchService, agentService } = useServices()
+    const { webSearchService, agentService, chatService } = useServices()
     const { isStreaming } = useStreamingContext()
 
     // useEffect(() => {console.log("right panel render")}) 
@@ -38,7 +38,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, activeMenu
     },
     [webSearchSummarization])
 
-    const currentAgent = useRef<AIAgent | AICharacter>(ChatService.getActiveAgent())
+    const currentAgent = useRef<AIAgent | AICharacter>(chatService.getActiveAgent())
     const [currentChain, setCurrentChain] = useState<{selectId : string, agentName : string}[]>([])
 
     const [formValues, setFormValues] = useState<IFormStructure>(agentToFormDatas(currentAgent.current))
@@ -55,7 +55,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, activeMenu
     }, [activeMenuItemRef.current])
 
     useEffect(() => {
-        currentAgent.current = ChatService.getActiveAgent()
+        currentAgent.current = chatService.getActiveAgent()
         setFormValues(agentToFormDatas(currentAgent.current))
     }, [AIAgentsList])
     
@@ -81,7 +81,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, activeMenu
         if(!isFormValid()) return // !!! should show error modal
 
         // retrieve all the parameters of the active agent as a string & update some of them with the form values
-        const newAgent = new AIAgent({...JSON.parse(ChatService.getActiveAgent().asString()),
+        const newAgent = new AIAgent({...JSON.parse(chatService.getActiveAgent().asString()),
             modelName : formValues.modelName,
             num_ctx : formValues.maxContextLength,
             num_predict : formValues.maxTokensPerReply,
@@ -94,7 +94,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, activeMenu
         agentService.updateByName(newAgent.getName(), newAgent)
         setIsFormTouched(false)
 
-        ChatService.setActiveAgent(newAgent)
+        chatService.setActiveAgent(newAgent)
         currentAgent.current = newAgent
 
         setShowSavingSuccessfulBtn(true)
@@ -108,8 +108,8 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, activeMenu
         if (!targetAgent) return
         const newAIAgent = new AIAgent({ ...targetAgent, modelName: targetAgent.model })
         currentAgent.current = newAIAgent
-        ChatService.setActiveAgent(newAIAgent)
-        const agent = ChatService.getActiveAgent()
+        chatService.setActiveAgent(newAIAgent)
+        const agent = chatService.getActiveAgent()
         const newFormValues : IFormStructure = {
             agentName: agent.getName(),
             modelName: agent.getModelName(),
@@ -215,7 +215,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, activeMenu
             </article>
             <article className='settingsFormContainer'>
                 <label id="label-agentName" style={{display:'flex'}}>
-                    <div className='circle' onClick={() => console.log(ChatService.getActiveAgent().getSystemPrompt())}></div>
+                    <div className='circle' onClick={() => console.log(chatService.getActiveAgent().getSystemPrompt())}></div>
                     Agent Powering the Chat
                 </label>
                 {!isStreaming ? <Select 
