@@ -26,7 +26,8 @@ function SettingsPanel(){
         setImages(imgs ?? [])
     }
 
-    useEffect(() => {
+    // !!! testing agent chain
+    /*useEffect(() => {
         if(firstLoad.current == false) return
 
         async function effect(){
@@ -37,16 +38,16 @@ function SettingsPanel(){
             const agentsChain = new AINodesChain({startNode : agentWriter, endNode : agentSummarizer})
             const result = agentsChain.process("heroic fantasy")
            
-            /*const semanticChunks = await DocProcessorService.semanticChunking(text, 0.7)
+            // const semanticChunks = await DocProcessorService.semanticChunking(text, 0.7)
 
-            console.log(JSON.stringify(semanticChunks))
-            console.log(semanticChunks.length)*/
+            // console.log(JSON.stringify(semanticChunks))
+            // console.log(semanticChunks.length)
         }
 
         effect()
 
         firstLoad.current = false
-    }, [])
+    }, [])*/
 
     return(
         <article className='comingSoonContainer'>
