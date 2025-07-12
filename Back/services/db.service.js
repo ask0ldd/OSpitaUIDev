@@ -6,7 +6,7 @@ const { getAllYamlAsJson } = require('../services/yaml.service.js')
 const comfyUIDefaultWorkflow = require('../constants/comfyUIDefaultWorkflow.js')
 
 async function databaseInit(db) {
-    // removeCollections(db)
+    removeCollections(db)
     if (db.getCollection("prompts") === null) {
       db.addCollection("prompts")
     }
