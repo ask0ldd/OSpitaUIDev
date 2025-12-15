@@ -552,77 +552,77 @@ export class AIModel{
         return this;
     }
 
-    setMinP(value: number): AIModel {
+    setMinP(value: number): typeof this {
         this.#min_p = value;
         return this;
     }
     
-    setNumKeep(value: number): AIModel {
+    setNumKeep(value: number): typeof this {
         this.#num_keep = value;
         return this;
     }
     
-    setTypicalP(value: number): AIModel {
+    setTypicalP(value: number): typeof this {
         this.#typical_p = value;
         return this;
     }
     
-    setPresencePenalty(value: number): AIModel {
+    setPresencePenalty(value: number): typeof this {
         this.#presence_penalty = value;
         return this;
     }
     
-    setFrequencyPenalty(value: number): AIModel {
+    setFrequencyPenalty(value: number): typeof this {
         this.#frequency_penalty = value;
         return this;
     }
     
-    setPenalizeNewline(value: boolean): AIModel {
+    setPenalizeNewline(value: boolean): typeof this {
         this.#penalize_newline = value;
         return this;
     }
     
-    setNuma(value: boolean): AIModel {
+    setNuma(value: boolean): typeof this {
         this.#numa = value;
         return this;
     }
     
-    setNumBatch(value: number): AIModel {
+    setNumBatch(value: number): typeof this {
         this.#num_batch = value;
         return this;
     }
     
-    setNumGpu(value: number): AIModel {
+    setNumGpu(value: number): typeof this {
         this.#num_gpu = value;
         return this;
     }
     
-    setMainGpu(value: number): AIModel {
+    setMainGpu(value: number): typeof this {
         this.#main_gpu = value;
         return this;
     }
     
-    setLowVram(value: boolean): AIModel {
+    setLowVram(value: boolean): typeof this {
         this.#low_vram = value;
         return this;
     }
     
-    setVocabOnly(value: boolean): AIModel {
+    setVocabOnly(value: boolean): typeof this {
         this.#vocab_only = value;
         return this;
     }
     
-    setUseMmap(value: boolean): AIModel {
+    setUseMmap(value: boolean): typeof this {
         this.#use_mmap = value;
         return this;
     }
     
-    setUseMlock(value: boolean): AIModel {
+    setUseMlock(value: boolean): typeof this {
         this.#use_mlock = value;
         return this;
     }
     
-    setNumThread(value: number): AIModel {
+    setNumThread(value: number): typeof this {
         this.#num_thread = value;
         return this;
     }   

@@ -130,7 +130,7 @@ export class AIAgent extends AIModel implements Observer<string> {
         return this.#targetFilesNames
     }
 
-    setName(name : string) : AIAgent {
+    setName(name : string) : typeof this {
         this.#name = name
         return this
     }
@@ -149,7 +149,7 @@ export class AIAgent extends AIModel implements Observer<string> {
         this.#favorite = favorite
     }
 
-    setTargetFilesNames(filesnames : string[]) : AIAgent{
+    setTargetFilesNames(filesnames : string[]) : typeof this{
         this.#targetFilesNames = filesnames
         return this
     }
