@@ -1,7 +1,8 @@
 import ICharacterSettings from "../../interfaces/ICharacterSettings"
 import ICharacterResponse from "../../interfaces/responses/ICharacterResponse"
+import ICharacterService from "./interfaces/ICharacterService"
 
-class CharacterService{
+class CharacterService implements ICharacterService{
 
     /**
      * Fetches the list of all characters from the backend.
