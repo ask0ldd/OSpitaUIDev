@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import IAgentResponse from "../../interfaces/responses/IAgentResponse";
 import { AIAgent } from "../../models/AIAgent";
+import IAgentService from "./interfaces/IAgentService";
 
-export default class AgentService{
+export default class AgentService implements IAgentService{
 
     /**
      * Saves a new AI agent to the backend.
