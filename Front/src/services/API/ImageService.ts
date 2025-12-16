@@ -1,7 +1,8 @@
 import IGeneratedImage from "../../interfaces/IGeneratedImage"
 import { IImage } from "../../interfaces/IImage"
+import { IImageService } from "./interfaces/IImageService"
 
-export default class ImageService{
+export default class ImageService implements IImageService{
 
     /**
      * Uploads an image using a FormData object.
