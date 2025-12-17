@@ -1,6 +1,7 @@
 import IPromptResponse from "../../interfaces/responses/IPromptResponse"
+import IPromptService from "./interfaces/IPromptService"
 
-export default class PromptService{
+export default class PromptService implements IPromptService{
 
     /**
      * Saves a new prompt to the backend.
