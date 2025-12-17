@@ -1,4 +1,4 @@
-import { ICompletionResponse } from "../responses/ICompletionResponse"
+import { ICompletionResponse } from "../responses/OllamaResponseTypes"
 
 interface IAIAgentPartialParams{
     id? : string
