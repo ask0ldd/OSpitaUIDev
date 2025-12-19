@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { IComfyWorkflow } from "../interfaces/IComfyWorkflow";
 import { TWSMessage, WSMessageType } from "../interfaces/TWSMessageType";
+import { IComfyUIService } from "./interfaces/IComfyUIService";
 
 /**
  * Service for interacting with the ComfyUI WebSocket API and HTTP endpoints.
  * Handles workflow execution, message callbacks, and image fetching.
  */
 /* eslint-disable no-unused-private-class-members */
-class ComfyUIService {
+class ComfyUIService implements IComfyUIService {
     readonly #name : string
     #serverAddress = "127.0.0.1:8188"
     #ws! : WebSocket
@@ -329,6 +330,6 @@ interface PromptInput {
     meta: Meta;
   }
   
-  interface HistoryObject {
+  export interface HistoryObject {
     [key: string]: PromptEntry;
   }
