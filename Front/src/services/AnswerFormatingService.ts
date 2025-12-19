@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-private-class-members */
 import { marked } from "marked"
+import { IAnswerFormattingService } from "./interfaces/IAnswerFormatingService"
 
 /**
  * Service for formatting answer strings.
@@ -7,7 +8,7 @@ import { marked } from "marked"
  * - Converts Markdown to HTML.
  * - Transforms code blocks and emojis to custom HTML/SVG.
  */
-class AnswerFormatingService{
+class AnswerFormatingService implements IAnswerFormattingService{
 
     /**
      * Formats an answer string.
