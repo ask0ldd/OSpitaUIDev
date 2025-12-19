@@ -8,15 +8,16 @@ import AICharacter from "../models/AICharacter";
 import ScrapedPage from "../models/ScrapedPage";
 import AnswerFormatingService from "./AnswerFormatingService";
 import InferenceStatsFormatingService from "./InferenceStatsFormatingService";
+import { IChatService } from "./interfaces/IChatService";
 
 /**
  * Service for managing chat interactions with AI agents and characters.
  * Handles question answering, follow-up generation, streaming responses, and RAG document targeting.
  */
-export class ChatService{
+export class ChatService implements IChatService{
 
-    private readonly answerFormatingService : AnswerFormatingService
-    private readonly inferenceStatsFormatingService :InferenceStatsFormatingService
+    readonly answerFormatingService : AnswerFormatingService
+    readonly inferenceStatsFormatingService :InferenceStatsFormatingService
 
     constructor(
       answerFormatingService : AnswerFormatingService, 
