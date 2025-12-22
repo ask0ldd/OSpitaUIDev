@@ -1,9 +1,10 @@
 import { pdfjs } from "react-pdf";
+import { IPDFService } from "./interfaces/IPDFService";
 
 /**
  * Service for extracting text from PDF files using pdfjs.
  */
-class PDFService {
+class PDFService implements IPDFService{
 
   /**
    * Initializes PDF.js worker options.
