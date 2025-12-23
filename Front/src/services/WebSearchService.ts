@@ -4,12 +4,13 @@ import IScrapedPage from "../interfaces/IScrapedPage";
 import { AIAgent } from "../models/AIAgent";
 import ScrapedPage from "../models/ScrapedPage";
 import AgentService from "./API/AgentService";
+import { IWebSearchService } from "./interfaces/IWebSearchService";
 
 /**
  * Service for performing web search operations, including scraping and summarizing related data.
  * Utilizes AI agents for query optimization and content summarization.
  */
-export class WebSearchService{
+export class WebSearchService implements IWebSearchService{
 
     #abortController : AbortController = new AbortController()
     #signal = this.#abortController.signal
